@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notas crédito - FacturaPro Col</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#e5eeff",
+                        "outline": "#757682",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "outline-variant": "#c5c5d3",
+                        "on-tertiary-container": "#f39461",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#e1e0ff",
+                        "inverse-primary": "#b6c4ff",
+                        "tertiary": "#4b1c00",
+                        "background": "#f8f9ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "on-tertiary-fixed": "#341100",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary-container": "#6e2c00",
+                        "on-primary-fixed-variant": "#264191",
+                        "surface-container-high": "#dce9ff",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "surface-tint": "#4059aa",
+                        "on-surface-variant": "#444651",
+                        "on-surface": "#0b1c30",
+                        "on-primary-container": "#90a8ff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-surface": "#213145",
+                        "primary": "#00236f",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dce1ff",
+                        "secondary-container": "#6063ee",
+                        "secondary": "#4648d4",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "on-secondary-fixed": "#07006c",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "margin-desktop": "40px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-sm min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-primary dark:bg-primary shadow-md flex flex-col p-md z-20">
+<div class="flex items-center gap-sm mb-xl">
+<img alt="Logo de la Empresa" class="w-10 h-10 rounded" data-alt="A minimalist logo for a FinTech company featuring a geometric blue and white design, emphasizing efficiency and modern financial management, clean and professional look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ61Ovy64L9ENzQhuPlxV5vIZyiE5ObaQuSKgOeWePdW-wopV0IadY3ZITGU3U7tXMLiMOqPriODv1Y1KRwM5I3pHKpA4Vj3dfXV2oDaDCKOGGsYqglDKABlxQEdz4tlSgQQUjEntdmzqnyWZ1x4wNiZqyqDDoiYLwS_TdJJfuzH07h3mF0e-r5_6pbDZNHX0lXQjEEfSJNnwRBW19RqHrlL3U6v7gxKkznauCwc_nra5O9ba8lGpzjw"/>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">FactuPyme Co</h1>
+<p class="font-body-sm text-body-sm text-on-primary-container">Gestión Profesional</p>
+</div>
+</div>
+<button class="bg-secondary text-on-secondary rounded-lg py-2 px-4 mb-xl font-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">add</span>
+            Nueva Factura
+        </button>
+<nav class="flex-1 flex flex-col gap-1 overflow-y-auto">
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">dashboard</span>
+<span class="font-body-md text-body-md">Inicio</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">description</span>
+<span class="font-body-md text-body-md">Facturas</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">group</span>
+<span class="font-body-md text-body-md">Clientes</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">inventory_2</span>
+<span class="font-body-md text-body-md">Productos y servicios</span>
+</a>
+<a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container rounded-lg font-semibold font-body-md text-body-md shadow-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">assignment_return</span>
+<span>Notas crédito</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">analytics</span>
+<span class="font-body-md text-body-md">Reportes</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">history</span>
+<span class="font-body-md text-body-md">Trazabilidad</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors rounded-lg group scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-primary-container">settings</span>
+<span class="font-body-md text-body-md">Configuración</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-64 mr-80 pt-16 min-h-screen bg-background relative">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface-container-lowest dark:bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-lg w-[calc(100%-16rem)] z-10 transition-all duration-200">
+<div class="flex items-center gap-lg w-1/2">
+<div class="font-title-lg text-title-lg font-semibold text-primary truncate">Sistema de Facturación</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-2 cursor-pointer hover:bg-surface-container-low p-1 rounded-lg transition-colors">
+<img alt="Perfil de usuario" class="w-8 h-8 rounded-full object-cover" data-alt="A professional headshot of a business user in a modern office setting, friendly expression, well-lit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNaNQS2J7Ov_JJkK2D21AGLD79KU5jfQe6OWyM--vS2EEjYO9gfk2gZHm6Lh38jNEXQRpLOQMBfDNBWKJ4DGec5tDXNUPFbYA-fKOWQHUSi59IH9sATMrrodpz3HgWSe8F40MDOjPhxHlrwmiMLWvkgpqIW_YqoPc_D6iXpnOcLkfU-3SfjXYfh-0mXsLIoZlzC0TuoYRx_W7LQteDNZSGEL8uYpAlUXZ17Y3Xp4zou2-upOXamRxkGg"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="p-lg max-w-[1280px] mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-1">Notas crédito</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Consulta y administra las correcciones asociadas a las facturas del prototipo.</p>
+</div>
+<button class="bg-primary text-on-primary rounded-lg py-2 px-4 font-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm flex items-center gap-2 h-[40px]">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Crear nota crédito
+                </button>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-4 gap-gutter mb-xl">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">assignment_return</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Total notas crédito</p>
+<p class="font-headline-md text-headline-md text-on-surface">18</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Creadas este período</p>
+<p class="font-headline-md text-headline-md text-on-surface">5</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">hourglass_empty</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">En revisión</p>
+<p class="font-headline-md text-headline-md text-on-surface">2</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-700">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Finalizadas</p>
+<p class="font-headline-md text-headline-md text-on-surface">11</p>
+</div>
+</div>
+</div>
+<!-- List Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 overflow-hidden flex flex-col">
+<!-- Toolbar -->
+<div class="p-lg border-b border-outline-variant/50 bg-surface-bright">
+<div class="flex items-center gap-md mb-md">
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-sm focus:border-primary focus:ring focus:ring-primary/10 transition-shadow" placeholder="Buscar por número de nota crédito, factura o cliente" type="text"/>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-on-surface hover:bg-surface-container-low transition-colors font-label-md">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filtros
+                        </button>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 bg-surface-container-high text-on-surface rounded-full font-label-sm border border-outline-variant/50 hover:bg-surface-dim transition-colors">Todas</button>
+<button class="px-3 py-1 bg-surface-container-lowest text-on-surface-variant rounded-full font-label-sm border border-outline-variant hover:bg-surface-container-low transition-colors">Finalizadas</button>
+<button class="px-3 py-1 bg-surface-container-lowest text-on-surface-variant rounded-full font-label-sm border border-outline-variant hover:bg-surface-container-low transition-colors">En revisión</button>
+<button class="px-3 py-1 bg-surface-container-lowest text-on-surface-variant rounded-full font-label-sm border border-outline-variant hover:bg-surface-container-low transition-colors">Borradores</button>
+</div>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/50 bg-surface-container-low/50">
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium">N.º nota crédito / Factura</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium">Cliente</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium">Fecha</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium">Motivo</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium text-right">Valor</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium">Estado</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-medium w-12"></th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low/30 transition-colors group">
+<td class="py-3 px-lg">
+<div class="font-medium text-primary">NC-00015</div>
+<div class="flex items-center text-xs text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[14px] mr-1 opacity-70">subdirectory_arrow_right</span>
+                                        FV-00156
+                                    </div>
+</td>
+<td class="py-3 px-lg">Comercializadora Andina SAS</td>
+<td class="py-3 px-lg text-on-surface-variant">20 Oct 2023</td>
+<td class="py-3 px-lg text-on-surface-variant text-truncate max-w-[150px]" title="Corrección de valor">Corrección de valor</td>
+<td class="py-3 px-lg text-right font-mono">$450.000</td>
+<td class="py-3 px-lg">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-800">
+                                        Finalizada
+                                    </span>
+</td>
+<td class="py-3 px-lg">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-highest transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low/30 transition-colors group bg-yellow-50/30">
+<td class="py-3 px-lg">
+<div class="font-medium text-primary">NC-00018</div>
+<div class="flex items-center text-xs text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[14px] mr-1 opacity-70">subdirectory_arrow_right</span>
+                                        FV-00142
+                                    </div>
+</td>
+<td class="py-3 px-lg">TechSolutions Colombia</td>
+<td class="py-3 px-lg text-on-surface-variant">22 Oct 2023</td>
+<td class="py-3 px-lg text-on-surface-variant text-truncate max-w-[150px]" title="Devolución simulada">Devolución simulada</td>
+<td class="py-3 px-lg text-right font-mono">$1.200.000</td>
+<td class="py-3 px-lg">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                        Borrador
+                                    </span>
+<div class="text-[10px] text-amber-600 flex items-center mt-1">
+<span class="material-symbols-outlined text-[12px] mr-0.5">warning</span> Info. pendiente
+                                    </div>
+</td>
+<td class="py-3 px-lg relative">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+<!-- Tooltip / Menu demo for Row 2 -->
+<div class="absolute right-8 top-8 bg-surface-container-lowest shadow-[0px_10px_25px_rgba(0,35,111,0.1)] border border-outline-variant/30 rounded-lg w-48 py-1 z-10 hidden">
+<button class="w-full text-left px-4 py-2 hover:bg-surface-container-low text-body-sm">Continuar edición</button>
+<button class="w-full text-left px-4 py-2 hover:bg-surface-container-low text-body-sm text-error">Eliminar borrador</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low/30 transition-colors group">
+<td class="py-3 px-lg">
+<div class="font-medium text-primary">NC-00014</div>
+<div class="flex items-center text-xs text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-[14px] mr-1 opacity-70">subdirectory_arrow_right</span>
+                                        FV-00150
+                                    </div>
+</td>
+<td class="py-3 px-lg">Inversiones Bolívar</td>
+<td class="py-3 px-lg text-on-surface-variant">15 Oct 2023</td>
+<td class="py-3 px-lg text-on-surface-variant text-truncate max-w-[150px]" title="Corrección de producto o servicio">Corrección de producto o...</td>
+<td class="py-3 px-lg text-right font-mono">$85.000</td>
+<td class="py-3 px-lg">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800">
+                                        En revisión
+                                    </span>
+</td>
+<td class="py-3 px-lg">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-highest transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-md border-t border-outline-variant/50 bg-surface-container-lowest flex items-center justify-between text-on-surface-variant font-label-sm">
+<div>Mostrando 1 - 3 de 18 notas crédito</div>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded hover:bg-surface-container-low disabled:opacity-50"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<span class="px-2">Página 1 de 6</span>
+<button class="p-1 rounded hover:bg-surface-container-low"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- NavigationDrawer (IA Assistant) -->
+<aside class="fixed right-0 top-16 h-[calc(100vh-64px)] w-80 bg-surface-container-low dark:bg-surface-container-low border-l border-outline-variant shadow-sm flex flex-col p-md gap-md z-20 transition-opacity duration-300">
+<div class="flex items-center gap-sm pb-md border-b border-outline-variant/50">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md font-bold text-secondary">Asistente de IA</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Ayuda Contextual DIAN</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto flex flex-col gap-md">
+<div class="bg-surface-container-lowest p-md rounded-lg shadow-sm border border-outline-variant/30 text-body-sm">
+<p class="mb-3">Puedo ayudarte a encontrar una nota crédito, revisar su relación con una factura o guiarte para crear una nueva corrección.</p>
+<div class="flex flex-col gap-2">
+<button class="text-left px-3 py-2 rounded bg-surface-bright border border-outline-variant/50 hover:border-secondary hover:text-secondary transition-colors font-label-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">add_circle</span> Crear nota crédito
+                    </button>
+<button class="text-left px-3 py-2 rounded bg-surface-bright border border-outline-variant/50 hover:border-secondary hover:text-secondary transition-colors font-label-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">search</span> Buscar por factura
+                    </button>
+<button class="text-left px-3 py-2 rounded bg-surface-bright border border-outline-variant/50 hover:border-secondary hover:text-secondary transition-colors font-label-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">lightbulb</span> Explicar una corrección
+                    </button>
+<button class="text-left px-3 py-2 rounded bg-surface-bright border border-outline-variant/50 hover:border-secondary hover:text-secondary transition-colors font-label-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">edit_document</span> Revisar borradores
+                    </button>
+</div>
+</div>
+<!-- Contextual Alert -->
+<div class="bg-yellow-50 p-md rounded-lg shadow-sm border border-yellow-200 text-body-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+<div class="flex gap-2 items-start mb-2">
+<span class="material-symbols-outlined text-amber-600 text-[20px]">warning</span>
+<p class="text-amber-900 font-medium">Atención requerida</p>
+</div>
+<p class="text-amber-800 mb-3">Encontré 2 notas crédito con información pendiente de revisión.</p>
+<button class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-3 py-1.5 rounded font-label-sm transition-colors border border-amber-300 w-full">
+                    Revisar documentos
+                </button>
+</div>
+</div>
+<!-- IA Tabs -->
+<div class="flex flex-col gap-1 pt-md border-t border-outline-variant/50">
+<button class="flex items-center gap-sm p-2 text-secondary font-bold font-label-sm bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">smart_toy</span> Consultas IA
+            </button>
+<button class="flex items-center gap-sm p-2 text-on-surface-variant hover:bg-surface-container-high font-label-sm rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span> Sugerencias Tributarias
+            </button>
+<button class="flex items-center gap-sm p-2 text-on-surface-variant hover:bg-surface-container-high font-label-sm rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">history_edu</span> Historial Asistente
+            </button>
+</div>
+</aside>
+</body></html>

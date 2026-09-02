@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recuperar Contraseña - FacturaPro Col</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c5c5d3",
+                        "on-surface-variant": "#444651",
+                        "on-secondary-fixed": "#07006c",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "tertiary-container": "#6e2c00",
+                        "surface-container-high": "#dce9ff",
+                        "surface-bright": "#f8f9ff",
+                        "error": "#ba1a1a",
+                        "secondary": "#4648d4",
+                        "surface-tint": "#4059aa",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container": "#e5eeff",
+                        "secondary-container": "#6063ee",
+                        "on-primary-container": "#90a8ff",
+                        "on-tertiary-container": "#f39461",
+                        "surface": "#f8f9ff",
+                        "background": "#f8f9ff",
+                        "inverse-primary": "#b6c4ff",
+                        "on-tertiary-fixed": "#341100",
+                        "tertiary": "#4b1c00",
+                        "on-primary-fixed-variant": "#264191",
+                        "surface-dim": "#cbdbf5",
+                        "primary": "#00236f",
+                        "primary-fixed": "#dce1ff",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "on-error-container": "#93000a",
+                        "outline": "#757682",
+                        "on-secondary-container": "#fffbff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#00164e",
+                        "surface-container-highest": "#d3e4fe",
+                        "inverse-surface": "#213145",
+                        "primary-container": "#1e3a8a",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-primary": "#ffffff",
+                        "on-background": "#0b1c30"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "xl": "32px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen font-body-md">
+<main class="flex min-h-screen w-full flex-col lg:flex-row overflow-hidden">
+<!-- Left Panel: Brand & Illustration -->
+<section class="hidden lg:flex lg:w-1/2 bg-primary-container text-on-primary relative flex-col justify-between p-margin-desktop overflow-hidden">
+<!-- Background Decorative Elements -->
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="w-full h-full bg-cover bg-center mix-blend-overlay" data-alt="Abstract 3d render of subtle padlocks and digital security data streams flowing in a dark blue space. High-end fintech branding, deep corporate blues, minimalist modern geometry. Soft professional lighting, clean corporate aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAML8PLJ60OcKSrNgBJcEasd20hlPEz0ncRwXWNM-vinCNkA6EhRPsF1_sZ3doKj4hxADkg2K7ja1VMs0i5HtcSkAC9K7dtmzqBtfvqFdqrF38e6KDZaFt94synNAAcwXbeohqM0e4rOGMBDdccQ-kUt1u1r-F_jSCnCNjnPfFS25MrhNEAg0LynZ68jJWc-MvHTBSVZOHVLFY5ZqT48Ar5EWqnS33SUxApTEF9BqPFrKjQpVyyFe-PGw')"></div>
+</div>
+<div class="absolute -top-32 -right-32 w-96 h-96 bg-primary rounded-full blur-3xl opacity-50 mix-blend-screen pointer-events-none"></div>
+<div class="absolute bottom-10 -left-20 w-80 h-80 bg-secondary rounded-full blur-3xl opacity-30 mix-blend-screen pointer-events-none"></div>
+<!-- Top Brand -->
+<div class="z-10 flex items-center gap-sm">
+<span class="material-symbols-outlined text-title-lg" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
+<span class="font-headline-md text-headline-md font-bold tracking-tight">FacturaPro Col</span>
+</div>
+<!-- Central Content -->
+<div class="z-10 max-w-lg mt-auto mb-auto">
+<h1 class="font-display-lg text-display-lg text-on-primary mb-lg">Sistema de Facturación Inteligente</h1>
+<p class="font-body-lg text-body-lg text-on-primary-container">Recupera el acceso a tu cuenta de forma segura. Protegemos tus datos fiscales y financieros con los más altos estándares de encriptación.</p>
+</div>
+<!-- Bottom Note -->
+<div class="z-10 mt-auto pt-xl border-t border-primary/30 flex justify-between items-center text-on-primary-container font-label-sm text-label-sm">
+<span>© 2024 FacturaPro Col. Todos los derechos reservados.</span>
+<div class="flex gap-md">
+<a class="hover:text-on-primary transition-colors" href="#">Privacidad</a>
+<a class="hover:text-on-primary transition-colors" href="#">Términos</a>
+</div>
+</div>
+</section>
+<!-- Right Panel: Password Recovery Form -->
+<section class="flex-1 flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface relative">
+<!-- Mobile Brand Header (Visible only on mobile) -->
+<div class="lg:hidden absolute top-0 left-0 w-full p-margin-mobile flex items-center gap-sm text-primary">
+<span class="material-symbols-outlined text-title-lg" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
+<span class="font-headline-md text-headline-lg-mobile font-bold">FacturaPro Col</span>
+</div>
+<!-- Form Card Container -->
+<div class="w-full max-w-md w-full bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 p-lg sm:p-xl relative z-10 transition-all duration-300 transform" id="recovery-form-container">
+<!-- Initial State -->
+<div class="flex flex-col gap-lg" id="initial-state">
+<div class="flex flex-col gap-xs text-center mb-sm">
+<div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mx-auto mb-sm text-primary">
+<span class="material-symbols-outlined text-headline-lg" style="font-variation-settings: 'FILL' 0;">lock_reset</span>
+</div>
+<h2 class="font-headline-md text-headline-md md:text-headline-lg font-bold text-on-surface">Recuperar contraseña</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Ingresa el correo electrónico asociado a tu cuenta.</p>
+</div>
+<form class="flex flex-col gap-md w-full" onsubmit="handleRecovery(event)">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface font-semibold" for="email">Correo Electrónico</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">mail</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-3 font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:ring focus:ring-primary/10 transition-all outline-none" id="email" name="email" placeholder="correo@empresa.com" required="" type="email"/>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary-fixed-variant text-on-primary font-label-md text-label-md py-3 px-4 rounded-lg shadow-sm hover:shadow-md transition-all active:scale-[0.98] mt-sm flex justify-center items-center gap-2" type="submit">
+                            Enviar instrucciones
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<div class="flex flex-col gap-sm items-center mt-sm">
+<a class="font-label-sm text-label-sm text-primary hover:text-primary-fixed-variant transition-colors flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                            ¿Recuerdas tu contraseña? Volver a iniciar sesión
+                        </a>
+</div>
+</div>
+<!-- Success State (Hidden by default) -->
+<div class="hidden flex-col gap-lg items-center text-center py-sm" id="success-state">
+<div class="w-16 h-16 bg-surface-container-highest rounded-full flex items-center justify-center mx-auto mb-sm text-secondary">
+<span class="material-symbols-outlined text-headline-lg" style="font-variation-settings: 'FILL' 1;">mark_email_read</span>
+</div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">✓ Revisa tu correo</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
+                        Si existe una cuenta asociada al correo ingresado, recibirás instrucciones para restablecer tu contraseña.
+                    </p>
+<button class="w-full bg-surface-container hover:bg-surface-variant text-on-surface font-label-md text-label-md py-3 px-4 rounded-lg transition-all active:scale-[0.98] mt-md border border-outline-variant/50" onclick="resetForm()">
+                        Volver al inicio de sesión
+                    </button>
+</div>
+</div>
+<!-- Bottom Content Context -->
+<div class="mt-xl max-w-md w-full flex flex-col gap-md text-center">
+<div class="bg-surface-container-low rounded-lg p-sm flex items-start gap-sm text-left border border-outline-variant/30">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] mt-0.5" style="font-variation-settings: 'FILL' 1;">security</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+<strong class="text-on-surface">Nota de seguridad:</strong> Por seguridad, nunca compartas contraseñas ni códigos de verificación con terceros, ni siquiera con personal de soporte.
+                    </p>
+</div>
+<div class="flex justify-between items-center px-sm">
+<a class="font-label-sm text-label-sm text-outline hover:text-primary transition-colors flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+                        ¿Necesitas ayuda?
+                    </a>
+</div>
+</div>
+<!-- Academic Footer -->
+<footer class="absolute bottom-lg w-full text-center px-margin-mobile">
+<p class="font-label-sm text-label-sm text-outline">Prototipo académico - Universidad Autónoma de Bucaramanga</p>
+</footer>
+</section>
+</main>
+<script>
+        function handleRecovery(event) {
+            event.preventDefault();
+            const initialState = document.getElementById('initial-state');
+            const successState = document.getElementById('success-state');
+            const container = document.getElementById('recovery-form-container');
+            
+            // Simple visual transition
+            container.style.opacity = '0.5';
+            container.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                initialState.classList.add('hidden');
+                initialState.classList.remove('flex');
+                
+                successState.classList.remove('hidden');
+                successState.classList.add('flex');
+                
+                container.style.opacity = '1';
+                container.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        function resetForm() {
+            const initialState = document.getElementById('initial-state');
+            const successState = document.getElementById('success-state');
+            const container = document.getElementById('recovery-form-container');
+            
+            container.style.opacity = '0.5';
+            container.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                successState.classList.add('hidden');
+                successState.classList.remove('flex');
+                
+                initialState.classList.remove('hidden');
+                initialState.classList.add('flex');
+                
+                document.getElementById('email').value = '';
+                
+                container.style.opacity = '1';
+                container.style.transform = 'scale(1)';
+            }, 300);
+        }
+    </script>
+</body></html>

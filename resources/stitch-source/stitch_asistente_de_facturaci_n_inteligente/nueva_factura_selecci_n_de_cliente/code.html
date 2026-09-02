@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nueva Factura - FactuPyme Co</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9ff",
+                        "on-surface-variant": "#444651",
+                        "on-surface": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "outline": "#757682",
+                        "secondary-container": "#6063ee",
+                        "on-primary-fixed": "#00164e",
+                        "background": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c5c5d3",
+                        "on-secondary-fixed": "#07006c",
+                        "inverse-surface": "#213145",
+                        "on-primary-fixed-variant": "#264191",
+                        "inverse-primary": "#b6c4ff",
+                        "on-secondary-container": "#fffbff",
+                        "surface-container-high": "#dce9ff",
+                        "secondary": "#4648d4",
+                        "primary-fixed": "#dce1ff",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary": "#4b1c00",
+                        "tertiary-container": "#6e2c00",
+                        "on-tertiary-fixed": "#341100",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-container": "#1e3a8a",
+                        "surface-container": "#e5eeff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-tertiary-container": "#f39461",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#00236f",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-container": "#90a8ff",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#4059aa",
+                        "secondary-fixed-dim": "#c0c1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "base": "4px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface-bright text-on-background h-full font-body-md overflow-hidden antialiased">
+<!-- Shared Component: SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 shadow-md bg-primary dark:bg-primary z-50">
+<div class="flex flex-col h-full p-md">
+<div class="mb-xl flex items-center gap-sm px-sm">
+<div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary">receipt_long</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary tracking-tight">FactuPyme Co</h1>
+<p class="font-label-sm text-label-sm text-primary-fixed-dim">Gestión Profesional</p>
+</div>
+</div>
+<button class="mb-lg w-full py-2.5 px-4 bg-secondary text-on-secondary rounded-lg font-label-md text-label-md shadow-sm hover:bg-secondary-container transition-colors flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                Nueva Factura
+            </button>
+<nav class="flex-1 flex flex-col gap-xs overflow-y-auto pr-1">
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">dashboard</span>
+                    Inicio
+                </a>
+<a class="flex items-center gap-md px-sm py-2.5 bg-secondary-container text-on-secondary-container rounded-lg font-semibold font-label-md text-label-md scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+                    Facturas
+                </a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">group</span>
+                    Clientes
+                </a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">inventory_2</span>
+                    Productos y servicios
+                </a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">assignment_return</span>
+                    Notas crédito
+                </a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">analytics</span>
+                    Reportes
+                </a>
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">history</span>
+                    Trazabilidad
+                </a>
+<div class="mt-auto pt-sm border-t border-primary-container/30">
+<a class="flex items-center gap-md px-sm py-2.5 rounded-lg text-primary-fixed-dim hover:text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors scale-95 duration-150 group font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+                        Configuración
+                    </a>
+</div>
+</nav>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="ml-64 flex flex-col h-screen overflow-hidden">
+<!-- Shared Component: TopAppBar -->
+<header class="h-16 flex-shrink-0 bg-surface-container-lowest dark:bg-surface-container-lowest flex items-center justify-between px-lg w-full z-40 relative shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-outline-variant">
+<div class="flex items-center">
+<!-- Removed top row text links per mobile rule, but keeping title for context -->
+<h2 class="font-title-lg text-title-lg font-semibold text-primary">Sistema de Facturación</h2>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="flex items-center gap-sm px-4 py-1.5 bg-secondary-container/10 text-secondary rounded-full font-label-md text-label-md hover:bg-secondary-container/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">smart_toy</span>
+                    Asistente IA
+                </button>
+<div class="w-8 h-8 rounded-full bg-primary-container/20 border border-primary-container flex items-center justify-center overflow-hidden shrink-0 ml-sm cursor-pointer">
+<span class="material-symbols-outlined text-primary text-[20px]">person</span>
+</div>
+</div>
+</header>
+<!-- Main Layout Area (Canvas + Drawer) -->
+<main class="flex-1 flex overflow-hidden bg-background">
+<!-- Center Canvas -->
+<div class="flex-1 overflow-y-auto flex flex-col h-full relative">
+<!-- Page Header Area -->
+<div class="px-lg py-md lg:py-lg bg-surface-container-lowest border-b border-outline-variant/50">
+<h1 class="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-on-surface mb-xs">Nueva factura</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-2xl">Crea un documento de facturación de forma guiada y valida la información antes de emitirlo.</p>
+</div>
+<!-- Stepper -->
+<div class="px-lg py-sm bg-surface-container-lowest border-b border-outline-variant/30 flex justify-center">
+<div class="flex items-center w-full max-w-3xl">
+<!-- Step 1: Active -->
+<div class="flex flex-col items-center flex-1 relative group">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md font-bold mb-sm z-10 ring-4 ring-primary/10">1</div>
+<span class="font-label-sm text-label-sm font-semibold text-primary">Cliente</span>
+<div class="absolute top-4 left-1/2 w-full h-[2px] bg-outline-variant -z-0"></div>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center flex-1 relative group">
+<div class="w-8 h-8 rounded-full bg-surface text-on-surface-variant border-2 border-outline-variant flex items-center justify-center font-label-md text-label-md mb-sm z-10 bg-surface-container-lowest">2</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Productos</span>
+<div class="absolute top-4 left-1/2 w-full h-[2px] bg-outline-variant -z-0"></div>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center flex-1 relative group">
+<div class="w-8 h-8 rounded-full bg-surface text-on-surface-variant border-2 border-outline-variant flex items-center justify-center font-label-md text-label-md mb-sm z-10 bg-surface-container-lowest">3</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Resumen</span>
+<div class="absolute top-4 left-1/2 w-full h-[2px] bg-outline-variant -z-0"></div>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center flex-1 relative group">
+<div class="w-8 h-8 rounded-full bg-surface text-on-surface-variant border-2 border-outline-variant flex items-center justify-center font-label-md text-label-md mb-sm z-10 bg-surface-container-lowest">4</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Validar</span>
+</div>
+</div>
+</div>
+<!-- Canvas Content Container -->
+<div class="flex-1 p-md lg:p-lg lg:px-[40px] flex flex-col gap-lg max-w-5xl mx-auto w-full">
+<!-- Search & Select Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 p-lg">
+<div class="flex flex-col sm:flex-row items-start sm:items-end gap-md justify-between mb-md">
+<div class="w-full max-w-md">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Buscar o seleccionar cliente</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 transition-shadow bg-white" placeholder="Buscar por NIT o Razón social..." type="text" value="Inversiones"/>
+</div>
+</div>
+<button class="flex items-center gap-xs px-4 py-2 border border-outline-variant text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors bg-white whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                Nuevo cliente
+                            </button>
+</div>
+<!-- Selected Client Card (Bento style) -->
+<div class="relative rounded-lg border border-primary/20 bg-surface-container-low/50 overflow-hidden">
+<!-- Top accent line -->
+<div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+<div class="p-md flex flex-col lg:flex-row justify-between gap-md">
+<!-- Client Header Info -->
+<div class="flex items-start gap-md">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">corporate_fare</span>
+</div>
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<h3 class="font-title-lg text-title-lg font-semibold text-on-surface">Inversiones Bogotá SAS</h3>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-label-sm text-label-sm whitespace-nowrap border border-green-200">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                Datos completos
+                                            </span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm mb-1">
+<span class="font-semibold">NIT:</span> 900.123.456-7
+                                            <span class="text-outline-variant mx-1">•</span>
+<span>Persona Jurídica</span>
+</div>
+</div>
+</div>
+<!-- Client Actions -->
+<div class="flex gap-sm self-start">
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary-container/10 rounded transition-colors" title="Editar cliente">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded transition-colors" title="Cambiar cliente">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+<!-- Client Details Grid -->
+<div class="border-t border-outline-variant/30 bg-surface-container-lowest p-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Correo electrónico</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate block" title="contacto@inversionesbogota.co">contacto@inversionesbogota.co</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Teléfono</span>
+<span class="font-body-sm text-body-sm text-on-surface">601 2345678</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Dirección</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate block" title="Calle 100 #15-32">Calle 100 #15-32</span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Ciudad</span>
+<span class="font-body-sm text-body-sm text-on-surface">Bogotá D.C.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Document Data Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30 p-lg">
+<h3 class="font-title-lg text-title-lg font-semibold text-on-surface mb-md">Datos del documento</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Col 1 -->
+<div class="flex flex-col gap-sm">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Número de Factura</label>
+<div class="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface font-mono flex items-center justify-between">
+<span>FAC-2023-0001</span>
+<span class="material-symbols-outlined text-outline text-[18px]">lock</span>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Fecha de Emisión</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[18px]">calendar_today</span>
+</div>
+<input class="block w-full pl-9 pr-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none cursor-default" readonly="" type="text" value="24 Oct 2023 (Hoy)"/>
+</div>
+</div>
+</div>
+<!-- Col 2 -->
+<div class="flex flex-col gap-sm">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Estado</label>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-label-sm text-label-sm border border-amber-200 w-fit mt-1">
+<span class="material-symbols-outlined text-[14px]">edit_document</span>
+                                        Borrador
+                                    </span>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Moneda</label>
+<select class="block w-full pl-3 pr-8 py-2 border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 transition-shadow bg-white appearance-none">
+<option>COP - Peso Colombiano</option>
+<option>USD - Dólar Estadounidense</option>
+</select>
+</div>
+</div>
+<!-- Col 3 -->
+<div class="md:col-span-1 h-full">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Observaciones (Opcional)</label>
+<textarea class="block w-full h-[calc(100%-24px)] min-h-[80px] p-3 border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/10 transition-shadow bg-white resize-none" placeholder="Notas adicionales para la factura..."></textarea>
+</div>
+</div>
+</section>
+<!-- Bottom spacing for footer -->
+<div class="h-24 shrink-0"></div>
+</div>
+</div>
+<!-- Shared Component: NavigationDrawer (IA Assistant Panel) -->
+<aside class="flex-shrink-0 w-80 bg-surface-container-low dark:bg-surface-container-low border-l border-outline-variant shadow-sm z-30 hidden lg:flex flex-col h-full right-0 top-0 transition-opacity duration-300">
+<!-- Drawer Header -->
+<div class="p-md border-b border-outline-variant/50 flex items-center gap-sm bg-surface-container-lowest">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center shrink-0 shadow-sm relative">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div>
+<h2 class="font-label-md text-label-md font-bold text-secondary">Asistente de IA</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Ayuda Contextual DIAN</p>
+</div>
+</div>
+<!-- Drawer Content -->
+<div class="flex-1 overflow-y-auto p-md flex flex-col gap-md">
+<!-- IA Message Bubble -->
+<div class="bg-white rounded-2xl rounded-tl-sm p-4 shadow-sm border border-secondary/10 relative">
+<div class="absolute -left-2 top-0 text-white w-4 h-4">
+<svg class="fill-current drop-shadow-sm" viewbox="0 0 10 10"><path d="M10 0H0L10 10V0Z"></path></svg>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                            ¡Hola! Veo que estás creando una factura. Puedo ayudarte a seleccionar el cliente, revisar datos faltantes y explicarte qué información necesitas antes de continuar al paso de productos.
+                        </p>
+</div>
+<!-- Quick Actions Label -->
+<span class="font-label-sm text-label-sm text-on-surface-variant px-1 mt-2">Acciones sugeridas</span>
+<!-- Quick Actions Buttons -->
+<div class="flex flex-col gap-sm">
+<button class="flex items-center justify-start gap-sm p-3 w-full text-left bg-white border border-outline-variant/40 rounded-xl hover:bg-surface-container-high hover:border-secondary/30 hover:text-secondary transition-all font-body-sm text-body-sm text-on-surface group shadow-sm">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary text-[20px]">search</span>
+                            Buscar cliente
+                        </button>
+<button class="flex items-center justify-start gap-sm p-3 w-full text-left bg-white border border-outline-variant/40 rounded-xl hover:bg-surface-container-high hover:border-secondary/30 hover:text-secondary transition-all font-body-sm text-body-sm text-on-surface group shadow-sm">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary text-[20px]">person_add</span>
+                            Crear nuevo cliente
+                        </button>
+<button class="flex items-center justify-start gap-sm p-3 w-full text-left bg-white border border-outline-variant/40 rounded-xl hover:bg-surface-container-high hover:border-secondary/30 hover:text-secondary transition-all font-body-sm text-body-sm text-on-surface group shadow-sm">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary text-[20px]">plagiarism</span>
+                            Revisar datos faltantes
+                        </button>
+<button class="flex items-center justify-start gap-sm p-3 w-full text-left bg-white border border-outline-variant/40 rounded-xl hover:bg-surface-container-high hover:border-secondary/30 hover:text-secondary transition-all font-body-sm text-body-sm text-on-surface group shadow-sm">
+<span class="material-symbols-outlined text-outline group-hover:text-secondary text-[20px]">school</span>
+                            Explicar campos
+                        </button>
+</div>
+<!-- IA Contextual Info Card -->
+<div class="mt-auto bg-surface-container border border-primary/10 rounded-lg p-3">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Para emisión electrónica (DIAN), asegúrate de que el NIT y el correo electrónico del cliente sean válidos.</p>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="p-3 bg-surface-container-lowest border-t border-outline-variant/50">
+<div class="relative">
+<input class="block w-full pl-3 pr-10 py-2.5 bg-surface border border-outline-variant/50 rounded-full font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-shadow" placeholder="Pregúntale a la IA..." type="text"/>
+<button class="absolute inset-y-0 right-1 flex items-center justify-center w-8 h-8 rounded-full text-secondary hover:bg-secondary/10 top-1/2 -translate-y-1/2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer Actions (Fixed at bottom of canvas area) -->
+<div class="h-20 bg-surface-container-lowest border-t border-outline-variant/50 px-lg flex items-center justify-between shadow-[0_-4px_12px_rgba(0,0,0,0.02)] fixed bottom-0 right-0 left-64 lg:pr-[320px] z-20">
+<button class="px-5 py-2.5 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg font-label-md text-label-md transition-colors">
+                Cancelar
+            </button>
+<div class="flex items-center gap-md">
+<button class="px-5 py-2.5 border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors bg-white">
+                    Guardar borrador
+                </button>
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-md hover:bg-primary-container transition-colors flex items-center gap-xs group">
+                    Siguiente
+                    <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

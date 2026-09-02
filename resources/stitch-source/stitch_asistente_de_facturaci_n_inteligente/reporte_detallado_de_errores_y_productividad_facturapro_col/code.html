@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reporte detallado de errores y productividad - FacturaE COL</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface": "#f8f9ff",
+                        "primary": "#00236f",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#444651",
+                        "error": "#ba1a1a",
+                        "surface-container": "#e5eeff",
+                        "secondary-container": "#6063ee",
+                        "secondary-fixed": "#e1e0ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-fixed": "#00164e",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-container": "#f39461",
+                        "primary-container": "#1e3a8a",
+                        "primary-fixed": "#dce1ff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#6e2c00",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#4059aa",
+                        "tertiary-fixed": "#ffdbcb",
+                        "tertiary": "#4b1c00",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "outline-variant": "#c5c5d3",
+                        "background": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#07006c",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "outline": "#757682",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-surface": "#213145",
+                        "on-primary-container": "#90a8ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#fffbff",
+                        "on-primary-fixed-variant": "#264191",
+                        "inverse-primary": "#b6c4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary-fixed": "#341100",
+                        "on-surface": "#0b1c30",
+                        "on-background": "#0b1c30",
+                        "secondary": "#4648d4",
+                        "surface-container-low": "#eff4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .ai-gradient-text {
+            background: linear-gradient(to right, #00236f, #6063ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- App Container -->
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<nav class="bg-surface border-r border-surface-container-highest shadow-sm flex flex-col fixed left-0 top-0 h-full w-64 py-lg z-50">
+<!-- Header/Brand -->
+<div class="px-md mb-xl flex flex-col items-center">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-md shadow-sm">
+<span class="material-symbols-outlined text-headline-lg font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">FacturaE COL</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-xs">Gestión Contable</p>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto px-sm flex flex-col gap-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined">home</span>
+                    Inicio
+                </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined">description</span>
+                    Facturas
+                </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+                    Clientes
+                </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                    Productos y servicios
+                </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+                    Notas crédito
+                </a>
+<!-- Active Item -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-surface-container-highest text-primary font-bold border-r-4 border-primary transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+                    Reportes
+                </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150" href="#">
+<span class="material-symbols-outlined">timeline</span>
+                    Trazabilidad
+                </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-highest transition-colors scale-95 active:duration-150 mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Configuración
+                </a>
+</div>
+</nav>
+<!-- Main Content Area (Offset by SideNav) -->
+<main class="ml-64 flex-1 flex flex-col h-full overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest shadow-sm flex justify-between items-center px-lg py-md w-full z-40 sticky top-0">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-all flex items-center gap-xs font-label-md">
+<span class="material-symbols-outlined text-sm">arrow_back</span> Volver a Reportes
+                     </button>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-64 transition-all" placeholder="Buscar en reportes..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<div class="flex-1 overflow-y-auto p-lg lg:p-margin-desktop bg-[#F8FAFC]">
+<div class="max-w-[1280px] mx-auto flex flex-col gap-xl">
+<!-- Page Header -->
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Errores y productividad</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">Analiza las incidencias detectadas durante la facturación y su impacto en el tiempo de operación y los reprocesos.</p>
+</div>
+<!-- Filters Section -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex flex-col gap-md">
+<div class="flex flex-wrap gap-md items-end">
+<div class="flex flex-col gap-xs flex-1 min-w-[200px]">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Período</label>
+<select class="bg-white border border-[#E2E8F0] rounded-lg px-md py-sm text-body-sm focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all">
+<option>Últimos 30 días</option>
+<option>Este mes</option>
+<option>Mes anterior</option>
+<option>Año en curso</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs flex-1 min-w-[200px]">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Tipo de error</label>
+<select class="bg-white border border-[#E2E8F0] rounded-lg px-md py-sm text-body-sm focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all">
+<option>Todos los tipos</option>
+<option>Información incompleta</option>
+<option>Impuesto sin configurar</option>
+<option>Cantidad inválida</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs flex-1 min-w-[200px]">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Estado del documento</label>
+<select class="bg-white border border-[#E2E8F0] rounded-lg px-md py-sm text-body-sm focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all">
+<option>Todos los estados</option>
+<option>Detectada</option>
+<option>En revisión</option>
+<option>Corregida</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs flex-1 min-w-[200px]">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Usuario</label>
+<select class="bg-white border border-[#E2E8F0] rounded-lg px-md py-sm text-body-sm focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all">
+<option>Todos los usuarios</option>
+<option>Admin Principal</option>
+<option>Auxiliar Contable</option>
+</select>
+</div>
+</div>
+<div class="flex flex-wrap gap-sm pt-sm border-t border-outline-variant/30">
+<button class="px-md py-xs rounded-full bg-primary-container text-on-primary font-label-sm shadow-sm">Todos</button>
+<button class="px-md py-xs rounded-full bg-surface-container border border-outline-variant text-on-surface-variant font-label-sm hover:bg-surface-container-high transition-colors">Errores</button>
+<button class="px-md py-xs rounded-full bg-surface-container border border-outline-variant text-on-surface-variant font-label-sm hover:bg-surface-container-high transition-colors">Advertencias</button>
+<button class="px-md py-xs rounded-full bg-surface-container border border-outline-variant text-on-surface-variant font-label-sm hover:bg-surface-container-high transition-colors">Corregidos</button>
+<button class="px-md py-xs rounded-full bg-surface-container border border-outline-variant text-on-surface-variant font-label-sm hover:bg-surface-container-high transition-colors">Con reproceso</button>
+</div>
+</div>
+<!-- KPI Cards Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-transparent hover:border-primary/20 transition-all">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">report</span>
+</div>
+<span class="font-label-sm text-on-surface-variant leading-tight">Total de<br/>incidencias</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">42</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-transparent hover:border-error/20 transition-all">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[20px]">error</span>
+</div>
+<span class="font-label-sm text-on-surface-variant leading-tight">Errores<br/>críticos</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-error">7</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-transparent hover:border-tertiary-container/20 transition-all">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<span class="font-label-sm text-on-surface-variant leading-tight">Advertencias</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">35</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-transparent hover:border-[#059669]/20 transition-all">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-[#059669]/10 flex items-center justify-center text-[#059669]">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<span class="font-label-sm text-on-surface-variant leading-tight">Incidencias<br/>corregidas</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">38</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-transparent hover:border-secondary/20 transition-all">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">sync_problem</span>
+</div>
+<span class="font-label-sm text-on-surface-variant leading-tight">Facturas con<br/>reproceso</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">12</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-transparent hover:border-primary/20 transition-all">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">timer</span>
+</div>
+<span class="font-label-sm text-on-surface-variant leading-tight">Tiempo prom.<br/>corrección</span>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface mt-1">1m 38s</div>
+</div>
+</div>
+<!-- Main Dashboard Layout (Charts & AI) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+<!-- Left Column (Charts) -->
+<div class="col-span-1 lg:col-span-2 flex flex-col gap-xl">
+<!-- Charts Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Horizontal Bar Chart Mock -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex flex-col h-[300px]">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Errores y advertencias más frecuentes</h3>
+<div class="flex-1 flex flex-col justify-around">
+<!-- Bar 1 -->
+<div>
+<div class="flex justify-between mb-xs">
+<span class="font-label-sm text-on-surface-variant">Información incompleta</span>
+<span class="font-label-sm font-semibold">14</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div>
+<div class="flex justify-between mb-xs">
+<span class="font-label-sm text-on-surface-variant">Impuesto sin configurar</span>
+<span class="font-label-sm font-semibold">9</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div>
+<div class="flex justify-between mb-xs">
+<span class="font-label-sm text-on-surface-variant">Cantidad inválida</span>
+<span class="font-label-sm font-semibold">6</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 30%"></div>
+</div>
+</div>
+<!-- Bar 4 -->
+<div>
+<div class="flex justify-between mb-xs">
+<span class="font-label-sm text-on-surface-variant">NIT incorrecto</span>
+<span class="font-label-sm font-semibold">4</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary-fixed-dim h-2 rounded-full" style="width: 20%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Line Chart Mock -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex flex-col h-[300px] relative overflow-hidden">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md relative z-10">Incidencias por período</h3>
+<!-- Simulated Line Chart via SVG -->
+<div class="absolute inset-0 top-16 px-lg pb-lg">
+<svg height="100%" preserveaspectratio="none" viewbox="0 0 400 200" width="100%">
+<path d="M 0,150 Q 50,120 100,160 T 200,100 T 300,140 T 400,80" fill="none" stroke="#00236f" stroke-linecap="round" stroke-width="3"></path>
+<path d="M 0,150 Q 50,120 100,160 T 200,100 T 300,140 T 400,80 L 400,200 L 0,200 Z" fill="url(#grad1)" opacity="0.2"></path>
+<defs>
+<lineargradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#00236f;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#00236f;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+<!-- Data points -->
+<circle cx="0" cy="150" fill="#00236f" r="4"></circle>
+<circle cx="100" cy="160" fill="#00236f" r="4"></circle>
+<circle cx="200" cy="100" fill="#00236f" r="4"></circle>
+<circle cx="300" cy="140" fill="#00236f" r="4"></circle>
+<circle cx="400" cy="80" fill="#00236f" r="4"></circle>
+</svg>
+<!-- Axis labels -->
+<div class="absolute bottom-2 left-lg right-lg flex justify-between text-label-sm text-outline font-label-sm">
+<span>Sem 1</span><span>Sem 2</span><span>Sem 3</span><span>Sem 4</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Reprocesos y Tiempos Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Reprocesos -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Reprocesos</h3>
+<div class="flex items-center gap-lg">
+<!-- Donut Chart Mock -->
+<div class="relative w-24 h-24 shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4"></path>
+<path class="text-secondary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="28.5, 100" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="font-label-sm text-on-surface-variant">Con rep.</span>
+<span class="font-title-lg text-secondary leading-none">28%</span>
+</div>
+</div>
+<ul class="flex flex-col gap-sm w-full">
+<li class="flex justify-between items-center text-body-sm">
+<span class="flex items-center gap-xs text-on-surface-variant"><div class="w-2 h-2 rounded-full bg-secondary"></div> Facturas corregidas</span>
+<span class="font-semibold">12</span>
+</li>
+<li class="flex justify-between items-center text-body-sm">
+<span class="flex items-center gap-xs text-on-surface-variant"><div class="w-2 h-2 rounded-full bg-error/70"></div> Facturas anuladas</span>
+<span class="font-semibold">3</span>
+</li>
+<li class="flex justify-between items-center text-body-sm pt-xs border-t border-outline-variant/20">
+<span class="flex items-center gap-xs text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">receipt_long</span> Notas crédito asoc.</span>
+<span class="font-semibold">5</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Tiempos Operativos -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Tiempos operativos promedio</h3>
+<div class="flex flex-col gap-md">
+<!-- Time Bar 1 -->
+<div>
+<div class="flex justify-between text-label-sm mb-xs">
+<span class="text-on-surface-variant">Creación</span>
+<span class="font-mono">1m 40s</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5"><div class="bg-surface-tint h-1.5 rounded-full" style="width: 40%"></div></div>
+</div>
+<!-- Time Bar 2 -->
+<div>
+<div class="flex justify-between text-label-sm mb-xs">
+<span class="text-on-surface-variant">Validación (DIAN)</span>
+<span class="font-mono text-emerald-600">25s</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5"><div class="bg-emerald-500 h-1.5 rounded-full" style="width: 15%"></div></div>
+</div>
+<!-- Time Bar 3 -->
+<div>
+<div class="flex justify-between text-label-sm mb-xs">
+<span class="text-on-surface-variant">Corrección de incidencias</span>
+<span class="font-mono text-tertiary-container">1m 38s</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5"><div class="bg-tertiary-container h-1.5 rounded-full" style="width: 38%"></div></div>
+</div>
+<div class="mt-auto pt-sm flex justify-between items-center border-t border-outline-variant/20">
+<span class="font-label-md text-on-surface">Proceso total prom.</span>
+<span class="font-headline-md text-primary font-mono">3m 43s</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column (AI Assistant & Performance) -->
+<div class="col-span-1 flex flex-col gap-xl">
+<!-- AI Assistant Panel (Glassmorphism) -->
+<div class="glass-card rounded-xl p-lg relative overflow-hidden bg-gradient-to-br from-surface-container-highest/80 to-secondary-fixed/50">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+<div class="flex items-center gap-sm mb-md relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-[18px]">smart_toy</span>
+</div>
+<h3 class="font-title-lg text-title-lg ai-gradient-text">Asistente IA</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md relative z-10 leading-relaxed">
+                                    Puedo ayudarte a identificar los errores más frecuentes, resumir los reprocesos o interpretar los tiempos operativos registrados.
+                                </p>
+<!-- Contextual Alert -->
+<div class="bg-white/80 rounded-lg p-sm border-l-4 border-tertiary-container flex gap-sm mb-md relative z-10 items-start shadow-sm">
+<span class="material-symbols-outlined text-tertiary-container text-[18px] mt-0.5">lightbulb</span>
+<p class="font-label-sm text-label-sm text-on-surface">La incidencia más frecuente es <strong>información incompleta del cliente</strong> (14 registros).</p>
+</div>
+<div class="flex flex-col gap-xs relative z-10">
+<button class="text-left font-label-sm text-primary hover:bg-white/50 py-xs px-sm rounded transition-colors flex justify-between items-center group">
+                                        ¿Cuál es el error más frecuente?
+                                        <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</button>
+<button class="text-left font-label-sm text-primary hover:bg-white/50 py-xs px-sm rounded transition-colors flex justify-between items-center group">
+                                        Resumir reprocesos
+                                        <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</button>
+<button class="text-left font-label-sm text-primary hover:bg-white/50 py-xs px-sm rounded transition-colors flex justify-between items-center group">
+                                        Analizar tiempos
+                                        <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Performance Comparison Table -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border border-outline-variant/30">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Comparación de desempeño</h3>
+<p class="font-body-sm text-on-surface-variant mb-sm">Frente al período anterior</p>
+<div class="flex flex-col">
+<!-- Row 1 -->
+<div class="flex justify-between items-center py-sm border-b border-outline-variant/20">
+<span class="font-label-sm text-on-surface">Tiempo prom. emisión</span>
+<div class="flex items-center gap-xs text-[#059669] bg-[#059669]/10 px-2 py-0.5 rounded text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span> 12%
+                                        </div>
+</div>
+<!-- Row 2 -->
+<div class="flex justify-between items-center py-sm border-b border-outline-variant/20">
+<span class="font-label-sm text-on-surface">Errores por factura</span>
+<div class="flex items-center gap-xs text-on-surface-variant bg-surface-container px-2 py-0.5 rounded text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">horizontal_rule</span> Sin cambios
+                                        </div>
+</div>
+<!-- Row 3 -->
+<div class="flex justify-between items-center py-sm border-b border-outline-variant/20">
+<span class="font-label-sm text-on-surface">Reprocesos</span>
+<div class="flex items-center gap-xs text-error bg-error/10 px-2 py-0.5 rounded text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> 5%
+                                        </div>
+</div>
+<!-- Row 4 -->
+<div class="flex justify-between items-center py-sm">
+<span class="font-label-sm text-on-surface">Tiempo prom. corrección</span>
+<div class="flex items-center gap-xs text-[#059669] bg-[#059669]/10 px-2 py-0.5 rounded text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span> 8%
+                                        </div>
+</div>
+</div>
+</div>
+<!-- Export Actions -->
+<div class="flex flex-col gap-sm mt-auto">
+<button class="w-full py-2.5 bg-primary text-on-primary font-label-md rounded-lg shadow-sm hover:shadow-md hover:bg-primary-container transition-all flex justify-center items-center gap-sm">
+<span class="material-symbols-outlined text-[20px]">file_download</span> Exportar reporte
+                                </button>
+<button class="w-full py-2.5 bg-surface-container text-primary font-label-md rounded-lg border border-primary-fixed-dim hover:bg-surface-container-high transition-all flex justify-center items-center gap-sm">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span> Descargar PDF simulado
+                                </button>
+</div>
+</div>
+</div>
+<!-- Incidents Data Table -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] overflow-hidden flex flex-col mb-xl">
+<div class="p-md border-b border-outline-variant/30 flex justify-between items-center bg-surface-bright">
+<h3 class="font-title-lg text-title-lg text-on-surface">Tabla de incidencias</h3>
+<button class="text-primary font-label-sm flex items-center gap-xs hover:underline">Ver todas <span class="material-symbols-outlined text-[16px]">arrow_forward</span></button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#F8FAFC] border-b border-[#E2E8F0]">
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">Fecha</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">Documento</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">Cliente</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">Tipo de incidencia</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">Descripción</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">Estado</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium">T. Corrección</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-sm px-md font-medium text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-on-surface divide-y divide-[#E2E8F0]">
+<!-- Row 1 -->
+<tr class="hover:bg-[#F8FAFC] transition-colors group">
+<td class="py-sm px-md whitespace-nowrap text-on-surface-variant">24 Oct, 10:23</td>
+<td class="py-sm px-md font-mono text-primary">FV-00156</td>
+<td class="py-sm px-md font-medium">Comercializadora Andina</td>
+<td class="py-sm px-md"><span class="flex items-center gap-xs"><span class="material-symbols-outlined text-error text-[16px]">error</span> Impuesto sin configurar</span></td>
+<td class="py-sm px-md text-on-surface-variant truncate max-w-[200px]">SERV-003 no tenía impuesto</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#ecfdf5] text-[#065f46]">Corregida</span>
+</td>
+<td class="py-sm px-md font-mono text-on-surface-variant">1m 12s</td>
+<td class="py-sm px-md text-right">
+<button class="text-primary hover:bg-surface-container-highest p-1 rounded transition-colors" title="Ver trazabilidad">
+<span class="material-symbols-outlined text-[20px]">timeline</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-[#F8FAFC] transition-colors group">
+<td class="py-sm px-md whitespace-nowrap text-on-surface-variant">24 Oct, 09:45</td>
+<td class="py-sm px-md font-mono text-primary">FV-00155</td>
+<td class="py-sm px-md font-medium">Tech Solutions S.A.S</td>
+<td class="py-sm px-md"><span class="flex items-center gap-xs"><span class="material-symbols-outlined text-tertiary-container text-[16px]">warning</span> Información incompleta</span></td>
+<td class="py-sm px-md text-on-surface-variant truncate max-w-[200px]">Falta correo electrónico FE</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#fffbeb] text-[#92400e]">En revisión</span>
+</td>
+<td class="py-sm px-md font-mono text-on-surface-variant">-</td>
+<td class="py-sm px-md text-right">
+<button class="text-primary hover:bg-surface-container-highest p-1 rounded transition-colors" title="Ver trazabilidad">
+<span class="material-symbols-outlined text-[20px]">timeline</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-[#F8FAFC] transition-colors group">
+<td class="py-sm px-md whitespace-nowrap text-on-surface-variant">23 Oct, 16:30</td>
+<td class="py-sm px-md font-mono text-primary">FV-00152</td>
+<td class="py-sm px-md font-medium">Inversiones El Roble</td>
+<td class="py-sm px-md"><span class="flex items-center gap-xs"><span class="material-symbols-outlined text-error text-[16px]">error</span> NIT incorrecto</span></td>
+<td class="py-sm px-md text-on-surface-variant truncate max-w-[200px]">Dígito de verificación erróneo</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#fef2f2] text-[#991b1b]">Detectada</span>
+</td>
+<td class="py-sm px-md font-mono text-on-surface-variant">-</td>
+<td class="py-sm px-md text-right">
+<button class="text-primary hover:bg-surface-container-highest p-1 rounded transition-colors" title="Ver trazabilidad">
+<span class="material-symbols-outlined text-[20px]">timeline</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nuevo cliente - FacturaPro Col</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#4b1c00",
+                        "surface-bright": "#f8f9ff",
+                        "surface-tint": "#4059aa",
+                        "secondary-container": "#6063ee",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-container": "#f39461",
+                        "primary-container": "#1e3a8a",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "outline-variant": "#c5c5d3",
+                        "on-surface-variant": "#444651",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "background": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "inverse-primary": "#b6c4ff",
+                        "surface-container": "#e5eeff",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed": "#dce1ff",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#ffdbcb",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-fixed": "#07006c",
+                        "secondary": "#4648d4",
+                        "tertiary-container": "#6e2c00",
+                        "primary": "#00236f",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#fffbff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-primary-container": "#90a8ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "outline": "#757682",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed": "#341100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "md": "16px",
+                        "margin-desktop": "40px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface h-screen overflow-hidden flex font-body-md">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest flex flex-col py-lg px-md z-30 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
+<div class="mb-xl px-sm flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">FacturaPro Col</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Gestión Electrónica</p>
+</div>
+</div>
+<button class="mb-lg w-full bg-primary text-on-primary py-2 px-4 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-sm hover:shadow">
+<span class="material-symbols-outlined text-[20px]">add</span>
+            Nueva Factura
+        </button>
+<ul class="flex flex-col gap-1 flex-1 overflow-y-auto font-label-md text-label-md">
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+                    Inicio
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">description</span>
+                    Facturas
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary bg-surface-container-high scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[22px]">group</span>
+                    Clientes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">inventory_2</span>
+                    Productos y servicios
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">receipt_long</span>
+                    Notas crédito
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">bar_chart</span>
+                    Reportes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">history</span>
+                    Trazabilidad
+                </a>
+</li>
+<li class="mt-auto">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+                    Configuración
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col ml-64 mr-80 h-screen">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky bg-surface dark:bg-on-background shadow-sm dark:shadow-none flex justify-between items-center h-16 px-lg z-20">
+<div class="flex items-center bg-surface-container-low rounded-full px-4 py-2 w-96 border border-surface-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-outline mr-2 text-[20px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-md p-0 outline-none placeholder:text-outline-variant text-on-surface" placeholder="Buscar clientes, facturas, nit..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-sm cursor-pointer ring-2 ring-transparent hover:ring-primary transition-all">
+<img alt="Foto de perfil del administrador" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate administrator in a modern office setting, soft natural lighting, high quality, neutral background. The tone is trustworthy and efficient, aligned with a modern FinTech application light-mode aesthetic, utilizing deep navy and bright whites." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAb-7_7VhXjGGluy_AQlE7nPr2Y68jkG6hChYWasNxA3iIZ8oPPmrkwPDH5DaTYzNMuqj5Tm3VA97fg87i9hN9tY7v10eTvnL5hWHT7DvYIAuVn9cuUzTLM4SkGKjPpzCl2WbgKVxJCiJgBt2kRwaexhVB_ubCXxd8wDbzzWY-8RbF4DuZGw68B68SK7NmUujeB3mt1Wdfq83jXxTmUF6PD--p03gdX0iryLgyVNkmirNjEEaaqxOgPKA"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto p-lg pb-32">
+<!-- Header Section -->
+<div class="max-w-[1000px] mx-auto mb-lg">
+<a class="inline-flex items-center text-primary font-label-md text-label-md hover:underline mb-sm gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    Volver a clientes
+                </a>
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">Nuevo cliente</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 max-w-2xl">Registra la información necesaria del cliente para utilizarla posteriormente en el proceso de facturación.</p>
+</div>
+</div>
+</div>
+<!-- Form Layout -->
+<div class="max-w-[1000px] mx-auto grid grid-cols-12 gap-gutter">
+<!-- Left Column (Main Form) -->
+<div class="col-span-12 xl:col-span-8 flex flex-col gap-md">
+<!-- Tarjeta 1: Tipo de cliente -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] p-lg border border-surface-container-high">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Tipo de cliente</h3>
+<div class="flex gap-md">
+<label class="flex-1 border border-surface-variant rounded-lg p-md cursor-pointer hover:border-primary transition-colors flex items-center gap-3">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary" name="tipo_cliente" type="radio"/>
+<span class="font-body-md text-on-surface">Persona natural</span>
+</label>
+<label class="flex-1 border-2 border-primary bg-surface-container-low rounded-lg p-md cursor-pointer flex items-center gap-3">
+<input checked="" class="w-5 h-5 text-primary border-outline focus:ring-primary" name="tipo_cliente" type="radio"/>
+<span class="font-body-md text-on-surface font-medium">Persona jurídica</span>
+</label>
+</div>
+</div>
+<!-- Tarjeta 2: Info Identificación -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] p-lg border border-surface-container-high">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Información de identificación</h3>
+<div class="grid grid-cols-2 gap-md">
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Tipo de identificación <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface appearance-none focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+<option>NIT - Número de Identificación Tributaria</option>
+<option>Cédula de Ciudadanía</option>
+<option>Cédula de Extranjería</option>
+<option>Pasaporte</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Número de identificación o NIT <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none font-mono" type="text" value="900.123.456-7"/>
+</div>
+<div class="col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Razón social <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" type="text" value="Distribuciones Globales SAS"/>
+</div>
+<div class="col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Nombre comercial (Opcional)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-on-surface-variant" type="text" value="Global SAS"/>
+</div>
+</div>
+</div>
+<!-- Tarjeta 3: Contacto (Con Error) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] p-lg border border-error-container relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-2">
+                                Información de contacto
+                                <span class="material-symbols-outlined text-error text-[20px]" style="font-variation-settings: 'FILL' 1;">error</span>
+</h3>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Correo electrónico <span class="text-error">*</span></label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-error">mail</span>
+<input class="w-full bg-error-container/20 border border-error rounded-lg pl-10 pr-4 py-2.5 font-body-md text-on-surface focus:ring-2 focus:ring-error/20 outline-none" placeholder="ejemplo@empresa.com" type="email"/>
+</div>
+<p class="font-body-sm text-label-sm text-error mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                    Faltan datos necesarios
+                                </p>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Teléfono principal</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline-variant">phone</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" type="tel"/>
+</div>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Teléfono alternativo</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline-variant">phone_iphone</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" type="tel"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Tarjeta 4: Ubicación -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] p-lg border border-surface-container-high">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Ubicación</h3>
+<div class="grid grid-cols-2 gap-md">
+<div class="col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Dirección</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline-variant">location_on</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" type="text"/>
+</div>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Ciudad</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" type="text" value="Bogotá"/>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Departamento</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none" type="text" value="Cundinamarca"/>
+</div>
+<div class="col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">País</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface appearance-none focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+<option selected="">Colombia</option>
+<option>Ecuador</option>
+<option>Perú</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tarjeta 5: Adicional -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,35,111,0.05)] p-lg border border-surface-container-high">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Información adicional</h3>
+<div class="grid grid-cols-2 gap-md">
+<div class="col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Observaciones</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none resize-none" rows="2"></textarea>
+</div>
+<div class="col-span-1 flex items-center justify-between bg-surface-container-low p-sm rounded-lg border border-surface-variant">
+<span class="font-label-md text-on-surface">Estado del cliente</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+<span class="ml-3 font-label-sm text-primary font-medium">Activo</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column (Validation Summary & Submit) -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-md sticky top-[80px]">
+<!-- Resumen de validación -->
+<div class="bg-error-container/30 rounded-xl p-md border border-error/30">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-error mt-0.5">warning</span>
+<div>
+<h4 class="font-label-md text-label-md font-bold text-on-error-container">Estado de la información</h4>
+<p class="font-body-sm text-body-sm text-on-error-container/80 mt-1">Falta registrar el correo electrónico del cliente para envío de factura electrónica.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar (Fixed) -->
+<div class="fixed bottom-0 left-64 right-80 bg-surface-container-lowest border-t border-surface-variant p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.02)] z-20 flex justify-between items-center px-lg">
+<button class="font-label-md text-label-md text-on-surface-variant px-4 py-2 hover:bg-surface-container-high rounded-lg transition-colors">
+                Cancelar
+            </button>
+<div class="flex gap-sm">
+<button class="font-label-md text-label-md text-primary bg-surface-container-low px-4 py-2 rounded-lg border border-surface-variant hover:bg-surface-container-high transition-colors">
+                    Guardar y crear otro
+                </button>
+<button class="font-label-md text-label-md text-white bg-primary px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2 opacity-60 cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                    Guardar cliente
+                </button>
+</div>
+</div>
+</div>
+<!-- Right Side Assistant Panel -->
+<aside class="h-screen w-80 fixed right-0 top-0 bg-surface-container-highest dark:bg-surface-container flex flex-col p-md z-40 shadow-md">
+<div class="flex items-center gap-2 mb-md border-b border-surface-variant pb-md">
+<div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<h2 class="font-label-md text-label-md font-bold text-secondary">Asistente Contextual</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Soporte DIAN</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto flex flex-col gap-4">
+<!-- AI Welcome Message -->
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm text-body-sm font-body-sm text-on-surface border border-surface-variant relative">
+<div class="absolute -left-2 top-4 w-4 h-4 bg-surface-container-lowest transform rotate-45 border-l border-b border-surface-variant"></div>
+<p>Puedo ayudarte a completar la información del cliente y detectar datos faltantes antes de guardarlo.</p>
+</div>
+<!-- Quick Actions -->
+<div class="flex flex-wrap gap-2 mt-2">
+<button class="bg-surface-container-lowest text-secondary text-label-sm font-label-sm py-1.5 px-3 rounded-full border border-secondary/20 hover:bg-secondary/5 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                    Explicar un campo
+                </button>
+<button class="bg-secondary-container text-on-secondary-container text-label-sm font-label-sm py-1.5 px-3 rounded-full hover:bg-secondary-container/90 transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">search_check</span>
+                    Revisar faltantes
+                </button>
+<button class="bg-surface-container-lowest text-secondary text-label-sm font-label-sm py-1.5 px-3 rounded-full border border-secondary/20 hover:bg-secondary/5 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">fact_check</span>
+                    Validar información
+                </button>
+</div>
+<!-- Contextual Alert -->
+<div class="mt-4 bg-error-container/40 rounded-lg p-sm border border-error-container relative">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5">notification_important</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface mb-2 font-medium">El correo electrónico aún no está registrado.</p>
+<p class="font-body-sm text-[12px] text-on-surface-variant mb-3 leading-tight">La DIAN exige un correo válido para el envío del XML de la factura electrónica a personas jurídicas.</p>
+<button class="text-error font-label-sm text-label-sm bg-error-container/50 hover:bg-error-container py-1 px-3 rounded-md transition-colors flex items-center gap-1 border border-error/20">
+                            Ir al campo <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Assistant Input (Decorative) -->
+<div class="mt-auto pt-4 border-t border-surface-variant">
+<div class="bg-surface-container-lowest rounded-full flex items-center px-3 py-2 border border-outline-variant focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary">
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-sm p-0 outline-none text-on-surface" placeholder="Pregúntale a la IA..." type="text"/>
+<button class="text-secondary p-1 rounded-full hover:bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</aside>
+</body></html>

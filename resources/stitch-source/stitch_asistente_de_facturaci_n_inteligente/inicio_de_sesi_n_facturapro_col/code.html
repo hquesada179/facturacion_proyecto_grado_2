@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inicio de Sesión - Facturación Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "on-surface-variant": "#444651",
+                            "outline-variant": "#c5c5d3",
+                            "tertiary-fixed": "#ffdbcb",
+                            "primary-fixed": "#dce1ff",
+                            "tertiary": "#4b1c00",
+                            "surface": "#f8f9ff",
+                            "on-primary-container": "#90a8ff",
+                            "surface-variant": "#d3e4fe",
+                            "on-surface": "#0b1c30",
+                            "surface-container": "#e5eeff",
+                            "surface-container-high": "#dce9ff",
+                            "error-container": "#ffdad6",
+                            "tertiary-fixed-dim": "#ffb691",
+                            "surface-container-lowest": "#ffffff",
+                            "error": "#ba1a1a",
+                            "on-primary": "#ffffff",
+                            "surface-container-low": "#eff4ff",
+                            "on-secondary": "#ffffff",
+                            "secondary-container": "#6063ee",
+                            "on-tertiary-fixed": "#341100",
+                            "surface-tint": "#4059aa",
+                            "secondary": "#4648d4",
+                            "on-error-container": "#93000a",
+                            "on-secondary-container": "#fffbff",
+                            "on-tertiary-fixed-variant": "#773205",
+                            "primary": "#00236f",
+                            "tertiary-container": "#6e2c00",
+                            "on-background": "#0b1c30",
+                            "on-tertiary": "#ffffff",
+                            "on-secondary-fixed": "#07006c",
+                            "background": "#f8f9ff",
+                            "primary-fixed-dim": "#b6c4ff",
+                            "inverse-on-surface": "#eaf1ff",
+                            "on-primary-fixed": "#00164e",
+                            "surface-dim": "#cbdbf5",
+                            "surface-container-highest": "#d3e4fe",
+                            "on-tertiary-container": "#f39461",
+                            "on-error": "#ffffff",
+                            "secondary-fixed-dim": "#c0c1ff",
+                            "on-secondary-fixed-variant": "#2f2ebe",
+                            "inverse-surface": "#213145",
+                            "primary-container": "#1e3a8a",
+                            "surface-bright": "#f8f9ff",
+                            "on-primary-fixed-variant": "#264191",
+                            "outline": "#757682",
+                            "inverse-primary": "#b6c4ff",
+                            "secondary-fixed": "#e1e0ff"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "gutter": "24px",
+                            "base": "4px",
+                            "margin-desktop": "40px",
+                            "lg": "24px",
+                            "xs": "4px",
+                            "md": "16px",
+                            "sm": "8px",
+                            "margin-mobile": "16px",
+                            "xl": "32px"
+                    },
+                    "fontFamily": {
+                            "title-lg": [
+                                    "Inter"
+                            ],
+                            "headline-lg": [
+                                    "Inter"
+                            ],
+                            "headline-lg-mobile": [
+                                    "Inter"
+                            ],
+                            "display-lg": [
+                                    "Inter"
+                            ],
+                            "body-md": [
+                                    "Inter"
+                            ],
+                            "headline-md": [
+                                    "Inter"
+                            ],
+                            "label-md": [
+                                    "Inter"
+                            ],
+                            "body-lg": [
+                                    "Inter"
+                            ],
+                            "label-sm": [
+                                    "Inter"
+                            ],
+                            "body-sm": [
+                                    "Inter"
+                            ]
+                    },
+                    "fontSize": {
+                            "title-lg": [
+                                    "20px",
+                                    {
+                                            "lineHeight": "28px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "headline-lg": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "40px",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "headline-lg-mobile": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "32px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "display-lg": [
+                                    "48px",
+                                    {
+                                            "lineHeight": "56px",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "body-md": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "24px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "headline-md": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "32px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "label-md": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "letterSpacing": "0.05em",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "18px",
+                                    {
+                                            "lineHeight": "28px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "label-sm": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "16px",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "body-sm": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "fontWeight": "400"
+                                    }
+                            ]
+                    }
+            },
+                },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex font-body-md">
+<div class="flex flex-1 flex-col md:flex-row min-h-screen">
+<!-- Left Zone (Branding) - Hidden on Mobile -->
+<div class="hidden md:flex md:w-1/2 bg-primary flex-col justify-between p-margin-desktop text-on-primary relative overflow-hidden">
+<!-- Decorative Elements -->
+<div class="absolute top-0 right-0 -mr-32 -mt-32 w-[600px] h-[600px] bg-primary-container rounded-full opacity-20 blur-3xl"></div>
+<div class="absolute bottom-0 left-0 -ml-32 -mb-32 w-[400px] h-[400px] bg-secondary rounded-full opacity-20 blur-3xl"></div>
+<div class="z-10 relative">
+<div class="flex items-center gap-2 mb-xl">
+<span class="material-symbols-outlined text-title-lg" data-weight="fill">receipt_long</span>
+<span class="font-headline-md text-headline-md">Facturación Pro</span>
+</div>
+<h1 class="font-display-lg text-display-lg mb-md">Sistema de Facturación Inteligente</h1>
+<p class="font-body-lg text-body-lg opacity-90 max-w-md mb-xl">
+                    Facturación electrónica simulada para pymes con acompañamiento inteligente durante cada proceso.
+                </p>
+<div class="space-y-lg mb-xl">
+<div class="flex items-start gap-md">
+<div class="bg-primary-container p-sm rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">route</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg mb-xs">Facturación guiada</h3>
+<p class="font-body-sm text-body-sm opacity-80">Procesos paso a paso diseñados para reducir errores comunes.</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="bg-primary-container p-sm rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg mb-xs">Validación de información</h3>
+<p class="font-body-sm text-body-sm opacity-80">Comprobación automática de datos fiscales y contables.</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="bg-primary-container p-sm rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg mb-xs">Asistente IA integrado</h3>
+<p class="font-body-sm text-body-sm opacity-80">Sugerencias inteligentes basadas en el comportamiento histórico.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="z-10 relative mt-auto">
+<div class="w-full h-48 rounded-xl overflow-hidden relative shadow-lg" data-alt="Una ilustración abstracta y elegante en tonos azul profundo y blanco, que representa el flujo de documentos digitales y tecnología financiera. Se observan líneas geométricas finas, nodos de conexión luminosos y sutiles formas de documentos flotantes. La iluminación es suave y moderna, creando un ambiente profesional, tecnológico y minimalista propio del diseño de interfaces de software empresarial." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDOodJZ03uQDN463lPwjQwsaa_uTarL353zYXd0vRGAItVvAQNSE2F-9fFFdJeIglBIVGQn_lzOTl_Gb3JuSRS7R9OWt1hPClUoUHHWMzHTsy0ulgKfukhDXk6z9hNcTF2J4dHPSrRgVdSPoxD6uMO731hgY9P0l8PuZb2XPBmIxJGxTfz4_0pMz0fVuDSnHxLqxBCvan67TAkG1WURo2XX22zQWHT7mn4ELZwcVoq7wt3_OSuORR3TJg')">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+</div>
+</div>
+</div>
+<!-- Right Zone (Login) -->
+<div class="flex-1 flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface relative">
+<!-- Mobile Logo -->
+<div class="md:hidden flex items-center gap-2 mb-xl w-full max-w-sm">
+<span class="material-symbols-outlined text-primary text-title-lg" data-weight="fill">receipt_long</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">Facturación Pro</span>
+</div>
+<div class="w-full max-w-sm">
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs hidden md:block">Bienvenido</h2>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-xs md:hidden">Bienvenido</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Ingresa a tu cuenta para continuar.</p>
+</div>
+<!-- Error Alert (Hidden by default, shown for demonstration) -->
+<div class="bg-error-container border border-error/20 p-md rounded-lg flex items-start gap-sm mb-lg" id="login-error" style="display: none;">
+<span class="material-symbols-outlined text-error mt-xs">error</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-error-container">
+                            No fue posible iniciar sesión. Revisa el correo y la contraseña e inténtalo nuevamente.
+                        </p>
+</div>
+</div>
+<form class="space-y-md" onsubmit="event.preventDefault(); document.getElementById('login-error').style.display='flex';">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="email">Correo electrónico</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">mail</span>
+</div>
+<input class="block w-full pl-xl pr-sm py-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md text-body-md" id="email" name="email" placeholder="correo@empresa.com" required="" type="email"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="password">Contraseña</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">lock</span>
+</div>
+<input class="block w-full pl-xl pr-xl py-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md text-body-md" id="password" name="password" placeholder="Ingresa tu contraseña" required="" type="password"/>
+<div class="absolute inset-y-0 right-0 pr-sm flex items-center">
+<button class="text-outline hover:text-on-surface transition-colors focus:outline-none" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined" id="visibility-icon">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div class="flex items-center">
+<input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded rounded-sm bg-surface-container-lowest cursor-pointer" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-2 block font-body-sm text-body-sm text-on-surface-variant cursor-pointer" for="remember-me">
+                                Recordarme
+                            </label>
+</div>
+<div class="text-sm">
+<a class="font-label-md text-label-md text-primary hover:text-primary-container transition-colors" href="#">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+</div>
+</div>
+<div class="pt-sm">
+<button class="w-full flex justify-center py-md px-lg border border-transparent rounded-lg shadow-sm font-label-md text-label-md text-on-primary bg-primary hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors cursor-pointer hover:shadow-md" type="submit">
+                            Iniciar sesión
+                        </button>
+</div>
+</form>
+<div class="mt-lg p-sm bg-surface-container-low rounded-lg flex items-start gap-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-outline text-label-md mt-xs">shield</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                         Tu cuenta puede solicitar una verificación adicional por seguridad.
+                     </p>
+</div>
+</div>
+<!-- Bottom Links & Footer -->
+<div class="absolute bottom-lg left-0 right-0 w-full text-center px-margin-mobile md:px-margin-desktop flex flex-col items-center gap-sm">
+<div class="flex flex-wrap justify-center gap-x-md gap-y-xs mb-sm">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">¿Necesitas ayuda para acceder?</a>
+<span class="text-outline-variant hidden sm:inline">•</span>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Política de privacidad</a>
+<span class="text-outline-variant hidden sm:inline">•</span>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Tratamiento de datos</a>
+</div>
+<p class="font-label-sm text-label-sm text-outline">
+                    Prototipo académico - Universidad Autónoma de Bucaramanga
+                </p>
+</div>
+</div>
+</div>
+<script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const visibilityIcon = document.getElementById('visibility-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                visibilityIcon.textContent = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                visibilityIcon.textContent = 'visibility';
+            }
+        }
+    </script>
+</body></html>

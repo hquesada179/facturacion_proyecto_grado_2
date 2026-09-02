@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Perfil de Usuario - FacturaPro Col</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "inverse-primary": "#b6c4ff",
+                      "surface-container-high": "#dce9ff",
+                      "surface": "#f8f9ff",
+                      "on-secondary-fixed": "#07006c",
+                      "on-error-container": "#93000a",
+                      "surface-bright": "#f8f9ff",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#444651",
+                      "tertiary": "#4b1c00",
+                      "error": "#ba1a1a",
+                      "secondary": "#4648d4",
+                      "on-tertiary-container": "#f39461",
+                      "outline": "#757682",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "outline-variant": "#c5c5d3",
+                      "on-primary-container": "#90a8ff",
+                      "on-primary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#4059aa",
+                      "primary": "#00236f",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed": "#00164e",
+                      "secondary-container": "#6063ee",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "on-primary-fixed-variant": "#264191",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary-fixed": "#341100",
+                      "secondary-fixed": "#e1e0ff",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed": "#ffdbcb",
+                      "surface-container-low": "#eff4ff",
+                      "primary-fixed": "#dce1ff",
+                      "tertiary-container": "#6e2c00",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "background": "#f8f9ff",
+                      "on-secondary-container": "#fffbff",
+                      "primary-container": "#1e3a8a",
+                      "surface-container": "#e5eeff",
+                      "inverse-surface": "#213145",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "on-background": "#0b1c30"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "sm": "8px",
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "gutter": "24px",
+                      "margin-desktop": "40px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "title-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="docked left-0 h-full w-64 bg-surface-container-lowest shadow-sm flex flex-col h-screen fixed left-0 top-0 border-r border-outline-variant z-20">
+<div class="p-lg flex items-center gap-md border-b border-outline-variant">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-title-lg">
+                F
+            </div>
+<div>
+<h1 class="font-title-lg text-title-lg font-bold text-primary">FacturaPro Col</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">PYME Administrativo</p>
+</div>
+</div>
+<div class="p-md">
+<button class="w-full py-sm px-md bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                Nueva Factura
+            </button>
+</div>
+<ul class="flex-1 overflow-y-auto px-sm py-sm space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Inicio
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                    Facturas
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                    Clientes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                    Productos y servicios
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                    Notas crédito
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                    Reportes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                    Trazabilidad
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors duration-200 scale-98 active:opacity-80 transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings" data-weight="fill" style="font-variation-settings: 'FILL' 1;">settings</span>
+                    Configuración
+                </a>
+</li>
+</ul>
+</nav>
+<div class="flex-1 flex flex-col ml-64 mr-80">
+<!-- TopNavBar -->
+<header class="bg-surface shadow-sm docked top-0 full-width flex justify-between items-center h-16 px-gutter w-full z-10">
+<div class="flex-1"></div> <!-- Spacer for layout -->
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+</button>
+<button class="px-md py-xs rounded-full bg-surface-variant text-on-surface flex items-center gap-xs text-label-md font-label-md hover:bg-surface-container-high transition-all duration-200 ease-in-out">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    Asistente IA
+                </button>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm ml-sm cursor-pointer">
+                    LG
+                </div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-desktop bg-background">
+<div class="max-w-4xl mx-auto space-y-xl pb-xl">
+<!-- Profile Header -->
+<div class="flex items-start gap-lg border-b border-outline-variant pb-lg">
+<div class="w-24 h-24 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-display-lg text-display-lg shadow-sm">
+                        LG
+                    </div>
+<div class="flex-1">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Mi perfil</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Consulta y actualiza la información básica asociada a tu cuenta.</p>
+<div class="flex gap-sm">
+<span class="px-sm py-xs rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm">Rol: Administrador</span>
+<span class="px-sm py-xs rounded-full bg-green-100 text-green-800 font-label-sm text-label-sm">Estado: Activo</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Información personal -->
+<div class="md:col-span-2 bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">person</span>
+                            Información personal
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Nombre</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" readonly="" type="text" value="Laura"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Apellidos</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" readonly="" type="text" value="Gómez Martínez"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Correo electrónico</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" readonly="" type="email" value="laura@empresa.com"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Teléfono</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" type="tel" value="300 123 4567"/>
+</div>
+</div>
+</div>
+<!-- Foto de Perfil & Preferencias -->
+<div class="flex flex-col gap-lg">
+<!-- Foto de perfil -->
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col items-center justify-center gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface w-full text-left">Foto de perfil</h3>
+<div class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline-md text-headline-md shadow-sm">
+                                LG
+                            </div>
+<div class="flex flex-col w-full gap-sm mt-sm">
+<button class="w-full py-xs border border-primary text-primary rounded-lg font-label-sm text-label-sm hover:bg-surface-container-high transition-colors">Cambiar foto</button>
+<button class="w-full py-xs text-error font-label-sm text-label-sm hover:bg-error-container/50 rounded-lg transition-colors">Eliminar foto</button>
+</div>
+</div>
+</div>
+<!-- Información de cuenta -->
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">badge</span>
+                            Información de cuenta
+                        </h3>
+<div class="space-y-sm">
+<div class="flex justify-between items-center py-xs border-b border-outline-variant/50">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rol</span>
+<span class="font-body-sm text-body-sm text-on-surface">Administrador</span>
+</div>
+<div class="flex justify-between items-center py-xs border-b border-outline-variant/50">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado</span>
+<span class="font-body-sm text-body-sm text-on-surface">Activo</span>
+</div>
+<div class="flex justify-between items-center py-xs border-b border-outline-variant/50">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Creación</span>
+<span class="font-body-sm text-body-sm text-on-surface">15 Ene 2023</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Último acceso</span>
+<span class="font-body-sm text-body-sm text-on-surface">Hace unos minutos</span>
+</div>
+</div>
+</div>
+<!-- Preferencias rápidas -->
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">tune</span>
+                            Preferencias rápidas
+                        </h3>
+<div class="space-y-sm flex-1">
+<div class="flex justify-between items-center py-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Idioma</span>
+<span class="font-body-sm text-body-sm text-on-surface">Español</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tema</span>
+<span class="font-body-sm text-body-sm text-on-surface">Claro</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ayuda IA</span>
+<span class="font-body-sm text-body-sm text-on-surface">Guiado</span>
+</div>
+</div>
+<button class="w-full mt-auto py-sm bg-surface-container-high text-primary rounded-lg font-label-md text-label-md hover:bg-surface-variant transition-colors">Administrar preferencias</button>
+</div>
+<!-- Seguridad -->
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">shield</span>
+                            Seguridad
+                        </h3>
+<div class="space-y-md flex-1">
+<div>
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Contraseña</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hace 45 días</span>
+</div>
+<button class="w-full py-xs border border-outline-variant text-on-surface rounded-lg font-label-sm text-label-sm hover:bg-surface-container-lowest transition-colors">Cambiar contraseña</button>
+</div>
+<div>
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Verificación 2 pasos</span>
+<span class="font-label-sm text-label-sm text-green-700 bg-green-50 px-2 rounded-sm">Activada</span>
+</div>
+<button class="w-full py-xs border border-outline-variant text-on-surface rounded-lg font-label-sm text-label-sm hover:bg-surface-container-lowest transition-colors">Administrar seguridad</button>
+</div>
+</div>
+</div>
+<!-- Actividad reciente (span 3 cols on desktop for wider table feel) -->
+<div class="md:col-span-3 bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex flex-col gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">history</span>
+                            Actividad reciente
+                        </h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-sm font-label-sm text-label-sm text-on-surface-variant">Acción</th>
+<th class="py-sm font-label-sm text-label-sm text-on-surface-variant">Fecha</th>
+<th class="py-sm font-label-sm text-label-sm text-on-surface-variant">IP / Dispositivo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/50 hover:bg-surface-container-low/50">
+<td class="py-sm font-body-sm text-body-sm text-on-surface">Inicio de sesión exitoso</td>
+<td class="py-sm font-body-sm text-body-sm text-on-surface-variant">Hoy, 08:30 AM</td>
+<td class="py-sm font-body-sm text-body-sm text-on-surface-variant">192.168.1.1 (Chrome, Mac)</td>
+</tr>
+<tr class="border-b border-outline-variant/50 hover:bg-surface-container-low/50">
+<td class="py-sm font-body-sm text-body-sm text-on-surface">Factura #1045 creada</td>
+<td class="py-sm font-body-sm text-body-sm text-on-surface-variant">Ayer, 04:15 PM</td>
+<td class="py-sm font-body-sm text-body-sm text-on-surface-variant">192.168.1.1 (Chrome, Mac)</td>
+</tr>
+<tr class="border-b border-outline-variant/50 hover:bg-surface-container-low/50">
+<td class="py-sm font-body-sm text-body-sm text-on-surface">Actualización de preferencias</td>
+<td class="py-sm font-body-sm text-body-sm text-on-surface-variant">Hace 3 días</td>
+<td class="py-sm font-body-sm text-body-sm text-on-surface-variant">192.168.1.5 (Safari, iPhone)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="flex flex-col sm:flex-row justify-between items-center pt-lg border-t border-outline-variant mt-lg gap-md">
+<button class="font-label-md text-label-md text-error hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                        Cerrar sesión
+                    </button>
+<div class="flex gap-md w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-lg py-sm rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container-lowest transition-colors">Cancelar</button>
+<button class="flex-1 sm:flex-none px-lg py-sm rounded-lg bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-variant transition-colors">Restablecer cambios</button>
+<button class="flex-1 sm:flex-none px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-sm hover:opacity-90 transition-opacity">Guardar cambios</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- NavigationDrawer (IA Assistant Right Panel) -->
+<aside class="bg-surface-container-low shadow-lg docked right-0 h-full w-80 fixed right-0 top-0 h-full z-40 flex flex-col border-l border-outline-variant">
+<div class="p-lg flex items-center gap-md border-b border-outline-variant/50 bg-secondary-container/10">
+<span class="material-symbols-outlined text-secondary text-[32px]">robot_2</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Asistente IA</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Ayuda contextual técnica</p>
+</div>
+</div>
+<div class="p-md bg-secondary-container text-on-secondary-container m-md rounded-xl p-md shadow-sm">
+<p class="font-body-sm text-body-sm mb-md flex items-start gap-sm">
+<span class="material-symbols-outlined text-[20px] mt-xs">info</span>
+                Puedo ayudarte a encontrar configuraciones de tu cuenta, explicar permisos o sugerir mejoras de seguridad.
+            </p>
+</div>
+<div class="px-md flex flex-col gap-sm">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Sugerencias rápidas:</p>
+<button class="w-full text-left p-sm rounded-lg bg-surface hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-between transition-colors group">
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary">Administrar preferencias</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary text-[18px]">chevron_right</span>
+</button>
+<button class="w-full text-left p-sm rounded-lg bg-surface hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-between transition-colors group">
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary">Ir a seguridad</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary text-[18px]">chevron_right</span>
+</button>
+<button class="w-full text-left p-sm rounded-lg bg-surface hover:bg-surface-container-high border border-outline-variant/30 flex items-center justify-between transition-colors group">
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary">Explicar mi rol</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary text-[18px]">chevron_right</span>
+</button>
+</div>
+<!-- Chat input area at bottom -->
+<div class="mt-auto p-md border-t border-outline-variant/50 bg-surface">
+<div class="relative">
+<input class="w-full pl-md pr-xl py-sm rounded-full border border-outline-variant bg-surface focus:border-secondary focus:ring focus:ring-secondary/10 font-body-sm text-body-sm" placeholder="Hazme una pregunta..." type="text"/>
+<button class="absolute right-sm top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</aside>
+</body></html>

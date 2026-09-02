@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Productos y servicios - FacturaPro Col</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#eff4ff",
+                      "secondary": "#4648d4",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#90a8ff",
+                      "on-tertiary-container": "#f39461",
+                      "on-secondary-fixed": "#07006c",
+                      "outline": "#757682",
+                      "on-primary-fixed": "#00164e",
+                      "surface-container": "#e5eeff",
+                      "secondary-fixed": "#e1e0ff",
+                      "on-error-container": "#93000a",
+                      "on-primary": "#ffffff",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "on-secondary": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#0b1c30",
+                      "secondary-container": "#6063ee",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "on-secondary-container": "#fffbff",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#4059aa",
+                      "surface": "#f8f9ff",
+                      "tertiary-fixed": "#ffdbcb",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-surface": "#213145",
+                      "outline-variant": "#c5c5d3",
+                      "primary-fixed": "#dce1ff",
+                      "on-surface": "#0b1c30",
+                      "primary-container": "#1e3a8a",
+                      "tertiary": "#4b1c00",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-fixed": "#341100",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "background": "#f8f9ff",
+                      "tertiary-container": "#6e2c00",
+                      "inverse-primary": "#b6c4ff",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "on-primary-fixed-variant": "#264191",
+                      "error": "#ba1a1a",
+                      "primary": "#00236f",
+                      "on-surface-variant": "#444651",
+                      "error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "base": "4px",
+                      "margin-desktop": "40px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "lg": "24px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "title-lg": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined.filled {
+          font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-md bg-surface-container-low h-screen w-64 border-r border-outline-variant z-40 hidden md:flex">
+<div class="flex items-center mb-xl">
+<div class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center mr-sm">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div>
+<h1 class="font-title-lg text-title-lg font-bold text-primary">FacturaPro Col</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">PYME Premium</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary rounded-lg py-3 px-4 font-label-md text-label-md flex items-center justify-center gap-2 mb-lg hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+            Nueva Factura
+        </button>
+<ul class="flex-1 space-y-2">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Inicio
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                    Facturas
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                    Clientes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container text-on-secondary-container font-bold font-label-md text-label-md transition-all" href="#">
+<span class="material-symbols-outlined filled" data-icon="inventory_2" data-weight="fill">inventory_2</span>
+                    Productos y servicios
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                    Notas crédito
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                    Reportes
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                    Trazabilidad
+                </a>
+</li>
+</ul>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Configuración
+            </a>
+</div>
+</nav>
+<!-- TopAppBar & Main Content Wrapper -->
+<div class="flex-1 ml-0 md:ml-64 flex flex-col mr-0 xl:mr-80 min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-lg bg-surface shadow-sm sticky top-0 z-30">
+<div class="flex items-center md:hidden">
+<button class="text-on-surface-variant mr-4 p-2 hover:bg-surface-container-high rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-extrabold text-primary">FacturaPro Col</span>
+</div>
+<div class="hidden md:flex flex-1 justify-end items-center max-w-md ml-auto">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-full border border-outline-variant bg-surface text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-sm text-body-sm" placeholder="Buscar..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-8">
+<button class="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+<button class="hidden lg:flex items-center gap-2 font-label-md text-label-md text-primary border border-primary px-4 py-2 rounded-full hover:bg-primary/5 transition-colors">
+                    Descargar Reporte
+                </button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop bg-[#F8FAFC]">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-1">Productos y servicios</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Administra los productos y servicios disponibles para utilizar en el proceso de facturación.</p>
+</div>
+<button class="bg-primary text-on-primary rounded-lg py-2.5 px-5 font-label-md text-label-md flex items-center justify-center gap-2 hover:shadow-[0px_4px_12px_rgba(0,35,111,0.2)] transition-all flex-shrink-0">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Nuevo producto o servicio
+                </button>
+</div>
+<!-- Alert Banner -->
+<div class="bg-error-container/50 border border-error/20 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-lg">
+<div class="flex gap-3 text-on-surface">
+<span class="material-symbols-outlined text-error">warning</span>
+<div>
+<p class="font-label-md text-label-md font-semibold text-error mb-1">2 elementos requieren revisión</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Algunos productos o servicios tienen información incompleta que podría generar advertencias durante la facturación.</p>
+</div>
+</div>
+<button class="text-error font-label-md text-label-md font-semibold hover:bg-error/10 px-4 py-2 rounded-lg transition-colors whitespace-nowrap self-start sm:self-center">
+                    Revisar elementos
+                </button>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-xl">
+<div class="bg-white p-lg rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Total elementos</p>
+<p class="font-headline-md text-headline-md text-on-surface">45</p>
+</div>
+</div>
+<div class="bg-white p-lg rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">category</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Productos activos</p>
+<p class="font-headline-md text-headline-md text-on-surface">32</p>
+</div>
+</div>
+<div class="bg-white p-lg rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/15 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined">design_services</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Servicios activos</p>
+<p class="font-headline-md text-headline-md text-on-surface">13</p>
+</div>
+</div>
+<div class="bg-white p-lg rounded-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-error/15 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">rule</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Por revisar</p>
+<p class="font-headline-md text-headline-md text-on-surface">2</p>
+</div>
+</div>
+</div>
+<!-- Filters & Search -->
+<div class="bg-white p-lg rounded-t-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] border-b border-outline-variant/30 flex flex-col lg:flex-row gap-4 items-center justify-between">
+<div class="relative w-full lg:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[#E2E8F0] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 font-body-sm text-body-sm transition-all" placeholder="Buscar por código, nombre o descripción" type="text"/>
+</div>
+<div class="flex flex-wrap gap-2 w-full lg:w-auto items-center">
+<select class="py-2.5 px-4 rounded-lg border border-[#E2E8F0] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 font-body-sm text-body-sm">
+<option value="">Tipo</option>
+<option value="prod">Producto</option>
+<option value="serv">Servicio</option>
+</select>
+<select class="py-2.5 px-4 rounded-lg border border-[#E2E8F0] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 font-body-sm text-body-sm">
+<option value="">Estado</option>
+<option value="act">Activo</option>
+<option value="rev">Por revisar</option>
+</select>
+<select class="py-2.5 px-4 rounded-lg border border-[#E2E8F0] bg-white text-on-surface focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 font-body-sm text-body-sm hidden sm:block">
+<option value="">Impuesto</option>
+<option value="iva19">IVA 19%</option>
+<option value="iva0">0%</option>
+</select>
+</div>
+</div>
+<div class="bg-white px-lg py-sm border-b border-outline-variant/30 shadow-[0px_4px_12px_rgba(0,35,111,0.05)] flex gap-2 overflow-x-auto no-scrollbar">
+<button class="px-3 py-1.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm whitespace-nowrap">Todos</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm whitespace-nowrap transition-colors">Productos</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm whitespace-nowrap transition-colors">Servicios</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm whitespace-nowrap transition-colors flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-error"></span> Información por revisar</button>
+</div>
+<!-- Table -->
+<div class="bg-white rounded-b-xl shadow-[0px_4px_12px_rgba(0,35,111,0.05)] overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/50 bg-surface-container-lowest">
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-semibold">Código</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Nombre</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Tipo</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold text-right">Precio</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Impuesto</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Estado</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Última act.</th>
+<th class="py-3 px-lg font-label-sm text-label-sm text-on-surface-variant font-semibold text-center">Acciones</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<tr class="border-b border-outline-variant/20 hover:bg-surface-container/30 transition-colors">
+<td class="py-3 px-lg font-medium">PROD-001</td>
+<td class="py-3 px-4">Laptop empresarial 15"</td>
+<td class="py-3 px-4"><span class="px-2 py-1 rounded bg-surface-container text-on-surface-variant text-xs">Producto</span></td>
+<td class="py-3 px-4 text-right font-mono">$3.500.000</td>
+<td class="py-3 px-4 text-on-surface-variant">IVA 19%</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm">
+                                        Activo
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">12 Oct 2023</td>
+<td class="py-3 px-lg text-center">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface-container/30 transition-colors">
+<td class="py-3 px-lg font-medium">SERV-001</td>
+<td class="py-3 px-4">Servicio de instalación</td>
+<td class="py-3 px-4"><span class="px-2 py-1 rounded bg-surface-container text-on-surface-variant text-xs">Servicio</span></td>
+<td class="py-3 px-4 text-right font-mono">$180.000</td>
+<td class="py-3 px-4 text-on-surface-variant">IVA 19%</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm">
+                                        Activo
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">10 Oct 2023</td>
+<td class="py-3 px-lg text-center">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface-container/30 transition-colors">
+<td class="py-3 px-lg font-medium">PROD-002</td>
+<td class="py-3 px-4">Impresora térmica</td>
+<td class="py-3 px-4"><span class="px-2 py-1 rounded bg-surface-container text-on-surface-variant text-xs">Producto</span></td>
+<td class="py-3 px-4 text-right font-mono">$450.000</td>
+<td class="py-3 px-4 text-on-surface-variant">0%</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#DCFCE7] text-[#166534] font-label-sm text-label-sm">
+                                        Activo
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">05 Oct 2023</td>
+<td class="py-3 px-lg text-center">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container/30 transition-colors bg-error/5">
+<td class="py-3 px-lg font-medium">SERV-002</td>
+<td class="py-3 px-4">Soporte técnico</td>
+<td class="py-3 px-4"><span class="px-2 py-1 rounded bg-surface-container text-on-surface-variant text-xs">Servicio</span></td>
+<td class="py-3 px-4 text-right font-mono">$120.000</td>
+<td class="py-3 px-4 text-error flex items-center gap-1"><span class="material-symbols-outlined text-sm">warning</span> Sin configurar</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#FEF3C7] text-[#92400E] font-label-sm text-label-sm whitespace-nowrap">
+                                        Info. por revisar
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">Ayer</td>
+<td class="py-3 px-lg text-center">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-lg py-4 flex items-center justify-between border-t border-outline-variant/30 text-on-surface-variant font-body-sm text-body-sm">
+<p>Mostrando 1-10 de 45 resultados</p>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-surface-container-high transition-colors text-outline" disabled=""><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="w-8 h-8 rounded bg-primary/10 text-primary font-medium flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high transition-colors flex items-center justify-center">2</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high transition-colors flex items-center justify-center">3</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high transition-colors flex items-center justify-center">...</button>
+<button class="p-1 rounded hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- NavigationDrawer (Asistente IA) -->
+<aside class="fixed right-0 top-0 h-full flex flex-col p-lg border-l border-outline-variant shadow-lg bg-surface-container-highest h-screen w-80 z-50 hidden xl:flex transform duration-300 ease-in-out">
+<div class="flex items-center gap-3 mb-xl">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md font-semibold text-secondary">Asistente IA</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Ayuda contextual FacturaPro</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 no-scrollbar">
+<div class="bg-white p-4 rounded-xl shadow-sm mb-4 border border-outline-variant/20">
+<p class="font-body-sm text-body-sm text-on-surface mb-3 leading-relaxed">
+                    Puedo ayudarte a encontrar productos o servicios, identificar información faltante y revisar precios o impuestos antes de utilizarlos en una factura.
+                </p>
+<div class="flex flex-col gap-2">
+<button class="text-left px-3 py-2 rounded-lg text-primary hover:bg-primary/5 font-label-sm text-label-sm transition-colors flex items-center gap-2 border border-transparent hover:border-primary/20">
+<span class="material-symbols-outlined text-sm">search</span> Buscar producto
+                    </button>
+<button class="text-left px-3 py-2 rounded-lg text-primary hover:bg-primary/5 font-label-sm text-label-sm transition-colors flex items-center gap-2 border border-transparent hover:border-primary/20">
+<span class="material-symbols-outlined text-sm">search</span> Buscar servicio
+                    </button>
+<button class="text-left px-3 py-2 rounded-lg text-primary hover:bg-primary/5 font-label-sm text-label-sm transition-colors flex items-center gap-2 border border-transparent hover:border-primary/20">
+<span class="material-symbols-outlined text-sm">percent</span> Revisar impuestos
+                    </button>
+<button class="text-left px-3 py-2 rounded-lg text-primary hover:bg-primary/5 font-label-sm text-label-sm transition-colors flex items-center gap-2 border border-transparent hover:border-primary/20">
+<span class="material-symbols-outlined text-sm">plagiarism</span> Detectar información faltante
+                    </button>
+</div>
+</div>
+<div class="bg-[#FEF3C7]/50 p-4 rounded-xl shadow-sm border border-[#F59E0B]/30 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#F59E0B]/20 to-transparent rounded-bl-full"></div>
+<div class="flex gap-2 items-start mb-3 relative z-10">
+<span class="material-symbols-outlined text-[#D97706] text-xl mt-0.5">lightbulb</span>
+<p class="font-body-sm text-body-sm text-[#92400E]">
+<strong>Alerta contextual:</strong> Encontré 2 elementos que podrían generar una advertencia durante la facturación. <strong>SERV-002</strong> no tiene un impuesto configurado.
+                    </p>
+</div>
+<button class="w-full bg-white border border-[#D97706]/30 text-[#D97706] rounded-lg py-2 font-label-sm text-label-sm font-semibold hover:bg-[#D97706]/5 transition-colors relative z-10">
+                    Revisar elemento
+                </button>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/50 relative">
+<input class="w-full pl-4 pr-10 py-3 rounded-full border border-outline-variant bg-white text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary font-body-sm text-body-sm shadow-sm" placeholder="Pregúntale a la IA..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-secondary hover:bg-secondary/10 rounded-full transition-colors mt-2">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</aside>
+</body></html>

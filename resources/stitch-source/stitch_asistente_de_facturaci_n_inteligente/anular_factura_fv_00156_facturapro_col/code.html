@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Anular Factura - Facturación Inteligente</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#6063ee",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-error": "#ffffff",
+                        "primary": "#00236f",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#757682",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-container": "#6e2c00",
+                        "secondary": "#4648d4",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-container": "#90a8ff",
+                        "on-background": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#c5c5d3",
+                        "background": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-container": "#f39461",
+                        "surface-tint": "#4059aa",
+                        "surface-dim": "#cbdbf5",
+                        "primary-fixed": "#dce1ff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#07006c",
+                        "secondary-fixed": "#e1e0ff",
+                        "primary-container": "#1e3a8a",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#00164e",
+                        "surface-bright": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#fffbff",
+                        "on-surface-variant": "#444651",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-surface": "#213145",
+                        "tertiary": "#4b1c00",
+                        "inverse-primary": "#b6c4ff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-tertiary-fixed": "#341100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- Content Area (Navigation Suppressed as per Task-Focused/Linear rules) -->
+<main class="flex-1 max-w-[1280px] mx-auto p-margin-desktop w-full ml-64 mr-72 mt-16 flex flex-col gap-lg">
+<!-- Header -->
+<header class="flex flex-col gap-sm">
+<div class="flex items-center gap-sm">
+<a class="text-secondary font-label-md hover:underline flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    Volver a FV-00156
+                </a>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Anular factura</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
+                Revisa la información del documento y confirma el motivo de la anulación antes de continuar.
+            </p>
+</header>
+<!-- Warning Card -->
+<div class="bg-[#FFF4E5] border border-[#FFD099] rounded-lg p-md flex gap-md shadow-sm">
+<span class="material-symbols-outlined text-[#E67A00]">warning</span>
+<div class="flex flex-col">
+<p class="font-body-sm text-body-sm text-[#4D2900]">
+                    Estás a punto de anular la factura <strong>FV-00156</strong>. Esta acción cambiará el estado del documento dentro del prototipo y quedará registrada en su trazabilidad.
+                </p>
+</div>
+</div>
+<!-- Main Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- Left Column: Document Info -->
+<div class="flex flex-col gap-md">
+<!-- Document Details Card -->
+<section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm flex flex-col gap-md">
+<h2 class="font-title-lg text-title-lg text-on-surface">Documento a anular</h2>
+<div class="grid grid-cols-2 gap-md">
+<div>
+<p class="font-label-sm text-label-sm text-outline">Número</p>
+<p class="font-body-md text-body-md font-semibold">FV-00156</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-outline">Estado</p>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-[#E6F4EA] text-[#137333] mt-1">
+                                Validada
+                            </span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-outline">Cliente</p>
+<p class="font-body-md text-body-md">Construcciones SAS</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-outline">Fecha de emisión</p>
+<p class="font-body-md text-body-md">24 Oct 2023</p>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-md mt-sm flex justify-between items-center">
+<p class="font-body-md text-body-md font-semibold text-on-surface">Total</p>
+<p class="font-title-lg text-title-lg font-bold text-on-surface">$5.300.600 COP</p>
+</div>
+</section>
+<!-- Comparative Section -->
+<section class="bg-surface-container-low rounded-xl p-lg flex flex-col gap-md">
+<h3 class="font-label-md text-label-md text-on-surface font-semibold">Antes de continuar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        Si hubo un error en los valores o necesitas hacer una corrección oficial reportada, considera crear una nota de crédito.
+                    </p>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-lowest p-md rounded-lg border border-error-container">
+<div class="flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-error text-[18px]">cancel</span>
+<h4 class="font-label-sm text-label-sm font-bold">Anulación</h4>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Marca el documento como anulado internamente.</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-lg border border-secondary-fixed">
+<div class="flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">receipt_long</span>
+<h4 class="font-label-sm text-label-sm font-bold">Nota Crédito</h4>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Genera un documento oficial de corrección.</p>
+</div>
+</div>
+<button class="mt-sm inline-flex justify-center items-center gap-sm px-4 py-2 bg-secondary text-on-secondary rounded-lg font-label-md text-label-md hover:bg-opacity-90 transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        Crear nota crédito en su lugar
+                    </button>
+</section>
+</div>
+<!-- Right Column: Form -->
+<div class="flex flex-col gap-md">
+<section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm flex flex-col gap-lg h-full">
+<h2 class="font-title-lg text-title-lg text-on-surface">Motivo de la anulación</h2>
+<form class="flex flex-col gap-md flex-1">
+<!-- Select -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="motivo">Motivo <span class="text-error">*</span></label>
+<div class="relative">
+<select class="block w-full pl-3 pr-10 py-2 text-base border-outline-variant focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm rounded-md appearance-none bg-surface-container-lowest" id="motivo" name="motivo">
+<option disabled="" selected="" value="">Selecciona un motivo</option>
+<option value="error_cliente">Error en info de cliente</option>
+<option value="error_documento">Documento por error</option>
+<option value="info_incorrecta">Info incorrecta</option>
+<option value="op_cancelada">Op cancelada</option>
+<option value="otro">Otro</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 px-2 flex items-center text-outline">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Textarea -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="justificacion">Justificación <span class="text-outline font-normal">(Opcional)</span></label>
+<textarea class="block w-full border-outline-variant rounded-md shadow-sm focus:ring-secondary focus:border-secondary sm:text-sm bg-surface-container-lowest placeholder-outline" id="justificacion" name="justificacion" placeholder="Añade detalles adicionales sobre la anulación..." rows="4"></textarea>
+</div>
+<div class="mt-auto">
+<!-- Checkbox -->
+<div class="flex items-start mb-md">
+<div class="flex items-center h-5">
+<input class="focus:ring-secondary h-4 w-4 text-secondary border-outline-variant rounded cursor-pointer" id="confirmacion" name="confirmacion" type="checkbox"/>
+</div>
+<div class="ml-3 text-sm">
+<label class="font-body-sm text-body-sm text-on-surface font-medium cursor-pointer" for="confirmacion">Confirmo que revisé la información y deseo anular esta factura.</label>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex justify-end gap-sm border-t border-outline-variant/30 pt-md">
+<button class="px-4 py-2 bg-transparent text-on-surface-variant font-label-md text-label-md hover:bg-surface-container rounded-lg transition-colors" type="button">
+                                    Cancelar
+                                </button>
+<button class="px-4 py-2 border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-lowest rounded-lg transition-colors" type="button">
+                                    Volver a la factura
+                                </button>
+<button class="px-4 py-2 bg-error text-on-error font-label-md text-label-md rounded-lg opacity-40 cursor-not-allowed transition-all" disabled="" type="submit">
+                                    Anular factura
+                                </button>
+</div>
+</div>
+</form>
+</section>
+</div>
+</div>
+</main>
+<!-- SideNavBar (Suppressed as per rules, this is a transactional page) -->
+<!-- TopNavBar (Suppressed as per rules, this is a transactional page) -->
+<!-- Navigation Drawer (Asistente IA) -->
+<aside class="fixed right-0 top-16 bottom-0 w-72 z-30 bg-gradient-to-b from-surface-container-low to-surface-container-high shadow-md flex flex-col p-md gap-sm transform transition-transform duration-300">
+<div class="flex flex-col gap-1 mb-md">
+<h2 class="font-title-lg text-title-lg text-secondary flex items-center gap-sm">
+<span class="material-symbols-outlined">auto_awesome</span>
+                Asistente IA
+            </h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Ayuda contextual activa</p>
+</div>
+<!-- Assistant Message -->
+<div class="bg-surface-container-lowest rounded-xl p-3 shadow-sm border border-secondary-fixed/50 relative">
+<div class="absolute -left-2 top-4 w-4 h-4 bg-surface-container-lowest transform rotate-45 border-l border-b border-secondary-fixed/50"></div>
+<p class="font-body-sm text-body-sm text-on-surface relative z-10">
+                Veo que deseas modificar el estado de la factura <strong>FV-00156</strong>. Puedo ayudarte a revisar si debes anular el documento o utilizar una nota crédito dentro del prototipo.
+            </p>
+</div>
+<!-- Quick Actions (Tabs) -->
+<div class="flex flex-col gap-xs mt-sm">
+<button class="bg-secondary-container text-on-secondary-container rounded-xl p-3 shadow-sm flex items-center gap-3 font-label-sm text-label-sm text-left scale-100 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">help_outline</span>
+                ¿Debo anularla?
+            </button>
+<button class="text-on-surface-variant p-3 hover:bg-secondary-fixed/30 rounded-xl flex items-center gap-3 font-label-sm text-label-sm text-left scale-100 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">note_add</span>
+                ¿Necesito una nota crédito?
+            </button>
+<button class="text-on-surface-variant p-3 hover:bg-secondary-fixed/30 rounded-xl flex items-center gap-3 font-label-sm text-label-sm text-left scale-100 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">compare_arrows</span>
+                Explicar diferencia
+            </button>
+<button class="text-on-surface-variant p-3 hover:bg-secondary-fixed/30 rounded-xl flex items-center gap-3 font-label-sm text-label-sm text-left scale-100 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">search</span>
+                Revisar factura
+            </button>
+</div>
+<!-- Disclaimer -->
+<div class="mt-auto pt-md border-t border-outline-variant/30">
+<p class="font-label-sm text-[10px] text-outline text-center">
+                El asistente de IA proporciona sugerencias basadas en reglas generales. Siempre verifica con tu contador.
+            </p>
+</div>
+</aside>
+<script>
+        // Simple script to toggle button state based on checkbox
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkbox = document.getElementById('confirmacion');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            
+            if (checkbox && submitBtn) {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        submitBtn.removeAttribute('disabled');
+                        submitBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+                        submitBtn.classList.add('hover:bg-error-container', 'hover:text-on-error-container');
+                    } else {
+                        submitBtn.setAttribute('disabled', 'disabled');
+                        submitBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                        submitBtn.classList.remove('hover:bg-error-container', 'hover:text-on-error-container');
+                    }
+                });
+            }
+        });
+    </script>
+</body></html>

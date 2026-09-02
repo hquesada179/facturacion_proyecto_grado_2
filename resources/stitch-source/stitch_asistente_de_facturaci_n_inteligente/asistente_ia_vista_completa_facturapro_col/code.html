@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FacturaPro Col - Asistente IA</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "outline": "#757682",
+                        "on-primary-container": "#90a8ff",
+                        "on-surface": "#0b1c30",
+                        "primary-fixed": "#dce1ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "primary-container": "#1e3a8a",
+                        "on-tertiary-fixed": "#341100",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-secondary-fixed": "#07006c",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "secondary": "#4648d4",
+                        "surface-bright": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#ffdbcb",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c5c5d3",
+                        "secondary-container": "#6063ee",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#4059aa",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-container": "#6e2c00",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "surface": "#f8f9ff",
+                        "on-primary-fixed": "#00164e",
+                        "on-surface-variant": "#444651",
+                        "inverse-surface": "#213145",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary": "#4b1c00",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#264191",
+                        "surface-dim": "#cbdbf5",
+                        "primary": "#00236f",
+                        "on-tertiary-container": "#f39461",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "inverse-primary": "#b6c4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-background": "#0b1c30",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Gradient for AI elements */
+        .ai-gradient {
+            background: linear-gradient(135deg, #00236f 0%, #4648d4 100%);
+        }
+        .ai-text-gradient {
+            background: linear-gradient(135deg, #00236f 0%, #4648d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Custom scrollbar for chat area */
+        .chat-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background-color: #c5c5d3;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-surface dark:bg-inverse-surface shadow-sm flex flex-col py-lg px-md z-50">
+<!-- Brand Logo -->
+<div class="mb-xl px-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-on-secondary-fixed">
+                FacturaPro Col
+            </h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Gestión Tributaria</p>
+</div>
+<!-- AI Assistant CTA (Highlighted) -->
+<button class="mb-lg w-full flex items-center justify-center gap-2 ai-gradient text-white rounded-lg py-3 px-4 font-label-md text-label-md shadow-sm hover:shadow-md transition-all active:scale-95 group">
+<span class="material-symbols-outlined text-white" style="font-size: 20px;">smart_toy</span>
+<span class="font-semibold">Asistente IA</span>
+<span class="relative flex h-3 w-3 ml-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-fixed opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+</span>
+</button>
+<!-- Navigation Tabs -->
+<div class="flex-1 overflow-y-auto chat-scroll flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Inicio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Facturas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Clientes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Productos y servicios</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md">Notas crédito</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Reportes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md">Trazabilidad</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Configuración</span>
+</a>
+</div>
+<!-- Footer Tabs -->
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Ayuda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Cerrar sesión</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 flex flex-col h-screen bg-surface-container-lowest">
+<!-- Header -->
+<header class="bg-surface-container-lowest border-b border-outline-variant/30 px-margin-desktop py-lg shrink-0 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg ai-gradient flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 24px;">smart_toy</span>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Asistente IA</h1>
+<div class="flex items-center gap-2 mt-1">
+<span class="flex h-2 w-2 rounded-full bg-[#10b981]"></span>
+<span class="font-label-sm text-label-sm text-[#10b981] font-medium">Asistente disponible</span>
+</div>
+</div>
+</div>
+<!-- Trailing Actions (from TopAppBar design intent) -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-9 h-9 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<img alt="Usuario Administrativo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkacpODnaIc-wdcuflTGLMDPJkIehRIswWM7TdZw7jY2OiJQknkR5f7O6JJma0ia7uTKMEKZt9nNbgBQaRKuMMs9sC0W3kJDCK5o82gKO9z1i5kDoBTeCj8wViSgH8VvPlpqSfeCEbEcOB9EgVN8uutIye8JCAjPyFa23N9vlmoBset84ZgOp-lFPBxDiY2NptQuBCQdj1xXA0wFUK9M9hYwo0xoCyRDMKc-hxl5drmnJcLV1HvAYN4Q"/>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl mt-2">
+                Obtén ayuda contextual para crear facturas, interpretar errores, revisar documentos y resolver dudas dentro del prototipo.
+            </p>
+</header>
+<!-- Body Split Area -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Panel: History -->
+<aside class="w-80 border-r border-outline-variant/30 bg-surface-bright flex flex-col shrink-0">
+<div class="p-md border-b border-outline-variant/30">
+<button class="w-full flex items-center justify-center gap-2 bg-white border border-outline-variant text-on-surface rounded-lg py-2.5 px-4 font-label-md text-label-md hover:border-primary hover:text-primary transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+<span>Nueva conversación</span>
+</button>
+<div class="mt-4 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full bg-surface pl-10 pr-4 py-2 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary/20 font-body-sm text-body-sm text-on-surface placeholder:text-outline transition-shadow" placeholder="Buscar conversaciones..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto chat-scroll p-sm">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant px-3 py-2 uppercase tracking-wider">Conversaciones recientes</h3>
+<div class="flex flex-col gap-1 mt-1">
+<!-- Active Chat -->
+<button class="w-full text-left flex items-start justify-between p-3 rounded-lg bg-surface-container border border-primary/20 transition-colors group">
+<div class="flex flex-col gap-1 pr-2 truncate">
+<span class="font-label-md text-label-md text-primary truncate">Error en factura FV-00156</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate text-[12px]">Hace 10 min</span>
+</div>
+<span class="material-symbols-outlined text-primary/70 text-[18px] opacity-100 group-hover:opacity-100 transition-opacity">more_vert</span>
+</button>
+<!-- Inactive Chats -->
+<button class="w-full text-left flex items-start justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors group">
+<div class="flex flex-col gap-1 pr-2 truncate">
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Ayuda con impuesto</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate text-[12px]">Hace 2 horas</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</button>
+<button class="w-full text-left flex items-start justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors group">
+<div class="flex flex-col gap-1 pr-2 truncate">
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Crear nota crédito</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate text-[12px]">Ayer</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</button>
+<button class="w-full text-left flex items-start justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors group">
+<div class="flex flex-col gap-1 pr-2 truncate">
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Buscar cliente</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate text-[12px]">Ayer</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</button>
+<button class="w-full text-left flex items-start justify-between p-3 rounded-lg hover:bg-surface-container-low transition-colors group">
+<div class="flex flex-col gap-1 pr-2 truncate">
+<span class="font-body-sm text-body-sm text-on-surface font-medium truncate">Validación de factura</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate text-[12px]">12 Oct</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Center Panel: Main Conversation -->
+<section class="flex-1 flex flex-col bg-surface-container-lowest relative">
+<!-- Context Box -->
+<div class="p-md bg-white border-b border-outline-variant/30 flex items-center justify-between shadow-sm z-10 shrink-0">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-outline text-[18px]">description</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Documento:</span>
+<span class="font-label-md text-label-md font-medium">FV-00156</span>
+</div>
+<div class="w-px h-4 bg-outline-variant/50"></div>
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-outline text-[18px]">person</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Cliente:</span>
+<span class="font-label-md text-label-md font-medium">Comercializadora Andina SAS</span>
+</div>
+<div class="w-px h-4 bg-outline-variant/50"></div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estado:</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#dcfce7] text-[#166534] font-label-sm text-[11px] font-semibold tracking-wide">
+                                Validada
+                            </span>
+</div>
+</div>
+<button class="text-primary hover:bg-primary-fixed py-1.5 px-3 rounded-md transition-colors font-label-sm text-label-sm flex items-center gap-1 border border-transparent hover:border-primary/20">
+<span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+                        Cambiar contexto
+                    </button>
+</div>
+<!-- Chat Bubbles Area -->
+<div class="flex-1 overflow-y-auto chat-scroll p-margin-desktop flex flex-col gap-6">
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="bg-surface-variant/50 text-on-surface-variant font-label-sm text-[11px] px-3 py-1 rounded-full uppercase tracking-wider">Hoy, 10:42 AM</span>
+</div>
+<!-- User Bubble -->
+<div class="flex justify-end max-w-3xl ml-auto w-full">
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-xl">
+<p class="font-body-md text-body-md">¿Por qué la factura FV-00156 tuvo una advertencia?</p>
+</div>
+</div>
+</div>
+<!-- AI Bubble 1 -->
+<div class="flex justify-start max-w-4xl mr-auto w-full gap-4">
+<div class="w-8 h-8 rounded-full ai-gradient flex items-center justify-center shrink-0 mt-1 shadow-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 16px;">smart_toy</span>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-white border border-outline-variant/40 p-4 rounded-2xl rounded-tl-sm shadow-[0_4px_12px_rgba(30,58,138,0.03)] max-w-2xl text-on-surface">
+<p class="font-body-md text-body-md leading-relaxed">Durante la validación se detectó que el producto <span class="font-mono bg-surface-variant/40 px-1.5 py-0.5 rounded text-sm text-primary">SERV-003</span> no tenía un impuesto configurado. El dato fue corregido antes de finalizar la factura.</p>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-outline-variant/60 rounded-full font-label-sm text-label-sm text-on-surface hover:border-primary hover:text-primary transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[14px]">history</span>
+                                    Ver evento en trazabilidad
+                                </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-outline-variant/60 rounded-full font-label-sm text-label-sm text-on-surface hover:border-primary hover:text-primary transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[14px]">receipt_long</span>
+                                    Ver factura
+                                </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-outline-variant/60 rounded-full font-label-sm text-label-sm text-on-surface hover:border-primary hover:text-primary transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                                    Explicar impuesto
+                                </button>
+</div>
+</div>
+</div>
+<!-- User Bubble 2 -->
+<div class="flex justify-end max-w-3xl ml-auto w-full mt-2">
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-sm shadow-sm max-w-xl">
+<p class="font-body-md text-body-md">¿Qué debo hacer si vuelve a ocurrir?</p>
+</div>
+</div>
+</div>
+<!-- AI Bubble 2 -->
+<div class="flex justify-start max-w-4xl mr-auto w-full gap-4">
+<div class="w-8 h-8 rounded-full ai-gradient flex items-center justify-center shrink-0 mt-1 shadow-sm">
+<span class="material-symbols-outlined text-white" style="font-size: 16px;">smart_toy</span>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-white border border-outline-variant/40 p-4 rounded-2xl rounded-tl-sm shadow-[0_4px_12px_rgba(30,58,138,0.03)] max-w-2xl text-on-surface">
+<p class="font-body-md text-body-md leading-relaxed">Puedes revisar la configuración del producto o servicio antes de utilizarlo en una factura. Puedo llevarte directamente al elemento para verificar su impuesto.</p>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-primary-fixed border border-primary/20 rounded-full font-label-sm text-label-sm text-primary-container hover:bg-primary/10 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    Ir al producto SERV-003
+                                </button>
+</div>
+</div>
+</div>
+<!-- Invisible spacer for bottom padding -->
+<div class="h-4"></div>
+</div>
+<!-- Input Area -->
+<div class="p-md px-margin-desktop bg-surface-container-lowest border-t border-outline-variant/30 shrink-0">
+<!-- Contextual Suggestions -->
+<div class="flex items-center gap-3 mb-4 overflow-x-auto chat-scroll pb-1">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0">lightbulb</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0 mr-1">Sugerencias:</span>
+<button class="shrink-0 px-3 py-1.5 bg-surface border border-outline-variant/40 rounded-full font-label-sm text-[12px] text-on-surface hover:border-secondary hover:text-secondary hover:bg-secondary-fixed/30 transition-colors whitespace-nowrap">
+                            ¿Por qué esta factura tiene error?
+                        </button>
+<button class="shrink-0 px-3 py-1.5 bg-surface border border-outline-variant/40 rounded-full font-label-sm text-[12px] text-on-surface hover:border-secondary hover:text-secondary hover:bg-secondary-fixed/30 transition-colors whitespace-nowrap">
+                            ¿Cómo creo una nota crédito?
+                        </button>
+<button class="shrink-0 px-3 py-1.5 bg-surface border border-outline-variant/40 rounded-full font-label-sm text-[12px] text-on-surface hover:border-secondary hover:text-secondary hover:bg-secondary-fixed/30 transition-colors whitespace-nowrap">
+                            ¿Qué información le falta al cliente?
+                        </button>
+</div>
+<!-- Input Box -->
+<div class="relative bg-white border border-outline-variant/50 rounded-xl shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all flex flex-col">
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none font-body-md text-body-md text-on-surface placeholder:text-outline p-4 min-h-[80px] max-h-[200px] rounded-t-xl" placeholder="Escribe tu pregunta sobre facturación..." rows="2"></textarea>
+<div class="flex items-center justify-between p-3 border-t border-outline-variant/20 bg-surface/30 rounded-b-xl">
+<div class="flex items-center gap-2">
+<button class="p-2 text-outline hover:text-primary hover:bg-primary-fixed/50 rounded-lg transition-colors flex items-center justify-center tooltip-trigger" title="Adjuntar contexto">
+<span class="material-symbols-outlined text-[20px]">attach_file</span>
+</button>
+<button class="p-2 text-outline hover:text-error hover:bg-error-container/50 rounded-lg transition-colors flex items-center justify-center tooltip-trigger" title="Limpiar conversación">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+</button>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg font-label-md font-medium flex items-center gap-2 shadow-sm transition-all active:scale-95 disabled:opacity-50">
+<span>Enviar</span>
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+<!-- Footer Disclaimer -->
+<div class="mt-4 text-center px-4">
+<p class="font-body-sm text-[11px] leading-tight text-outline flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                            El Asistente IA ofrece orientación y apoyo dentro del prototipo. No reemplaza el criterio del usuario ni constituye asesoría tributaria oficial. Las acciones que modifican documentos requieren confirmación del usuario.
+                        </p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Simple auto-resize for textarea
+        const tx = document.getElementsByTagName("textarea");
+        for (let i = 0; i < tx.length; i++) {
+            tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+            tx[i].addEventListener("input", OnInput, false);
+        }
+
+        function OnInput() {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+            if(this.scrollHeight > 200) {
+                 this.style.overflowY = "auto";
+            } else {
+                 this.style.overflowY = "hidden";
+            }
+        }
+    </script>
+</body></html>

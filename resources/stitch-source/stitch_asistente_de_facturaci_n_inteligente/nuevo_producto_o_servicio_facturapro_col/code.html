@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nuevo producto o servicio - FacturaPro Col</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#dce9ff",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-background": "#0b1c30",
+                        "secondary-container": "#6063ee",
+                        "surface-dim": "#cbdbf5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#444651",
+                        "surface": "#f8f9ff",
+                        "tertiary": "#4b1c00",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-container": "#fffbff",
+                        "primary-container": "#1e3a8a",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#f39461",
+                        "outline-variant": "#c5c5d3",
+                        "surface-tint": "#4059aa",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-low": "#eff4ff",
+                        "secondary": "#4648d4",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#6e2c00",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "on-primary-fixed": "#00164e",
+                        "tertiary-fixed": "#ffdbcb",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-fixed": "#341100",
+                        "inverse-primary": "#b6c4ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#e1e0ff",
+                        "primary": "#00236f",
+                        "on-primary-container": "#90a8ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-fixed": "#07006c",
+                        "outline": "#757682",
+                        "primary-fixed": "#dce1ff",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container": "#e5eeff",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "gutter": "24px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #0b1c30; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+        
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c5c5d3; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #757682; }
+
+        /* Focus styles for inputs */
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #00236f; box-shadow: 0 0 0 3px rgba(0, 35, 111, 0.1); }
+    </style>
+</head>
+<body class="flex bg-surface min-h-screen">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 py-lg px-md bg-surface dark:bg-inverse-surface border-r border-surface-container-low shadow-sm z-20">
+<div class="mb-xl flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary font-headline-md icon-fill">account_balance_wallet</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">FacturaPro Col</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Gestión Electrónica</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded-lg mb-lg hover:bg-surface-tint transition-colors flex items-center justify-center gap-sm shadow-sm">
+<span class="material-symbols-outlined text-lg">add</span>
+            Nueva Factura
+        </button>
+<ul class="flex flex-col gap-sm flex-grow overflow-y-auto">
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">dashboard</span>
+                Inicio
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">description</span>
+                Facturas
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">group</span>
+                Clientes
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-primary dark:text-primary-fixed-dim font-bold bg-surface-container-highest dark:bg-primary-container cursor-pointer font-label-md text-label-md transition-all duration-150">
+<span class="material-symbols-outlined icon-fill">inventory_2</span>
+                Productos y servicios
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">receipt_long</span>
+                Notas crédito
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">analytics</span>
+                Reportes
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">history</span>
+                Trazabilidad
+            </li>
+<li class="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer font-label-md text-label-md">
+<span class="material-symbols-outlined">settings</span>
+                Configuración
+            </li>
+</ul>
+<div class="mt-auto pt-md border-t border-surface-container-low flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">
+                UA
+            </div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface">Usuario admn...</p>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-64 mr-0 xl:mr-80 min-h-screen flex flex-col transition-all">
+<!-- TopAppBar (Simplified for inner page) -->
+<header class="sticky top-0 bg-surface/90 backdrop-blur-md z-10 py-md px-lg border-b border-surface-container-low flex flex-col gap-sm">
+<button class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm w-max">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                Volver a Productos y servicios
+            </button>
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Nuevo producto o servicio</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Registra la información necesaria para utilizar este elemento posteriormente en una factura</p>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<div class="flex-1 p-lg overflow-y-auto w-full max-w-5xl mx-auto flex flex-col gap-lg">
+<!-- Grid Layout for Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg items-start">
+<!-- Left Column (Wider) -->
+<div class="lg:col-span-2 flex flex-col gap-lg">
+<!-- 1. Tipo de elemento -->
+<section class="bg-white rounded-xl shadow-sm p-lg border border-transparent">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Tipo de elemento</h3>
+<div class="flex gap-md">
+<label class="flex-1 cursor-pointer">
+<input checked="" class="peer sr-only" name="item_type" type="radio" value="product"/>
+<div class="p-md border-2 border-surface-container-low rounded-lg peer-checked:border-primary peer-checked:bg-surface-container-low transition-all text-center">
+<span class="material-symbols-outlined text-primary mb-xs block text-3xl icon-fill">inventory_2</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Producto</span>
+</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="item_type" type="radio" value="service"/>
+<div class="p-md border-2 border-surface-container-low rounded-lg peer-checked:border-primary peer-checked:bg-surface-container-low transition-all text-center">
+<span class="material-symbols-outlined text-outline mb-xs block text-3xl">home_repair_service</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-semibold">Servicio</span>
+</div>
+</label>
+</div>
+</section>
+<!-- 2. Información principal -->
+<section class="bg-white rounded-xl shadow-sm p-lg border border-transparent">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Información principal</h3>
+<div class="flex flex-col gap-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="code">Código <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" id="code" placeholder="ej. PROD-001" type="text"/>
+<!-- Validation Error (Hidden by default, shown for mockup) -->
+<p class="text-error font-label-sm text-label-sm mt-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">error</span>
+                                    Código requerido
+                                </p>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="name">Nombre <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" id="name" placeholder="Nombre del producto o servicio" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="description">Descripción (Opcional)</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all resize-none" id="description" placeholder="Detalles adicionales que aparecerán en la factura" rows="3"></textarea>
+</div>
+</div>
+</section>
+<!-- 3. Precio -->
+<section class="bg-white rounded-xl shadow-sm p-lg border border-transparent">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Precio</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="price">Valor unitario</label>
+<div class="relative">
+<span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">$</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-xl pr-md py-sm font-body-md text-body-md text-on-surface text-right focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" id="price" type="text" value="180.000"/>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="currency">Moneda</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all appearance-none cursor-pointer" id="currency">
+<option value="COP">COP – Peso colombiano</option>
+<option value="USD">USD – Dólar estadounidense</option>
+</select>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Narrower) -->
+<div class="flex flex-col gap-lg">
+<!-- 6. Estado de la información (Moved up for visibility) -->
+<section class="bg-surface-container-low rounded-xl shadow-sm p-md border border-outline-variant border-dashed">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Estado del registro</h3>
+<div class="flex items-start gap-sm text-tertiary-container">
+<span class="material-symbols-outlined text-tertiary-container">warning</span>
+<div>
+<p class="font-label-md text-label-md font-bold">Información por revisar</p>
+<p class="font-body-sm text-body-sm mt-xs">Falta configurar el impuesto y completar campos obligatorios.</p>
+</div>
+</div>
+</section>
+<!-- 4. Configuración de impuesto -->
+<section class="bg-white rounded-xl shadow-sm p-lg border border-tertiary-container/30 relative overflow-hidden">
+<!-- Warning highlight edge -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-container"></div>
+<h3 class="font-title-lg text-title-lg text-on-surface mb-xs flex items-center gap-xs">
+                            Impuesto
+                            <span class="material-symbols-outlined text-tertiary-container text-[20px]" title="Requiere atención">error</span>
+</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Este valor será utilizado para calcular los impuestos en facturas.</p>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="tax">Tipo de impuesto</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all appearance-none cursor-pointer" id="tax">
+<option disabled="" selected="" value="">Seleccionar impuesto...</option>
+<option value="19">IVA 19%</option>
+<option value="5">IVA 5%</option>
+<option value="0">0%</option>
+<option value="none">Sin impuesto</option>
+</select>
+</div>
+<div class="mt-sm p-sm bg-tertiary-fixed rounded-md flex gap-sm items-start">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant text-[18px]">warning</span>
+<p class="font-label-sm text-label-sm text-on-tertiary-fixed-variant">El impuesto aún no está configurado</p>
+</div>
+</section>
+<!-- 5. Estado -->
+<section class="bg-white rounded-xl shadow-sm p-lg border border-transparent">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Disponibilidad</h3>
+<div class="flex items-center gap-md bg-surface-container-low p-md rounded-lg">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+<span class="ml-3 font-label-md text-label-md text-on-surface font-medium peer-checked:text-primary">Activo</span>
+</label>
+<span class="text-on-surface-variant font-body-sm text-body-sm ml-auto">Visible al facturar</span>
+</div>
+</section>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="mt-xl pt-lg border-t border-surface-container-low flex flex-col sm:flex-row justify-end items-center gap-md pb-xl">
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">
+                    Cancelar
+                </button>
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg border border-outline-variant font-label-md text-label-md text-primary hover:bg-surface-container-low transition-colors">
+                    Guardar y crear otro
+                </button>
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-sm hover:bg-surface-tint transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                    Guardar producto o servicio
+                </button>
+</div>
+</div>
+</main>
+<!-- NavigationDrawer (AI Assistant - Right Aligned) -->
+<aside class="hidden xl:flex flex-col h-screen w-80 fixed right-0 top-0 border-l border-outline-variant bg-surface-container dark:bg-inverse-surface shadow-lg ease-in-out duration-300 z-30">
+<!-- Header -->
+<div class="p-lg border-b border-outline-variant/30 flex justify-between items-center bg-gradient-to-r from-secondary-container/20 to-transparent">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary font-headline-md">smart_toy</span>
+<div>
+<h3 class="font-label-md text-label-md font-bold text-secondary">Asistente IA</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Contexto de Facturación</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-secondary rounded-full p-xs hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Chat / Suggestions Area -->
+<div class="flex-1 p-md overflow-y-auto flex flex-col gap-md">
+<!-- Welcome Message -->
+<div class="bg-surface p-md rounded-2xl rounded-tl-sm shadow-sm border border-surface-container-highest self-start max-w-[90%]">
+<p class="font-body-sm text-body-sm text-on-surface">Puedo ayudarte a revisar la información del producto antes de guardarlo. ¿En qué te ayudo?</p>
+</div>
+<!-- Quick Actions (Bento style grid) -->
+<div class="grid grid-cols-2 gap-sm mt-sm">
+<button class="p-sm bg-white border border-outline-variant/30 rounded-lg text-left hover:border-secondary hover:shadow-sm transition-all flex flex-col gap-xs group">
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">help_outline</span>
+<span class="font-label-sm text-label-sm text-on-surface">Explicar campo</span>
+</button>
+<button class="p-sm bg-white border border-outline-variant/30 rounded-lg text-left hover:border-secondary hover:shadow-sm transition-all flex flex-col gap-xs group">
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">payments</span>
+<span class="font-label-sm text-label-sm text-on-surface">Revisar precio</span>
+</button>
+<button class="p-sm bg-white border border-outline-variant/30 rounded-lg text-left hover:border-secondary hover:shadow-sm transition-all flex flex-col gap-xs group">
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">account_balance</span>
+<span class="font-label-sm text-label-sm text-on-surface">Revisar impuesto</span>
+</button>
+<button class="p-sm bg-white border border-outline-variant/30 rounded-lg text-left hover:border-secondary hover:shadow-sm transition-all flex flex-col gap-xs group">
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">troubleshoot</span>
+<span class="font-label-sm text-label-sm text-on-surface">Datos faltantes</span>
+</button>
+</div>
+<!-- Contextual Notification -->
+<div class="mt-md bg-tertiary-fixed/30 border border-tertiary-fixed rounded-xl p-md">
+<div class="flex gap-sm items-start mb-sm">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant text-[20px]">lightbulb</span>
+<p class="font-body-sm text-body-sm text-on-surface">He notado que este elemento <strong>todavía no tiene un impuesto configurado</strong>. Es recomendable asignarlo ahora para evitar errores de cálculo en tus facturas.</p>
+</div>
+<button class="w-full py-xs px-sm bg-white border border-outline-variant rounded-md font-label-sm text-label-sm text-on-surface hover:bg-surface-container-low transition-colors flex justify-center items-center gap-xs">
+                    Ir a impuesto
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Footer / Input -->
+<div class="p-md border-t border-outline-variant/30 bg-surface">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-sm px-md rounded-full mb-md hover:bg-secondary hover:text-white transition-colors flex items-center justify-center gap-sm shadow-sm">
+<span class="material-symbols-outlined text-lg">add_comment</span>
+                Nueva Consulta
+            </button>
+<div class="flex justify-around">
+<button class="flex flex-col items-center gap-xs text-on-surface-variant hover:text-secondary transition-colors p-xs rounded-lg">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-sm text-label-sm">Historial</span>
+</button>
+<button class="flex flex-col items-center gap-xs text-secondary bg-secondary-container/20 px-md py-xs rounded-lg transition-colors">
+<span class="material-symbols-outlined icon-fill">lightbulb</span>
+<span class="font-label-sm text-label-sm font-bold">Sugerencias</span>
+</button>
+</div>
+</div>
+</aside>
+</body></html>
