@@ -26,8 +26,8 @@ final class PrototypeScreens
             ['key' => 'products', 'label' => 'Productos y servicios', 'icon' => 'inventory_2', 'route' => 'products.index'],
             ['key' => 'credit-notes', 'label' => 'Notas crédito', 'icon' => 'assignment_return', 'route' => 'credit-notes.index'],
             ['key' => 'reports', 'label' => 'Reportes', 'icon' => 'analytics', 'route' => 'reports.index'],
-            ['key' => 'traceability', 'label' => 'Trazabilidad', 'icon' => 'history', 'route' => 'traceability.index'],
-            ['key' => 'settings', 'label' => 'Configuración', 'icon' => 'settings', 'route' => 'settings.company'],
+            ['key' => 'traceability', 'label' => 'Trazabilidad', 'icon' => 'history', 'route' => 'traceability.index', 'permission' => 'view-traceability'],
+            ['key' => 'settings', 'label' => 'Configuración', 'icon' => 'settings', 'route' => 'settings.company', 'permission' => 'manage-company'],
         ];
     }
 
@@ -108,7 +108,7 @@ final class PrototypeScreens
                         ['label' => 'Dirección', 'value' => 'Carrera 15 # 88-21'],
                     ]),
                 ]
-            ),
+            ) + ['permission' => 'manage-invoicing'],
             'invoices.create.items' => self::formPage(
                 'invoices.create.items',
                 '/facturas/nueva/productos',
@@ -127,7 +127,7 @@ final class PrototypeScreens
                     ]),
                 ],
                 self::lineItemsTable()
-            ),
+            ) + ['permission' => 'manage-invoicing'],
             'invoices.create.summary' => self::formPage(
                 'invoices.create.summary',
                 '/facturas/nueva/resumen',
@@ -148,7 +148,7 @@ final class PrototypeScreens
                     ]),
                 ],
                 self::lineItemsTable()
-            ),
+            ) + ['permission' => 'manage-invoicing'],
             'invoices.create.validation' => self::formPage(
                 'invoices.create.validation',
                 '/facturas/nueva/validacion',
@@ -166,7 +166,7 @@ final class PrototypeScreens
                     ]),
                 ],
                 self::validationTable()
-            ),
+            ) + ['permission' => 'manage-invoicing'],
             'invoices.create.finished' => [
                 'key' => 'invoices.create.finished',
                 'uri' => '/facturas/nueva/finalizada',
@@ -178,6 +178,7 @@ final class PrototypeScreens
                 'active' => 'invoices',
                 'template' => 'final',
                 'assistant' => true,
+                'permission' => 'manage-invoicing',
                 'summary' => [
                     ['label' => 'Factura', 'value' => 'FV-00156'],
                     ['label' => 'Cliente', 'value' => 'Comercializadora Andina SAS'],
@@ -186,28 +187,28 @@ final class PrototypeScreens
                 ],
             ],
             'invoices.show' => self::detailPage('invoices.show', '/facturas/FV-00156', 'invoices.show', 'Detalle de factura FV-00156', 'Consulta del documento, productos, trazabilidad y estado simulado.', 'invoices', 'detalle_de_factura_fv_00156_facturapro_col', self::invoiceDetailCards(), self::lineItemsTable(), self::timeline()),
-            'invoices.cancel' => self::formPage('invoices.cancel', '/facturas/FV-00156/anular', 'invoices.cancel', 'Anular factura FV-00156', 'Anulación simulada con motivo obligatorio y confirmación del usuario.', 'invoices', 'anular_factura_fv_00156_facturapro_col', null, [self::section('Motivo de anulación', [['label' => 'Tipo de motivo', 'value' => 'Error en datos del cliente', 'type' => 'select'], ['label' => 'Justificación', 'value' => 'El NIT del cliente debe corregirse antes de emitir un nuevo documento.', 'type' => 'textarea']])]),
+            'invoices.cancel' => self::formPage('invoices.cancel', '/facturas/FV-00156/anular', 'invoices.cancel', 'Anular factura FV-00156', 'Anulación simulada con motivo obligatorio y confirmación del usuario.', 'invoices', 'anular_factura_fv_00156_facturapro_col', null, [self::section('Motivo de anulación', [['label' => 'Tipo de motivo', 'value' => 'Error en datos del cliente', 'type' => 'select'], ['label' => 'Justificación', 'value' => 'El NIT del cliente debe corregirse antes de emitir un nuevo documento.', 'type' => 'textarea']])]) + ['permission' => 'manage-invoicing'],
             'customers.index' => self::listPage('customers.index', '/clientes', 'customers.index', 'Clientes', 'Administra clientes ficticios usados en el prototipo.', 'customers', 'listado_de_clientes_facturapro_col', self::customersTable(), self::customerMetrics(), ['label' => 'Nuevo cliente', 'icon' => 'person_add', 'route' => 'customers.create']),
-            'customers.create' => self::formPage('customers.create', '/clientes/nuevo', 'customers.create', 'Nuevo cliente', 'Registra información básica y fiscal del cliente.', 'customers', 'nuevo_cliente_facturapro_col', null, self::customerFormSections()),
+            'customers.create' => self::formPage('customers.create', '/clientes/nuevo', 'customers.create', 'Nuevo cliente', 'Registra información básica y fiscal del cliente.', 'customers', 'nuevo_cliente_facturapro_col', null, self::customerFormSections()) + ['permission' => 'manage-invoicing'],
             'customers.show' => self::detailPage('customers.show', '/clientes/comercializadora-andina', 'customers.show', 'Comercializadora Andina SAS', 'Detalle del cliente, documentos recientes y datos fiscales.', 'customers', 'detalle_de_cliente_comercializadora_andina_sas', self::customerDetailCards(), self::invoiceTable(), self::timeline()),
-            'customers.edit' => self::formPage('customers.edit', '/clientes/comercializadora-andina/editar', 'customers.edit', 'Editar cliente', 'Actualiza datos ficticios del cliente.', 'customers', 'editar_cliente_facturapro_col', null, self::customerFormSections()),
+            'customers.edit' => self::formPage('customers.edit', '/clientes/comercializadora-andina/editar', 'customers.edit', 'Editar cliente', 'Actualiza datos ficticios del cliente.', 'customers', 'editar_cliente_facturapro_col', null, self::customerFormSections()) + ['permission' => 'manage-invoicing'],
             'products.index' => self::listPage('products.index', '/productos-servicios', 'products.index', 'Productos y servicios', 'Catálogo base para la facturación simulada.', 'products', 'productos_y_servicios_facturapro_col', self::productsTable(), self::productMetrics(), ['label' => 'Nuevo producto', 'icon' => 'add_box', 'route' => 'products.create']),
-            'products.create' => self::formPage('products.create', '/productos-servicios/nuevo', 'products.create', 'Nuevo producto o servicio', 'Define precio, tipo e impuesto asociado.', 'products', 'nuevo_producto_o_servicio_facturapro_col', null, self::productFormSections()),
+            'products.create' => self::formPage('products.create', '/productos-servicios/nuevo', 'products.create', 'Nuevo producto o servicio', 'Define precio, tipo e impuesto asociado.', 'products', 'nuevo_producto_o_servicio_facturapro_col', null, self::productFormSections()) + ['permission' => 'manage-invoicing'],
             'products.show' => self::detailPage('products.show', '/productos-servicios/PS-014', 'products.show', 'Servicio mensual de soporte', 'Detalle del producto o servicio reutilizable.', 'products', 'detalle_de_producto_o_servicio_facturapro_col', self::productDetailCards(), self::productInvoicesTable(), self::timeline()),
-            'products.edit' => self::formPage('products.edit', '/productos-servicios/PS-014/editar', 'products.edit', 'Editar producto o servicio', 'Ajusta datos comerciales e impuesto simulado.', 'products', 'editar_producto_facturapro_col', null, self::productFormSections()),
+            'products.edit' => self::formPage('products.edit', '/productos-servicios/PS-014/editar', 'products.edit', 'Editar producto o servicio', 'Ajusta datos comerciales e impuesto simulado.', 'products', 'editar_producto_facturapro_col', null, self::productFormSections()) + ['permission' => 'manage-invoicing'],
             'credit-notes.index' => self::listPage('credit-notes.index', '/notas-credito', 'credit-notes.index', 'Notas crédito', 'Documentos de corrección simulados asociados a facturas.', 'credit-notes', 'notas_cr_dito_facturapro_col', self::creditNotesTable(), self::creditNoteMetrics(), ['label' => 'Crear nota crédito', 'icon' => 'add', 'route' => 'credit-notes.create']),
-            'credit-notes.create' => self::formPage('credit-notes.create', '/notas-credito/crear', 'credit-notes.create', 'Crear nota crédito', 'Selecciona factura origen y motivo de corrección.', 'credit-notes', 'crear_nota_cr_dito_facturapro_col', null, self::creditNoteFormSections(), self::lineItemsTable()),
-            'credit-notes.review' => self::formPage('credit-notes.review', '/notas-credito/revisar', 'credit-notes.review', 'Revisar nota crédito', 'Verifica valores antes de finalizar la nota crédito.', 'credit-notes', 'revisar_nota_cr_dito_facturapro_col', null, self::creditNoteReviewSections(), self::validationTable()),
+            'credit-notes.create' => self::formPage('credit-notes.create', '/notas-credito/crear', 'credit-notes.create', 'Crear nota crédito', 'Selecciona factura origen y motivo de corrección.', 'credit-notes', 'crear_nota_cr_dito_facturapro_col', null, self::creditNoteFormSections(), self::lineItemsTable()) + ['permission' => 'manage-invoicing'],
+            'credit-notes.review' => self::formPage('credit-notes.review', '/notas-credito/revisar', 'credit-notes.review', 'Revisar nota crédito', 'Verifica valores antes de finalizar la nota crédito.', 'credit-notes', 'revisar_nota_cr_dito_facturapro_col', null, self::creditNoteReviewSections(), self::validationTable()) + ['permission' => 'manage-invoicing'],
             'credit-notes.show' => self::detailPage('credit-notes.show', '/notas-credito/NC-0008', 'credit-notes.show', 'Detalle de nota crédito NC-0008', 'Consulta la relación entre nota crédito y factura origen.', 'credit-notes', 'detalle_de_nota_cr_dito_facturapro_col', self::creditNoteDetailCards(), self::lineItemsTable(), self::timeline()),
             'reports.index' => self::reportPage('reports.index', '/reportes', 'reports.index', 'Reportes e indicadores', 'Métricas operativas del prototipo académico.', 'reports', 'reportes_e_indicadores_facturapro_col'),
             'reports.errors' => self::reportPage('reports.errors', '/reportes/errores-productividad', 'reports.errors', 'Errores y productividad', 'Seguimiento de errores simulados y asistencia contextual.', 'reports', 'reporte_detallado_de_errores_y_productividad_facturapro_col'),
             'assistant.index' => ['key' => 'assistant.index', 'uri' => '/asistente', 'route' => 'assistant.index', 'source' => 'asistente_ia_vista_completa_facturapro_col', 'title' => 'Asistente IA', 'eyebrow' => 'Asistente', 'description' => 'Vista completa del asistente contextual del prototipo.', 'active' => 'assistant', 'template' => 'assistant', 'assistant' => false, 'wide' => true],
-            'traceability.index' => self::listPage('traceability.index', '/trazabilidad', 'traceability.index', 'Historial documental', 'Eventos y acciones simuladas sobre documentos.', 'traceability', null, self::traceabilityTable(), self::traceabilityMetrics(), null),
-            'settings.company' => self::settingsPage('settings.company', '/configuracion/empresa', 'settings.company', 'Datos de empresa', 'Información general de la empresa usada por el prototipo.', 'configuraci_n_datos_de_empresa_facturapro_col', self::companySettings()),
-            'settings.billing' => self::settingsPage('settings.billing', '/configuracion/facturacion-impuestos', 'settings.billing', 'Facturación e impuestos', 'Prefijos, numeración simulada e impuestos base.', 'configuraci_n_facturaci_n_e_impuestos_facturapro_col', self::billingSettings()),
-            'settings.users' => self::settingsPage('settings.users', '/configuracion/usuarios', 'settings.users', 'Usuarios', 'Roles administrativos previstos para la siguiente fase.', 'configuraci_n_usuarios_facturapro_col', self::usersSettings()),
-            'settings.security' => self::settingsPage('settings.security', '/configuracion/seguridad', 'settings.security', 'Seguridad', 'Preferencias de acceso y acciones críticas.', 'configuraci_n_seguridad_facturapro_col', self::securitySettings()),
-            'settings.preferences' => self::settingsPage('settings.preferences', '/configuracion/preferencias', 'settings.preferences', 'Preferencias', 'Ajustes visuales y del asistente contextual.', 'configuraci_n_preferencias_facturapro_col', self::preferencesSettings()),
+            'traceability.index' => self::listPage('traceability.index', '/trazabilidad', 'traceability.index', 'Historial documental', 'Eventos y acciones simuladas sobre documentos.', 'traceability', null, self::traceabilityTable(), self::traceabilityMetrics(), null) + ['permission' => 'view-traceability'],
+            'settings.company' => self::settingsPage('settings.company', '/configuracion/empresa', 'settings.company', 'Datos de empresa', 'Información general de la empresa usada por el prototipo.', 'configuraci_n_datos_de_empresa_facturapro_col', self::companySettings()) + ['permission' => 'manage-company'],
+            'settings.billing' => self::settingsPage('settings.billing', '/configuracion/facturacion-impuestos', 'settings.billing', 'Facturación e impuestos', 'Prefijos, numeración simulada e impuestos base.', 'configuraci_n_facturaci_n_e_impuestos_facturapro_col', self::billingSettings()) + ['permission' => 'manage-company'],
+            'settings.users' => self::settingsPage('settings.users', '/configuracion/usuarios', 'settings.users', 'Usuarios', 'Roles administrativos previstos para la siguiente fase.', 'configuraci_n_usuarios_facturapro_col', self::usersSettings()) + ['permission' => 'manage-company'],
+            'settings.security' => self::settingsPage('settings.security', '/configuracion/seguridad', 'settings.security', 'Seguridad', 'Preferencias de acceso y acciones críticas.', 'configuraci_n_seguridad_facturapro_col', self::securitySettings()) + ['permission' => 'manage-company'],
+            'settings.preferences' => self::settingsPage('settings.preferences', '/configuracion/preferencias', 'settings.preferences', 'Preferencias', 'Ajustes visuales y del asistente contextual.', 'configuraci_n_preferencias_facturapro_col', self::preferencesSettings()) + ['permission' => 'manage-company'],
             'profile.show' => self::detailPage('profile.show', '/perfil', 'profile.show', 'Perfil de usuario', 'Datos básicos del usuario administrador ficticio.', 'settings', 'perfil_de_usuario_facturapro_col', self::profileCards(), self::profileActivityTable(), self::timeline()),
         ];
     }

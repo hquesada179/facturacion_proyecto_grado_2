@@ -37,17 +37,20 @@
                     <p class="font-body-md text-body-md text-on-surface-variant">Ingresa a tu cuenta para continuar.</p>
                 </div>
 
-                <div id="login-error" class="hidden bg-error-container border border-error/20 p-md rounded-lg items-start gap-sm mb-lg">
-                    <span class="material-symbols-outlined text-error mt-xs">error</span>
-                    <p class="font-body-sm text-body-sm text-on-error-container">No fue posible iniciar sesión. Revisa el correo y la contraseña e inténtalo nuevamente.</p>
-                </div>
+                @if ($errors->any())
+                    <div class="bg-error-container border border-error/20 p-md rounded-lg flex items-start gap-sm mb-lg">
+                        <span class="material-symbols-outlined text-error mt-xs">error</span>
+                        <p class="font-body-sm text-body-sm text-on-error-container">{{ $errors->first() }}</p>
+                    </div>
+                @endif
 
-                <form class="space-y-md" data-demo-submit="login-error">
+                <form class="space-y-md" method="POST" action="{{ route('login') }}">
+                    @csrf
                     <label class="block">
                         <span class="block font-label-md text-label-md text-on-surface mb-xs">Correo electrónico</span>
                         <span class="relative block">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">mail</span>
-                            <input class="block w-full pl-xl pr-sm py-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md text-body-md" name="email" placeholder="correo@empresa.com" required type="email">
+                            <input class="block w-full pl-xl pr-sm py-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md text-body-md" name="email" value="{{ old('email') }}" placeholder="correo@empresa.com" required type="email">
                         </span>
                     </label>
 
@@ -64,7 +67,7 @@
 
                     <div class="flex items-center justify-between mt-sm">
                         <label class="flex items-center gap-sm font-body-sm text-body-sm text-on-surface-variant">
-                            <input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded bg-surface-container-lowest" type="checkbox">
+                            <input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded bg-surface-container-lowest" type="checkbox" name="remember">
                             Recordarme
                         </label>
                         <a class="font-label-md text-label-md text-primary hover:text-primary-container" href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>

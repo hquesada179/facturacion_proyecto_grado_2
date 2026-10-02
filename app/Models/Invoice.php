@@ -2,26 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
+    use BelongsToCompany;
+
+    /**
+     * number, status, validation_status, subtotal, tax_total, total and
+     * simulated_dian_code are intentionally excluded: they will be
+     * computed and assigned by the invoicing service layer, never taken
+     * directly from request input.
+     */
     protected $fillable = [
-        'company_id',
         'customer_id',
         'user_id',
-        'number',
-        'status',
-        'validation_status',
         'issue_date',
         'due_date',
-        'subtotal',
-        'tax_total',
-        'total',
         'currency',
-        'simulated_dian_code',
         'notes',
     ];
 
@@ -34,11 +35,6 @@ class Invoice extends Model
             'tax_total' => 'decimal:2',
             'total' => 'decimal:2',
         ];
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
     }
 
     public function customer(): BelongsTo
