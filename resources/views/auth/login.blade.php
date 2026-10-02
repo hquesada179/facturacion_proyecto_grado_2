@@ -10,7 +10,7 @@
                     <span class="font-headline-md text-headline-md">Facturación Pro</span>
                 </div>
                 <h1 class="font-display-lg text-display-lg mb-md">Sistema de Facturación Inteligente</h1>
-                <p class="font-body-lg text-body-lg opacity-90 max-w-md mb-xl">Facturación electrónica simulada para pymes con acompañamiento inteligente durante cada proceso.</p>
+                <p class="font-body-lg text-body-lg opacity-90 max-w-[28rem] mb-xl">Facturación electrónica simulada para pymes con acompañamiento inteligente durante cada proceso.</p>
 
                 <div class="space-y-lg">
                     @foreach ([['route', 'Facturación guiada'], ['verified_user', 'Validación de información'], ['smart_toy', 'Asistente IA integrado']] as [$icon, $text])
@@ -26,12 +26,12 @@
         </section>
 
         <section class="flex-1 flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface relative">
-            <div class="md:hidden flex items-center gap-sm mb-xl w-full max-w-sm text-primary">
+            <div class="md:hidden flex items-center gap-sm mb-xl w-full max-w-[24rem] text-primary">
                 <span class="material-symbols-outlined text-title-lg" data-fill="true">receipt_long</span>
                 <span class="font-headline-md text-headline-md">Facturación Pro</span>
             </div>
 
-            <div class="w-full max-w-sm">
+            <div class="w-full max-w-[24rem]">
                 <div class="mb-lg">
                     <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Bienvenido</h2>
                     <p class="font-body-md text-body-md text-on-surface-variant">Ingresa a tu cuenta para continuar.</p>

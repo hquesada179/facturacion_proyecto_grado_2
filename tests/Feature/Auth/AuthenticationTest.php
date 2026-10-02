@@ -62,6 +62,22 @@ class AuthenticationTest extends TestCase
         $this->actingAs($user)->get('/dashboard')->assertOk();
     }
 
+    public function test_sidebar_shows_the_real_authenticated_users_name_email_and_role(): void
+    {
+        $company = Company::factory()->create();
+        $user = User::factory()->for($company)->create([
+            'name' => 'Nombre De Prueba',
+            'email' => 'nombre.prueba@facturapro.test',
+            'role' => UserRole::Facturador,
+        ]);
+
+        $this->actingAs($user)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Nombre De Prueba')
+            ->assertSee('nombre.prueba@facturapro.test')
+            ->assertSee('Facturador');
+    }
+
     public function test_users_can_logout(): void
     {
         $company = Company::factory()->create();

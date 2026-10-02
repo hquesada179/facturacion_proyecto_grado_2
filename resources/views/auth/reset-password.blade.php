@@ -1,6 +1,6 @@
 <x-layouts.auth title="Restablecer contraseña">
     <div class="min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-surface">
-        <section class="w-full max-w-md bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-xl">
+        <section class="w-full max-w-[28rem] bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-xl">
             <a href="{{ route('login') }}" class="inline-flex items-center gap-xs text-primary font-label-md text-label-md mb-lg">
                 <span class="material-symbols-outlined text-[18px]">arrow_back</span>
                 Volver

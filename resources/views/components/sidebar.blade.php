@@ -45,6 +45,7 @@
             <div class="min-w-0">
                 <p class="font-label-md text-label-md text-on-surface font-semibold truncate">{{ auth()->user()->name }}</p>
                 <p class="font-label-sm text-label-sm text-on-surface-variant truncate">{{ auth()->user()->email }}</p>
+                <p class="font-label-sm text-label-sm text-primary truncate">{{ auth()->user()->role->label() }}</p>
             </div>
         </a>
         <form method="POST" action="{{ route('logout') }}">
