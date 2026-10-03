@@ -1,8 +1,14 @@
-# FacturaPro Col
+<p align="center">
+  <img src="public/branding/fiscora-logo-horizontal.png" alt="Fiscora" width="420">
+</p>
+
+# Fiscora
+
+**Plataforma de Facturación**
 
 ## Descripción
 
-FacturaPro Col es un sistema académico de facturación inteligente orientado a pymes colombianas. Cubre todo el ciclo de un documento de facturación — cliente, producto, cálculo de impuestos, validación, emisión, PDF, trazabilidad, notas crédito/anulación — y añade un asistente de IA contextual que ayuda al usuario a entender el estado de sus documentos sin salirse de las reglas del dominio.
+Fiscora es un sistema académico de facturación inteligente orientado a pymes colombianas. Cubre todo el ciclo de un documento de facturación — cliente, producto, cálculo de impuestos, validación, emisión, PDF, trazabilidad, notas crédito/anulación — y añade un asistente de IA contextual que ayuda al usuario a entender el estado de sus documentos sin salirse de las reglas del dominio.
 
 ## Alcance
 

@@ -3,13 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Verificación de documento de prueba | FacturaPro Col</title>
+    <title>Verificación de documento de prueba | {{ config('app.name') }}</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('branding/favicon-32x32.png') }}">
+    <link rel="icon" href="{{ asset('branding/favicon.ico') }}" sizes="any">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-background text-on-surface antialiased font-body-md text-body-md">
     <main class="min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop">
         <section class="w-full max-w-2xl bg-surface-container-lowest border border-outline-variant/50 rounded-lg p-lg shadow-soft">
-            <p class="font-label-sm text-label-sm text-primary uppercase mb-xs">FacturaPro Col</p>
+            <div class="flex items-center gap-xs mb-xs">
+                <img src="{{ asset('branding/fiscora-icon.png') }}" alt="Fiscora" class="h-4 w-4 object-contain">
+                <p class="font-label-sm text-label-sm text-primary uppercase">Fiscora</p>
+            </div>
             <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-sm">
                 Verificación de documento de prueba
             </h1>
@@ -44,6 +49,10 @@
                     <dd class="mt-xs font-mono break-all">{{ $invoice->simulated_cufe }}</dd>
                 </div>
             </dl>
+
+            <p class="mt-lg pt-md border-t border-outline-variant/40 text-center font-label-sm text-label-sm text-on-surface-variant">
+                Fiscora · Plataforma de Facturación
+            </p>
         </section>
     </main>
 </body>

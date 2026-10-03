@@ -22,8 +22,8 @@
 
 <header class="md:hidden sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant/40 px-margin-mobile py-md flex items-center justify-between">
     <a href="{{ route('dashboard') }}" class="flex items-center gap-sm text-primary">
-        <span class="material-symbols-outlined" data-fill="true">receipt_long</span>
-        <span class="font-title-lg text-title-lg">FacturaPro</span>
+        <img src="{{ asset('branding/fiscora-icon.png') }}" alt="Fiscora" class="h-7 w-7 object-contain">
+        <span class="font-title-lg text-title-lg">Fiscora</span>
     </a>
     <a href="{{ route('assistant.index') }}" class="p-sm rounded-full ai-gradient text-on-primary" aria-label="Asistente IA">
         <span class="material-symbols-outlined">auto_awesome</span>

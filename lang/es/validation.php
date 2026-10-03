@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Mensajes de error por defecto del validador, en español, para que
-    | coincidan con el resto de la interfaz de FacturaPro Col.
+    | coincidan con el resto de la interfaz de Fiscora.
     |
     */
 

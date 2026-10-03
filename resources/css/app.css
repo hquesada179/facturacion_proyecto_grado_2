@@ -97,6 +97,12 @@
     --color-on-background: #0b1c30;
     --color-surface-variant: #d3e4fe;
 
+    /* Fiscora brand gold — sampled from the approved logo artwork.
+       Reserved for small institutional accents (login, brand marks),
+       never for functional UI (buttons, links, states stay primary blue). */
+    --color-brand-gold: #c79a46;
+    --color-brand-charcoal: #1c1d21;
+
     --spacing-base: 4px;
     --spacing-xs: 4px;
     --spacing-sm: 8px;

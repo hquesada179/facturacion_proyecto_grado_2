@@ -1,19 +1,21 @@
 <x-layouts.auth title="Inicio de sesión">
     <div class="flex min-h-screen flex-col md:flex-row">
         <section class="hidden md:flex md:w-1/2 bg-primary text-on-primary flex-col justify-between p-margin-desktop relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-[520px] h-[520px] bg-primary-container rounded-full opacity-20 blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-[360px] h-[360px] bg-secondary rounded-full opacity-20 blur-3xl"></div>
+            <div class="absolute inset-x-0 top-0 h-[3px] bg-brand-gold"></div>
 
             <div class="relative z-10">
-                <div class="flex items-center gap-sm mb-xl">
-                    <span class="material-symbols-outlined text-title-lg" data-fill="true">receipt_long</span>
-                    <span class="font-headline-md text-headline-md">Facturación Pro</span>
+                <div class="flex items-center gap-md mb-xl">
+                    <img src="{{ asset('branding/fiscora-icon-transparent.png') }}" alt="Fiscora" class="h-12 w-12 object-contain shrink-0">
+                    <div>
+                        <p class="font-headline-md text-headline-md tracking-[0.12em]">FISCORA</p>
+                        <p class="font-label-sm text-label-sm text-brand-gold tracking-[0.18em] uppercase">Plataforma de Facturación</p>
+                    </div>
                 </div>
-                <h1 class="font-display-lg text-display-lg mb-md">Sistema de Facturación Inteligente</h1>
-                <p class="font-body-lg text-body-lg opacity-90 max-w-[28rem] mb-xl">Facturación electrónica simulada para pymes con acompañamiento inteligente durante cada proceso.</p>
+                <h1 class="font-display-lg text-display-lg mb-md">Factura con claridad, control y confianza</h1>
+                <p class="font-body-lg text-body-lg opacity-90 max-w-[28rem] mb-xl">Facturación electrónica simulada para pymes, con validación y trazabilidad en cada paso.</p>
 
                 <div class="space-y-lg">
-                    @foreach ([['route', 'Facturación guiada'], ['verified_user', 'Validación de información'], ['smart_toy', 'Asistente IA integrado']] as [$icon, $text])
+                    @foreach ([['route', 'Facturación guiada'], ['verified_user', 'Validación de información'], ['smart_toy', 'Asistente inteligente']] as [$icon, $text])
                         <div class="flex items-start gap-md">
                             <div class="bg-primary-container p-sm rounded-lg flex items-center justify-center">
                                 <span class="material-symbols-outlined">{{ $icon }}</span>
@@ -23,12 +25,14 @@
                     @endforeach
                 </div>
             </div>
+
+            <p class="relative z-10 font-label-sm text-label-sm text-on-primary/60">Prototipo académico · Documentos de prueba sin validez tributaria</p>
         </section>
 
         <section class="flex-1 flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface relative">
             <div class="md:hidden flex items-center gap-sm mb-xl w-full max-w-[24rem] text-primary">
-                <span class="material-symbols-outlined text-title-lg" data-fill="true">receipt_long</span>
-                <span class="font-headline-md text-headline-md">Facturación Pro</span>
+                <img src="{{ asset('branding/fiscora-icon.png') }}" alt="Fiscora" class="h-8 w-8 object-contain">
+                <span class="font-headline-md text-headline-md">Fiscora</span>
             </div>
 
             <div class="w-full max-w-[24rem]">

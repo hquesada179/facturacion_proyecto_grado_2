@@ -4,10 +4,10 @@
 
 <nav class="hidden md:flex fixed left-0 top-0 h-screen w-64 flex-col z-40 bg-surface-container-lowest border-r border-outline-variant/50 shadow-sm">
     <div class="p-lg flex items-center gap-sm">
-        <span class="material-symbols-outlined text-primary text-[28px]" data-fill="true">corporate_fare</span>
+        <img src="{{ asset('branding/fiscora-icon.png') }}" alt="Fiscora" class="h-9 w-9 shrink-0 object-contain">
         <div class="min-w-0">
-            <h1 class="font-headline-md text-headline-md text-primary leading-tight">FacturaPro Col</h1>
-            <p class="font-label-sm text-label-sm text-on-surface-variant">Gestión inteligente</p>
+            <h1 class="font-headline-md text-headline-md text-primary leading-tight">Fiscora</h1>
+            <p class="font-label-sm text-label-sm text-on-surface-variant truncate">Plataforma de Facturación</p>
         </div>
     </div>
 

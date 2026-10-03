@@ -89,6 +89,17 @@
             margin-top: 12px;
             padding: 8px;
         }
+        .platform-footer {
+            border-top: 1px solid #e5eeff;
+            color: #757682;
+            font-size: 8px;
+            letter-spacing: 0.06em;
+            margin-top: 16px;
+            padding-top: 8px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .platform-footer strong { color: #0b1c30; }
     </style>
 </head>
 <body>
@@ -201,5 +212,7 @@
             <div class="muted">QR interno del prototipo</div>
         </div>
     </div>
+
+    <div class="platform-footer">Generado con <strong>Fiscora</strong> · Plataforma de Facturación</div>
 </body>
 </html>

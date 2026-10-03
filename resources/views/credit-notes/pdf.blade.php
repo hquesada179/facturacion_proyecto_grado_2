@@ -28,6 +28,8 @@
         .totals td { border-bottom: 0; padding: 5px; }
         .totals tr:last-child td { border-top: 1px solid #00236f; color: #00236f; font-size: 14px; font-weight: 700; padding-top: 8px; }
         .legend { background: #fdf6b2; border: 1px solid rgba(114, 59, 19, 0.25); color: #723b13; margin-top: 12px; padding: 8px; }
+        .platform-footer { border-top: 1px solid #e5eeff; color: #757682; font-size: 8px; letter-spacing: 0.06em; margin-top: 16px; padding-top: 8px; text-align: center; text-transform: uppercase; }
+        .platform-footer strong { color: #0b1c30; }
     </style>
 </head>
 <body>
@@ -125,5 +127,7 @@
     <div class="legend">
         Validación DIAN simulada. Esta nota crédito pertenece a un prototipo académico y no representa un documento tributario real.
     </div>
+
+    <div class="platform-footer">Generado con <strong>Fiscora</strong> · Plataforma de Facturación</div>
 </body>
 </html>
