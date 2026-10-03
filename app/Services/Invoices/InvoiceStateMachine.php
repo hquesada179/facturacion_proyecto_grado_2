@@ -23,7 +23,7 @@ class InvoiceStateMachine
         'technical_error' => ['draft'],
         'issued' => ['voided', 'partially_credited'],
         'voided' => [],
-        'partially_credited' => [],
+        'partially_credited' => ['voided'],
         'discarded' => [],
     ];
 

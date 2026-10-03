@@ -16,6 +16,7 @@ final class PrototypeScreens
         return array_values(array_filter(
             self::all(),
             fn (array $screen): bool => isset($screen['uri'], $screen['route'])
+                && ! str_starts_with($screen['route'], 'credit-notes.')
         ));
     }
 

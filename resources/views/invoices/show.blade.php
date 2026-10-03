@@ -21,6 +21,12 @@
                         </button>
                     </form>
                 @endcan
+                @can('create', \App\Models\CreditNote::class)
+                    <a href="{{ route('credit-notes.create', ['invoice_id' => $invoice->id]) }}" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">assignment_return</span>
+                        Crear nota crédito
+                    </a>
+                @endcan
                 @can('view-traceability')
                     <a href="#trazabilidad" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
                         <span class="material-symbols-outlined text-[18px]">history</span>

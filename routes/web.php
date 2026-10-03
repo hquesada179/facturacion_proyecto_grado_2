@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\CreditNotes\CreditNoteController;
+use App\Http\Controllers\CreditNotes\CreditNotePdfController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Documents\DocumentVerificationController;
 use App\Http\Controllers\Invoices\InvoiceController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Settings\BillingSettingsController;
 use App\Http\Controllers\Settings\CompanyController;
 use App\Http\Controllers\Settings\NumberingResolutionController;
 use App\Http\Controllers\Settings\TaxController;
+use App\Models\CreditNote;
 use App\Support\PrototypeScreens;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +48,10 @@ Route::middleware('auth')->group(function (): void {
         ->name('home');
 
     foreach (PrototypeScreens::routes() as $screen) {
+        if (str_starts_with($screen['route'], 'credit-notes.')) {
+            continue;
+        }
+
         $route = Route::get($screen['uri'], [PrototypeController::class, 'show'])
             ->defaults('screen', $screen['key'])
             ->name($screen['route']);
@@ -177,4 +184,19 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/facturas/{invoice}/pdf', [InvoicePdfController::class, 'show'])->name('invoices.pdf.show');
     Route::get('/facturas/{invoice}/pdf/descargar', [InvoicePdfController::class, 'download'])->name('invoices.pdf.download');
     Route::post('/facturas/{invoice}/enviar-simulada', [InvoicePdfController::class, 'send'])->name('invoices.delivery.send');
+
+    Route::get('/notas-credito', [CreditNoteController::class, 'index'])->name('credit-notes.index');
+    Route::get('/notas-credito/crear', [CreditNoteController::class, 'create'])
+        ->middleware('can:create,'.CreditNote::class)
+        ->name('credit-notes.create');
+    Route::post('/notas-credito', [CreditNoteController::class, 'store'])
+        ->middleware('can:create,'.CreditNote::class)
+        ->name('credit-notes.store');
+    Route::get('/notas-credito/{creditNote}/revisar', [CreditNoteController::class, 'review'])->name('credit-notes.review');
+    Route::post('/notas-credito/{creditNote}/validar', [CreditNoteController::class, 'validateDraft'])->name('credit-notes.validate');
+    Route::post('/notas-credito/{creditNote}/emitir', [CreditNoteController::class, 'issue'])->name('credit-notes.issue');
+    Route::post('/notas-credito/{creditNote}/descartar', [CreditNoteController::class, 'discard'])->name('credit-notes.discard');
+    Route::get('/notas-credito/{creditNote}/pdf', [CreditNotePdfController::class, 'show'])->name('credit-notes.pdf.show');
+    Route::get('/notas-credito/{creditNote}/pdf/descargar', [CreditNotePdfController::class, 'download'])->name('credit-notes.pdf.download');
+    Route::get('/notas-credito/{creditNote}', [CreditNoteController::class, 'show'])->name('credit-notes.show');
 });

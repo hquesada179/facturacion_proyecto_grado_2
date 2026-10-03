@@ -33,6 +33,7 @@ class InvoiceStateMachineTest extends TestCase
             'technical_error -> draft' => [InvoiceStatus::TechnicalError, InvoiceStatus::Draft],
             'issued -> voided' => [InvoiceStatus::Issued, InvoiceStatus::Voided],
             'issued -> partially_credited' => [InvoiceStatus::Issued, InvoiceStatus::PartiallyCredited],
+            'partially_credited -> voided' => [InvoiceStatus::PartiallyCredited, InvoiceStatus::Voided],
         ];
     }
 
@@ -107,7 +108,7 @@ class InvoiceStateMachineTest extends TestCase
     {
         $this->assertTrue(InvoiceStateMachine::isTerminal(InvoiceStatus::Voided));
         $this->assertTrue(InvoiceStateMachine::isTerminal(InvoiceStatus::Discarded));
-        $this->assertTrue(InvoiceStateMachine::isTerminal(InvoiceStatus::PartiallyCredited));
+        $this->assertFalse(InvoiceStateMachine::isTerminal(InvoiceStatus::PartiallyCredited));
     }
 
     public function test_non_terminal_statuses(): void
@@ -117,5 +118,7 @@ class InvoiceStateMachineTest extends TestCase
         $this->assertFalse(InvoiceStateMachine::isTerminal(InvoiceStatus::SendingSimulated));
         // issued still has voided/partially_credited as valid future destinations.
         $this->assertFalse(InvoiceStateMachine::isTerminal(InvoiceStatus::Issued));
+        // partially credited invoices can still be voided by a later credit note for the remaining balance.
+        $this->assertFalse(InvoiceStateMachine::isTerminal(InvoiceStatus::PartiallyCredited));
     }
 }
