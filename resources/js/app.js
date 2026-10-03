@@ -1,4 +1,8 @@
+import { initAssistantPanels } from './assistant.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+    initAssistantPanels();
+
     document.querySelectorAll('[data-demo-submit]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
@@ -27,21 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (icon) {
                 icon.textContent = isHidden ? 'visibility_off' : 'visibility';
             }
-        });
-    });
-
-    document.querySelectorAll('[data-assistant-demo]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const input = form.querySelector('input');
-
-            if (! input || ! input.value.trim()) {
-                return;
-            }
-
-            input.value = '';
-            input.placeholder = 'Respuesta preparada en modo prototipo';
         });
     });
 });

@@ -19,6 +19,7 @@ final class PrototypeScreens
                 && ! str_starts_with($screen['route'], 'credit-notes.')
                 && $screen['route'] !== 'dashboard'
                 && ! str_starts_with($screen['route'], 'reports.')
+                && $screen['route'] !== 'assistant.index'
         ));
     }
 

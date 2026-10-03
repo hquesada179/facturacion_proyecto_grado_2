@@ -1,4 +1,10 @@
-<x-layouts.app title="Nueva factura" active="invoices">
+<x-layouts.app
+    title="Nueva factura"
+    active="invoices"
+    screen="invoice.validation"
+    resource-type="invoice"
+    :resource-id="$invoice->id"
+>
     <x-page-header eyebrow="Facturas" title="Nueva factura" description="Validación simulada sobre el borrador real antes de emitir." />
 
     <x-invoice-stepper :current="4" :invoice="$invoice" />

@@ -1,4 +1,10 @@
-<x-layouts.app title="{{ $customer->name }}" active="customers">
+<x-layouts.app
+    title="{{ $customer->name }}"
+    active="customers"
+    screen="customer.show"
+    resource-type="customer"
+    :resource-id="$customer->id"
+>
     <x-page-header eyebrow="Clientes" :title="$customer->name" description="Detalle del cliente y documentos asociados.">
         <x-slot:actions>
             @can('update', $customer)

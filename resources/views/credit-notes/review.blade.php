@@ -1,4 +1,10 @@
-<x-layouts.app title="Revisar nota crédito" active="credit-notes">
+<x-layouts.app
+    title="Revisar nota crédito"
+    active="credit-notes"
+    screen="credit_note.review"
+    resource-type="credit_note"
+    :resource-id="$creditNote->id"
+>
     <x-page-header eyebrow="Notas crédito" :title="'Revisar nota crédito #'.$creditNote->id" description="Valida localmente y emite la nota crédito simulada.">
         <x-slot:actions>
             <x-ui.badge :status="$creditNote->status->label()" />

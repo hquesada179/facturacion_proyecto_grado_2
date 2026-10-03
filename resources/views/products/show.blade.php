@@ -1,4 +1,10 @@
-<x-layouts.app title="{{ $product->name }}" active="products">
+<x-layouts.app
+    title="{{ $product->name }}"
+    active="products"
+    screen="product.show"
+    resource-type="product"
+    :resource-id="$product->id"
+>
     <x-page-header eyebrow="Productos y servicios" :title="$product->name" description="Detalle del producto o servicio.">
         <x-slot:actions>
             @can('update', $product)

@@ -1,4 +1,10 @@
-<x-layouts.app title="{{ $invoice->number ?? 'Borrador de factura' }}" active="invoices">
+<x-layouts.app
+    title="{{ $invoice->number ?? 'Borrador de factura' }}"
+    active="invoices"
+    screen="invoice.show"
+    resource-type="invoice"
+    :resource-id="$invoice->id"
+>
     <x-page-header eyebrow="Facturas" :title="$invoice->number ?? 'Borrador de factura #'.$invoice->id" description="Consulta del documento, productos y trazabilidad.">
         <x-slot:actions>
             @if ($invoice->status->value === 'issued')

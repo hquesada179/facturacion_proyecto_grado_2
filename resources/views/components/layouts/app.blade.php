@@ -3,6 +3,9 @@
     'active' => 'dashboard',
     'assistant' => true,
     'wide' => false,
+    'screen' => null,
+    'resourceType' => null,
+    'resourceId' => null,
 ])
 
 <!DOCTYPE html>
@@ -55,7 +58,11 @@
                         </section>
 
                         <aside class="w-full xl:w-80 shrink-0">
-                            <x-assistant-panel />
+                            <x-assistant-panel
+                                :screen="$screen ?? $active"
+                                :resource-type="$resourceType"
+                                :resource-id="$resourceId"
+                            />
                         </aside>
                     </div>
                 @else

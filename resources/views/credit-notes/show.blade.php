@@ -1,4 +1,10 @@
-<x-layouts.app title="{{ $creditNote->number ?? 'Nota crédito' }}" active="credit-notes">
+<x-layouts.app
+    title="{{ $creditNote->number ?? 'Nota crédito' }}"
+    active="credit-notes"
+    screen="credit_note.show"
+    resource-type="credit_note"
+    :resource-id="$creditNote->id"
+>
     <x-page-header eyebrow="Notas crédito" :title="$creditNote->number ?? 'Nota crédito #'.$creditNote->id" description="Consulta de nota crédito simulada y su relación con la factura origen.">
         <x-slot:actions>
             @if ($creditNote->status === \App\Enums\CreditNoteStatus::Issued)

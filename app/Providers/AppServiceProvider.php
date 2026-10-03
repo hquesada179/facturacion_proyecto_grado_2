@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Contracts\AssistantProvider;
 use App\Enums\UserRole;
 use App\Models\Company;
 use App\Models\CreditNote;
@@ -19,9 +18,14 @@ use App\Policies\InvoicePolicy;
 use App\Policies\NumberingResolutionPolicy;
 use App\Policies\ProductServicePolicy;
 use App\Policies\TaxPolicy;
-use App\Services\Assistant\PrototypeAssistantProvider;
+use App\Services\Assistant\Contracts\AiProviderInterface;
+use App\Services\Assistant\Providers\ExternalAiProvider;
+use App\Services\Assistant\Providers\LocalFallbackProvider;
 use App\Services\Invoices\Validation\ValidationEngine;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,7 +35,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(AssistantProvider::class, PrototypeAssistantProvider::class);
+        $this->app->singleton(LocalFallbackProvider::class);
+        $this->app->bind(AiProviderInterface::class, function ($app): AiProviderInterface {
+            $provider = (string) config('services.assistant_ai.provider', 'local');
+            $apiKey = (string) config('services.assistant_ai.api_key', '');
+            $endpoint = (string) config('services.assistant_ai.endpoint', '');
+
+            if ($provider !== 'local' && $apiKey !== '' && $endpoint !== '') {
+                return $app->make(ExternalAiProvider::class);
+            }
+
+            return $app->make(LocalFallbackProvider::class);
+        });
 
         // Without this, the container's constructor autowiring would build
         // ValidationEngine with its bare `$rules = []` default and silently
@@ -80,6 +95,16 @@ class AppServiceProvider extends ServiceProvider
             'view-user-report',
             fn (User $user): bool => in_array($user->role, [UserRole::Administrador, UserRole::Auditor], true)
         );
+
+        Gate::define(
+            'use-assistant',
+            fn (User $user): bool => $user->company_id !== null
+                && in_array($user->role, [UserRole::Administrador, UserRole::Auditor, UserRole::Contador, UserRole::Facturador], true)
+        );
+
+        RateLimiter::for('assistant', function (Request $request): Limit {
+            return Limit::perMinute(20)->by((string) ($request->user()?->id ?? $request->ip()));
+        });
 
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(CreditNote::class, CreditNotePolicy::class);

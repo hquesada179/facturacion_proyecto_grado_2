@@ -1,4 +1,4 @@
-<x-layouts.app title="Nueva factura" active="invoices">
+<x-layouts.app title="Nueva factura" active="invoices" screen="invoice.validation">
     <x-page-header eyebrow="Facturas" title="Nueva factura" description="Validación real de datos antes de finalizar el documento." />
 
     <x-invoice-stepper :current="4" />

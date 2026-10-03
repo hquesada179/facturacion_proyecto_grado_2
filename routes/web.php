@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -58,11 +59,24 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/reportes/exportar', [ReportsController::class, 'export'])
         ->middleware('can:view-reports')
         ->name('reports.export');
+    Route::get('/asistente', [AssistantController::class, 'index'])
+        ->middleware('can:use-assistant')
+        ->name('assistant.index');
+    Route::post('/asistente/mensaje', [AssistantController::class, 'message'])
+        ->middleware(['can:use-assistant', 'throttle:assistant'])
+        ->name('assistant.message');
+    Route::post('/asistente/confirmar', [AssistantController::class, 'confirm'])
+        ->middleware(['can:use-assistant', 'throttle:assistant'])
+        ->name('assistant.confirm');
+    Route::post('/asistente/mensajes/{assistantMessage}/feedback', [AssistantController::class, 'feedback'])
+        ->middleware(['can:use-assistant', 'throttle:assistant'])
+        ->name('assistant.feedback');
 
     foreach (PrototypeScreens::routes() as $screen) {
         if (str_starts_with($screen['route'], 'credit-notes.')
             || $screen['route'] === 'dashboard'
             || str_starts_with($screen['route'], 'reports.')
+            || $screen['route'] === 'assistant.index'
         ) {
             continue;
         }
