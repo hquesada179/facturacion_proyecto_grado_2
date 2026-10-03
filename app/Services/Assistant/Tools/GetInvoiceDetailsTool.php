@@ -5,6 +5,8 @@ namespace App\Services\Assistant\Tools;
 use App\Models\Invoice;
 use App\Models\InvoiceItemTax;
 use App\Models\User;
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 
@@ -67,7 +69,7 @@ class GetInvoiceDetailsTool
     }
 
     /**
-     * @return array<int, array{code: string, name: string, base: float, rate: float, tax: float}>
+     * @return array<int, array{code: string, name: string, base: string, rate: float, tax: string}>
      */
     private function taxBreakdown(Invoice $invoice): array
     {
@@ -78,12 +80,15 @@ class GetInvoiceDetailsTool
                 /** @var InvoiceItemTax $first */
                 $first = $taxes->first();
 
+                $base = $taxes->reduce(fn (BigDecimal $carry, InvoiceItemTax $tax): BigDecimal => $carry->plus($tax->base), BigDecimal::zero());
+                $value = $taxes->reduce(fn (BigDecimal $carry, InvoiceItemTax $tax): BigDecimal => $carry->plus($tax->value), BigDecimal::zero());
+
                 return [
                     'code' => $first->code,
                     'name' => $first->name,
-                    'base' => (float) $taxes->sum(fn (InvoiceItemTax $tax): float => (float) $tax->base),
+                    'base' => (string) $base->toScale(2, RoundingMode::HalfEven),
                     'rate' => (float) $first->rate,
-                    'tax' => (float) $taxes->sum(fn (InvoiceItemTax $tax): float => (float) $tax->value),
+                    'tax' => (string) $value->toScale(2, RoundingMode::HalfEven),
                 ];
             })
             ->values();

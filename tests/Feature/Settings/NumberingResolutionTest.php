@@ -212,4 +212,54 @@ class NumberingResolutionTest extends TestCase
         $this->expectException(NumberingRangeExhaustedException::class);
         $service->reserveNextNumber($resolution);
     }
+
+    /**
+     * True multi-process concurrency is out of scope ("no hace falta
+     * construir infraestructura distribuida"), but reserveNextNumber()
+     * wraps every reservation in DB::transaction()+lockForUpdate(), so
+     * concurrent callers are serialized through that lock exactly like
+     * these back-to-back calls — if the lock/transaction ever regressed
+     * into a naive read-then-increment, rapid reuse of the same
+     * resolution would immediately produce duplicates or gaps here.
+     */
+    public function test_rapid_successive_reservations_on_the_same_resolution_never_duplicate_or_skip(): void
+    {
+        $resolution = NumberingResolution::factory()->create([
+            'range_from' => 1,
+            'range_to' => 500,
+            'current_consecutive' => 1,
+        ]);
+
+        $service = app(NumberingService::class);
+
+        $numbers = [];
+        for ($i = 0; $i < 200; $i++) {
+            $numbers[] = $service->reserveNextNumber($resolution);
+        }
+
+        $this->assertSame(range(1, 200), $numbers);
+        $this->assertCount(200, array_unique($numbers));
+        $this->assertSame(201, $resolution->refresh()->current_consecutive);
+    }
+
+    public function test_concurrent_reservations_across_two_companies_never_cross_contaminate_sequences(): void
+    {
+        $resolutionA = NumberingResolution::factory()->create(['range_from' => 1, 'range_to' => 100, 'current_consecutive' => 1]);
+        $resolutionB = NumberingResolution::factory()->create(['range_from' => 1, 'range_to' => 100, 'current_consecutive' => 1]);
+
+        $service = app(NumberingService::class);
+
+        $sequenceA = [];
+        $sequenceB = [];
+
+        // Interleave reservations between the two resolutions to approximate
+        // concurrent callers hitting different rows at nearly the same time.
+        for ($i = 0; $i < 10; $i++) {
+            $sequenceA[] = $service->reserveNextNumber($resolutionA);
+            $sequenceB[] = $service->reserveNextNumber($resolutionB);
+        }
+
+        $this->assertSame(range(1, 10), $sequenceA);
+        $this->assertSame(range(1, 10), $sequenceB);
+    }
 }

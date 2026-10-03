@@ -8,7 +8,7 @@
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Factura origen</span>
                     <select name="invoice_id" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
                         @foreach ($invoices as $candidate)
-                            <option value="{{ $candidate->id }}">{{ $candidate->number }} · {{ $candidate->customer->name ?? '-' }} · ${{ number_format((float) $candidate->total, 2) }}</option>
+                            <option value="{{ $candidate->id }}">{{ $candidate->number }} · {{ $candidate->customer->name ?? '-' }} · {{ \App\Support\ReportFormatter::money($candidate->total) }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -36,7 +36,7 @@
                     <div><span class="text-on-surface-variant">Factura</span><br><strong>{{ $invoice->number }}</strong></div>
                     <div><span class="text-on-surface-variant">Cliente</span><br><strong>{{ $invoice->customer->name ?? ($invoice->customer_snapshot['name'] ?? '-') }}</strong></div>
                     <div><span class="text-on-surface-variant">Estado</span><br><x-ui.badge :status="$invoice->status->label()" /></div>
-                    <div><span class="text-on-surface-variant">Total</span><br><strong class="font-mono">${{ number_format((float) $invoice->total, 2) }}</strong></div>
+                    <div><span class="text-on-surface-variant">Total</span><br><strong class="font-mono">{{ \App\Support\ReportFormatter::money($invoice->total) }}</strong></div>
                 </div>
             </section>
 

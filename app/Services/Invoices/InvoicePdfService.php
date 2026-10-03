@@ -5,6 +5,8 @@ namespace App\Services\Invoices;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -68,14 +70,29 @@ class InvoicePdfService
                     'code' => $itemTax->code,
                     'name' => $itemTax->name,
                     'rate' => (string) $itemTax->rate,
-                    'base' => 0.0,
-                    'value' => 0.0,
+                    'base' => BigDecimal::zero(),
+                    'value' => BigDecimal::zero(),
                 ];
 
-                $taxesByCode[$itemTax->code]['base'] += (float) $itemTax->base;
-                $taxesByCode[$itemTax->code]['value'] += (float) $itemTax->value;
+                $taxesByCode[$itemTax->code]['base'] = $taxesByCode[$itemTax->code]['base']->plus($itemTax->base);
+                $taxesByCode[$itemTax->code]['value'] = $taxesByCode[$itemTax->code]['value']->plus($itemTax->value);
             }
         }
+
+        foreach ($taxesByCode as $code => $tax) {
+            $taxesByCode[$code]['base'] = (string) $tax['base']->toScale(2, RoundingMode::HalfEven);
+            $taxesByCode[$code]['value'] = (string) $tax['value']->toScale(2, RoundingMode::HalfEven);
+        }
+
+        $totalDiscounts = $invoice->items->reduce(
+            fn (BigDecimal $carry, $item): BigDecimal => $carry->plus($item->discount_total),
+            BigDecimal::zero()
+        )->toScale(2, RoundingMode::HalfEven);
+
+        $taxableBase = $invoice->items->reduce(
+            fn (BigDecimal $carry, $item): BigDecimal => $carry->plus($item->taxable_base),
+            BigDecimal::zero()
+        )->toScale(2, RoundingMode::HalfEven);
 
         $verificationUrl = $this->verificationUrl($invoice);
 
@@ -84,8 +101,8 @@ class InvoicePdfService
             'issuer' => $invoice->issuer_snapshot ?? [],
             'customer' => $invoice->customer_snapshot ?? [],
             'taxesByCode' => $taxesByCode,
-            'totalDiscounts' => $invoice->items->sum(fn ($item): float => (float) $item->discount_total),
-            'taxableBase' => $invoice->items->sum(fn ($item): float => (float) $item->taxable_base),
+            'totalDiscounts' => (string) $totalDiscounts,
+            'taxableBase' => (string) $taxableBase,
             'verificationUrl' => $verificationUrl,
             'qrDataUri' => $this->qrCode->dataUri($verificationUrl),
         ];

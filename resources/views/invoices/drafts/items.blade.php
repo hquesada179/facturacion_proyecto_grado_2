@@ -97,10 +97,10 @@
                                     <button type="submit" class="text-primary hover:underline font-label-sm text-label-sm whitespace-nowrap" title="Actualizar cantidad">Actualizar</button>
                                 </form>
                             </td>
-                            <td class="px-lg py-md font-mono text-on-surface">${{ number_format((float) $item->unit_price, 2) }}</td>
-                            <td class="px-lg py-md font-mono text-on-surface">${{ number_format((float) $item->discount_total, 2) }}</td>
+                            <td class="px-lg py-md font-mono text-on-surface">{{ \App\Support\ReportFormatter::money($item->unit_price) }}</td>
+                            <td class="px-lg py-md font-mono text-on-surface">{{ \App\Support\ReportFormatter::money($item->discount_total) }}</td>
                             <td class="px-lg py-md text-on-surface-variant">{{ $item->itemTaxes->pluck('code')->implode(', ') ?: 'Sin impuesto' }}</td>
-                            <td class="px-lg py-md font-mono text-on-surface">${{ number_format((float) $item->line_total, 2) }}</td>
+                            <td class="px-lg py-md font-mono text-on-surface">{{ \App\Support\ReportFormatter::money($item->line_total) }}</td>
                             <td class="px-lg py-md text-center">
                                 <form method="POST" action="{{ route('invoices.draft.items.destroy', [$invoice, $item]) }}" onsubmit="return confirm('¿Eliminar esta línea?');">
                                     @csrf

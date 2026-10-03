@@ -37,7 +37,7 @@
                 </div>
                 <div>
                     <dt class="font-label-sm text-label-sm text-on-surface-variant">Valor total</dt>
-                    <dd class="mt-xs font-mono">{{ $invoice->currency }} ${{ number_format((float) $invoice->total, 2) }}</dd>
+                    <dd class="mt-xs font-mono">{{ $invoice->currency }} {{ \App\Support\ReportFormatter::money($invoice->total) }}</dd>
                 </div>
                 <div>
                     <dt class="font-label-sm text-label-sm text-on-surface-variant">CUFE simulado</dt>

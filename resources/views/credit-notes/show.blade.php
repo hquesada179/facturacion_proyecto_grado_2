@@ -38,7 +38,7 @@
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Factura origen</p><p class="font-title-lg text-title-lg">{{ $creditNote->invoice->number }}</p></div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Cliente</p><p class="font-title-lg text-title-lg">{{ $creditNote->invoice->customer->name ?? ($creditNote->invoice->customer_snapshot['name'] ?? '-') }}</p></div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Motivo</p><p class="font-title-lg text-title-lg">{{ $creditNote->reason }}</p></div>
-        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Total acreditado</p><p class="font-title-lg text-title-lg font-mono">${{ number_format((float) $creditNote->total, 2) }}</p></div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Total acreditado</p><p class="font-title-lg text-title-lg font-mono">{{ \App\Support\ReportFormatter::money($creditNote->total) }}</p></div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-lg">
@@ -50,9 +50,9 @@
                 $item->product_code ?? '-',
                 $item->description,
                 (string) $item->credited_quantity.' '.$item->unit,
-                '$'.number_format((float) $item->taxable_base, 2),
-                '$'.number_format((float) $item->tax_total, 2),
-                '$'.number_format((float) $item->line_total, 2),
+                \App\Support\ReportFormatter::money($item->taxable_base),
+                \App\Support\ReportFormatter::money($item->tax_total),
+                \App\Support\ReportFormatter::money($item->line_total),
             ])->all(),
         ]" />
 

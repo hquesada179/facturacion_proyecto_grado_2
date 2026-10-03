@@ -5,6 +5,8 @@ namespace App\Services\CreditNotes;
 use App\Enums\CreditNoteStatus;
 use App\Models\CreditNote;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -64,13 +66,18 @@ class CreditNotePdfService
                     'code' => $code,
                     'name' => $tax['name'] ?? 'Impuesto',
                     'rate' => $tax['rate'] ?? '0',
-                    'base' => 0.0,
-                    'value' => 0.0,
+                    'base' => BigDecimal::zero(),
+                    'value' => BigDecimal::zero(),
                 ];
 
-                $taxesByCode[$code]['base'] += (float) ($tax['base'] ?? 0);
-                $taxesByCode[$code]['value'] += (float) ($tax['value'] ?? 0);
+                $taxesByCode[$code]['base'] = $taxesByCode[$code]['base']->plus($tax['base'] ?? 0);
+                $taxesByCode[$code]['value'] = $taxesByCode[$code]['value']->plus($tax['value'] ?? 0);
             }
+        }
+
+        foreach ($taxesByCode as $code => $tax) {
+            $taxesByCode[$code]['base'] = (string) $tax['base']->toScale(2, RoundingMode::HalfEven);
+            $taxesByCode[$code]['value'] = (string) $tax['value']->toScale(2, RoundingMode::HalfEven);
         }
 
         return [

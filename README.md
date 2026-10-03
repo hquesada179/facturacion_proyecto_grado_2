@@ -1,58 +1,90 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# FacturaPro Col
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Descripción
 
-## About Laravel
+FacturaPro Col es un sistema académico de facturación inteligente orientado a pymes colombianas. Cubre todo el ciclo de un documento de facturación — cliente, producto, cálculo de impuestos, validación, emisión, PDF, trazabilidad, notas crédito/anulación — y añade un asistente de IA contextual que ayuda al usuario a entender el estado de sus documentos sin salirse de las reglas del dominio.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Alcance
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Prototipo académico — no realiza transmisión tributaria real.**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Todo lo que el sistema llama "DIAN simulada", "CUFE simulado", "entrega simulada" o "documento de prueba" es exactamente eso: una simulación local, pensada para un proyecto de grado. Ningún documento generado por este sistema tiene validez tributaria ante la DIAN ni ante terceros.
 
-## Learning Laravel
+## Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3+
+- Composer 2.x
+- Node 20+ y npm
+- Base de datos: SQLite (por defecto, cero configuración) o MySQL/PostgreSQL si se prefiere
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalación
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+npm run build
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Con SQLite (configuración por defecto de `.env.example`) no se necesita crear base de datos manualmente; `migrate --seed` crea el archivo y los datos iniciales.
 
-## Contributing
+## Usuarios demo
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+El `DatabaseSeeder` crea una empresa ficticia (`FacturaPro Demo SAS`) y un usuario por cada rol, todos con el dominio `facturapro.test` y contraseña `password`. Son cuentas completamente ficticias para desarrollo local, nunca credenciales reales:
 
-## Code of Conduct
+| Rol | Correo |
+|---|---|
+| Administrador | `admin@facturapro.test` |
+| Facturador | `facturador@facturapro.test` |
+| Contador | `contador@facturapro.test` |
+| Auditor | `auditor@facturapro.test` |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Arquitectura
 
-## Security Vulnerabilities
+Resumen rápido — el detalle completo está en [`docs/architecture.md`](docs/architecture.md):
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Servicios de dominio** (`app/Services/*`) concentran toda la lógica de negocio: cálculo monetario con decimales exactos (`brick/math`), validación, numeración simulada con bloqueo transaccional, generación de PDF/QR, reportes. Los controladores nunca calculan ni validan por su cuenta.
+- **Validaciones**: un `ValidationEngine` ejecuta ~28 reglas de dominio (cliente, productos, cantidades, precios, descuentos, impuestos, totales, pago) antes de permitir avanzar un borrador.
+- **Estados**: facturas y notas crédito avanzan mediante máquinas de estado explícitas (`InvoiceStateMachine`, `CreditNoteStateMachine`) que son la única vía autorizada para cambiar `status`.
+- **Multiempresa**: todo modelo de negocio usa el trait `BelongsToCompany`, que aplica un *global scope* automático por `company_id` y lo asigna solo desde el usuario autenticado — nunca desde la petición del usuario.
+- **Asistente IA**: capa opcional y desacoplada (`App\Services\Assistant`) con herramientas de solo lectura sobre los mismos servicios de dominio. Nunca ejecuta una acción crítica sin confirmación humana explícita, y el núcleo de facturación funciona igual con o sin proveedor de IA configurado.
 
-## License
+## Funcionalidades
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Autenticación, recuperación de contraseña y roles (Administrador, Facturador, Contador, Auditor)
+- Aislamiento multiempresa a nivel de base de datos
+- Empresa emisora, clientes, productos/servicios, catálogo de impuestos
+- Numeración simulada con reserva atómica de consecutivos (transacción + bloqueo de fila)
+- Wizard persistente de facturación (cliente → productos → resumen → validación → emisión)
+- Motor de cálculo monetario sin floats (decimales exactos) y motor de validación de reglas de negocio
+- Ciclo de vida completo de la factura (borrador → validada → enviando → emitida/rechazada/error → parcialmente abonada/anulada)
+- Emisión simulada con CUFE simulado, PDF, código QR y página pública de verificación
+- Entrega simulada (mailer de desarrollo)
+- Notas crédito (parciales y totales) y anulación de facturas, con saldo acreditable y snapshots históricos inmutables
+- Bitácora de trazabilidad append-only (no editable, no eliminable)
+- Dashboard y reportes con datos reales de la empresa autenticada
+- Asistente IA contextual opcional, con modo local determinista cuando no hay proveedor externo configurado
+
+## Pruebas
+
+```bash
+php artisan test
+vendor/bin/pint --test
+```
+
+La estrategia de pruebas, categorías y comandos están documentados en [`docs/testing.md`](docs/testing.md).
+
+## Limitaciones
+
+- La validación ante la DIAN es simulada; no existe transmisión tributaria real.
+- El CUFE es simulado (hash local), no un CUFE oficial.
+- El código QR apunta a una página de verificación interna del propio sistema, no al validador oficial de la DIAN.
+- El envío de documentos por correo es simulado (mailer de desarrollo / log), no un envío real al cliente.
+- El asistente de IA es opcional: sin credenciales de un proveedor externo configuradas, responde en modo local determinista con datos reales del sistema (nunca inventa información).
+
+## Configuración recomendada para producción
+
+Ver [`docs/architecture.md`](docs/architecture.md#configuración-de-entornos) para el detalle completo de variables de entorno. En resumen: `APP_ENV=production`, `APP_DEBUG=false`, `LOG_LEVEL=error`, `SESSION_SECURE_COOKIE=true` detrás de HTTPS, y credenciales reales nunca en el repositorio (`.env` está excluido de git; usar `.env.example` como plantilla).

@@ -15,12 +15,14 @@ use App\Http\Controllers\Invoices\InvoiceDraftValidationController;
 use App\Http\Controllers\Invoices\InvoicePdfController;
 use App\Http\Controllers\Invoices\InvoiceValidationController;
 use App\Http\Controllers\ProductServiceController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\Settings\BillingSettingsController;
 use App\Http\Controllers\Settings\CompanyController;
 use App\Http\Controllers\Settings\NumberingResolutionController;
 use App\Http\Controllers\Settings\TaxController;
+use App\Http\Controllers\TraceabilityController;
 use App\Models\CreditNote;
 use App\Support\PrototypeScreens;
 use Illuminate\Support\Facades\Route;
@@ -39,8 +41,6 @@ Route::middleware('guest')->group(function (): void {
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
-
-Route::view('/onboarding/empresa', 'onboarding.company')->name('onboarding.company');
 
 Route::get('/verificar-documento/{token}', [DocumentVerificationController::class, 'show'])
     ->name('documents.verify');
@@ -72,15 +72,10 @@ Route::middleware('auth')->group(function (): void {
         ->middleware(['can:use-assistant', 'throttle:assistant'])
         ->name('assistant.feedback');
 
+    // Remaining prototype-only screens (no real backing module yet): invoice
+    // cancellation (superseded by the credit-note void flow) and the
+    // settings sub-pages explicitly scoped for a later phase.
     foreach (PrototypeScreens::routes() as $screen) {
-        if (str_starts_with($screen['route'], 'credit-notes.')
-            || $screen['route'] === 'dashboard'
-            || str_starts_with($screen['route'], 'reports.')
-            || $screen['route'] === 'assistant.index'
-        ) {
-            continue;
-        }
-
         $route = Route::get($screen['uri'], [PrototypeController::class, 'show'])
             ->defaults('screen', $screen['key'])
             ->name($screen['route']);
@@ -89,6 +84,12 @@ Route::middleware('auth')->group(function (): void {
             $route->middleware('can:'.$screen['permission']);
         }
     }
+
+    Route::get('/perfil', [ProfileController::class, 'show'])->name('profile.show');
+
+    Route::get('/trazabilidad', [TraceabilityController::class, 'index'])
+        ->middleware('can:view-traceability')
+        ->name('traceability.index');
 
     Route::get('/configuracion/empresa', [CompanyController::class, 'edit'])
         ->middleware('can:manage-company')
@@ -154,6 +155,8 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/productos-servicios/{product}', [ProductServiceController::class, 'destroy'])
         ->middleware('can:manage-invoicing')
         ->name('products.destroy');
+
+    Route::get('/facturas', [InvoiceController::class, 'index'])->name('invoices.index');
 
     Route::get('/facturas/nueva/validacion', [InvoiceValidationController::class, 'show'])
         ->middleware('can:manage-invoicing')

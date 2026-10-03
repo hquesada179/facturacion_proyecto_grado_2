@@ -134,7 +134,7 @@ class InvoiceDraftWizardTest extends TestCase
         $this->actingAs($user)->get(route('invoices.draft.items', $invoice))
             ->assertOk()
             ->assertSee('value="4.00"', false)
-            ->assertSee('$4,000.00', false);
+            ->assertSee('4.000,00', false);
 
         $this->assertDatabaseHas('invoice_events', ['invoice_id' => $invoice->id, 'type' => 'item_updated']);
     }
@@ -174,7 +174,7 @@ class InvoiceDraftWizardTest extends TestCase
         $response = $this->actingAs($user)->get(route('invoices.draft.summary', $invoice));
 
         $response->assertOk();
-        $response->assertSee('2,000.00', false);
+        $response->assertSee('2.000,00', false);
         // The old static prototype total must never appear on a real draft.
         $response->assertDontSee('1.428.000');
     }

@@ -86,7 +86,7 @@
         </div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Total</p>
-            <p class="font-title-lg text-title-lg text-on-surface font-mono">${{ number_format((float) $invoice->total, 2) }}</p>
+            <p class="font-title-lg text-title-lg text-on-surface font-mono">{{ \App\Support\ReportFormatter::money($invoice->total) }}</p>
         </div>
     </div>
 
@@ -99,9 +99,9 @@
             'rows' => $invoice->items->map(fn ($item) => [
                 $item->description,
                 (string) $item->quantity,
-                '$'.number_format((float) $item->unit_price, 2),
+                \App\Support\ReportFormatter::money($item->unit_price),
                 $item->itemTaxes->pluck('code')->implode(', ') ?: 'Sin impuesto',
-                '$'.number_format((float) $item->line_total, 2),
+                \App\Support\ReportFormatter::money($item->line_total),
             ])->all(),
         ]" />
 

@@ -5,4 +5,4 @@
     El documento adjunto está marcado como <strong>DOCUMENTO DE PRUEBA – SIN VALIDEZ TRIBUTARIA</strong>.
 </p>
 
-<p>Total: {{ $invoice->currency }} ${{ number_format((float) $invoice->total, 2) }}</p>
+<p>Total: {{ $invoice->currency }} {{ \App\Support\ReportFormatter::money($invoice->total) }}</p>

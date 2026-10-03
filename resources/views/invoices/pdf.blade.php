@@ -152,16 +152,16 @@
                     <td>{{ $item->description }}</td>
                     <td class="right">{{ $item->quantity }}</td>
                     <td>{{ $item->unit }}</td>
-                    <td class="right">${{ number_format((float) $item->unit_price, 2) }}</td>
-                    <td class="right">${{ number_format((float) $item->discount_total, 2) }}</td>
+                    <td class="right">{{ \App\Support\ReportFormatter::money($item->unit_price) }}</td>
+                    <td class="right">{{ \App\Support\ReportFormatter::money($item->discount_total) }}</td>
                     <td>
                         @forelse ($item->itemTaxes as $tax)
-                            {{ $tax->code }} {{ $tax->rate }}%: ${{ number_format((float) $tax->value, 2) }}<br>
+                            {{ $tax->code }} {{ $tax->rate }}%: {{ \App\Support\ReportFormatter::money($tax->value) }}<br>
                         @empty
                             Sin impuesto
                         @endforelse
                     </td>
-                    <td class="right">${{ number_format((float) $item->line_total, 2) }}</td>
+                    <td class="right">{{ \App\Support\ReportFormatter::money($item->line_total) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -172,7 +172,7 @@
             <div class="box">
                 <h2>Impuestos discriminados</h2>
                 @forelse ($taxesByCode as $tax)
-                    <div>{{ $tax['code'] }} - {{ $tax['name'] }} ({{ $tax['rate'] }}%): base ${{ number_format($tax['base'], 2) }}, impuesto ${{ number_format($tax['value'], 2) }}</div>
+                    <div>{{ $tax['code'] }} - {{ $tax['name'] }} ({{ $tax['rate'] }}%): base {{ \App\Support\ReportFormatter::money($tax['base']) }}, impuesto {{ \App\Support\ReportFormatter::money($tax['value']) }}</div>
                 @empty
                     <div>Sin impuestos aplicados.</div>
                 @endforelse
@@ -180,11 +180,11 @@
         </div>
         <div>
             <table class="totals">
-                <tr><td>Subtotal</td><td class="right">${{ number_format((float) $invoice->subtotal, 2) }}</td></tr>
-                <tr><td>Descuentos</td><td class="right">${{ number_format($totalDiscounts, 2) }}</td></tr>
-                <tr><td>Base gravable</td><td class="right">${{ number_format($taxableBase, 2) }}</td></tr>
-                <tr><td>Total impuestos</td><td class="right">${{ number_format((float) $invoice->tax_total, 2) }}</td></tr>
-                <tr><td>Total factura</td><td class="right">{{ $invoice->currency }} ${{ number_format((float) $invoice->total, 2) }}</td></tr>
+                <tr><td>Subtotal</td><td class="right">{{ \App\Support\ReportFormatter::money($invoice->subtotal) }}</td></tr>
+                <tr><td>Descuentos</td><td class="right">{{ \App\Support\ReportFormatter::money($totalDiscounts) }}</td></tr>
+                <tr><td>Base gravable</td><td class="right">{{ \App\Support\ReportFormatter::money($taxableBase) }}</td></tr>
+                <tr><td>Total impuestos</td><td class="right">{{ \App\Support\ReportFormatter::money($invoice->tax_total) }}</td></tr>
+                <tr><td>Total factura</td><td class="right">{{ $invoice->currency }} {{ \App\Support\ReportFormatter::money($invoice->total) }}</td></tr>
             </table>
         </div>
     </div>

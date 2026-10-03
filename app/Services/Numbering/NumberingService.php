@@ -9,9 +9,10 @@ use App\Models\NumberingResolution;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Centralizes the (still unused) numbering logic so that whenever real
- * invoice emission is implemented, it can reserve consecutives atomically
- * instead of reading/incrementing current_consecutive directly.
+ * Centralizes numbering so every consecutive is reserved atomically
+ * (transaction + row lock) instead of reading/incrementing
+ * current_consecutive directly. Used by IssueInvoiceService and
+ * IssueCreditNoteService for every real emission.
  */
 class NumberingService
 {

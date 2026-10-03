@@ -87,16 +87,16 @@
                     <td>{{ $item->product_code ?? '-' }}</td>
                     <td>{{ $item->description }}</td>
                     <td class="right">{{ $item->credited_quantity }} {{ $item->unit }}</td>
-                    <td class="right">${{ number_format((float) $item->unit_price, 2) }}</td>
-                    <td class="right">${{ number_format((float) $item->taxable_base, 2) }}</td>
+                    <td class="right">{{ \App\Support\ReportFormatter::money($item->unit_price) }}</td>
+                    <td class="right">{{ \App\Support\ReportFormatter::money($item->taxable_base) }}</td>
                     <td>
                         @forelse ($item->tax_snapshot ?? [] as $tax)
-                            {{ $tax['code'] }} {{ $tax['rate'] }}%: ${{ number_format((float) $tax['value'], 2) }}<br>
+                            {{ $tax['code'] }} {{ $tax['rate'] }}%: {{ \App\Support\ReportFormatter::money($tax['value']) }}<br>
                         @empty
                             Sin impuesto
                         @endforelse
                     </td>
-                    <td class="right">${{ number_format((float) $item->line_total, 2) }}</td>
+                    <td class="right">{{ \App\Support\ReportFormatter::money($item->line_total) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -107,7 +107,7 @@
             <div class="box">
                 <h2>Impuestos discriminados</h2>
                 @forelse ($taxesByCode as $tax)
-                    <div>{{ $tax['code'] }} - {{ $tax['name'] }} ({{ $tax['rate'] }}%): base ${{ number_format($tax['base'], 2) }}, impuesto ${{ number_format($tax['value'], 2) }}</div>
+                    <div>{{ $tax['code'] }} - {{ $tax['name'] }} ({{ $tax['rate'] }}%): base {{ \App\Support\ReportFormatter::money($tax['base']) }}, impuesto {{ \App\Support\ReportFormatter::money($tax['value']) }}</div>
                 @empty
                     <div>Sin impuestos aplicados.</div>
                 @endforelse
@@ -115,9 +115,9 @@
         </div>
         <div>
             <table class="totals">
-                <tr><td>Subtotal acreditado</td><td class="right">${{ number_format((float) $creditNote->subtotal, 2) }}</td></tr>
-                <tr><td>Total impuestos</td><td class="right">${{ number_format((float) $creditNote->tax_total, 2) }}</td></tr>
-                <tr><td>Total nota crédito</td><td class="right">{{ $invoice->currency }} ${{ number_format((float) $creditNote->total, 2) }}</td></tr>
+                <tr><td>Subtotal acreditado</td><td class="right">{{ \App\Support\ReportFormatter::money($creditNote->subtotal) }}</td></tr>
+                <tr><td>Total impuestos</td><td class="right">{{ \App\Support\ReportFormatter::money($creditNote->tax_total) }}</td></tr>
+                <tr><td>Total nota crédito</td><td class="right">{{ $invoice->currency }} {{ \App\Support\ReportFormatter::money($creditNote->total) }}</td></tr>
             </table>
         </div>
     </div>

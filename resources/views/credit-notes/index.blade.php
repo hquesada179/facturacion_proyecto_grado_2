@@ -42,7 +42,7 @@
                 $creditNote->invoice->number ?? 'Sin número',
                 $creditNote->invoice->customer->name ?? ($creditNote->invoice->customer_snapshot['name'] ?? '-'),
                 $creditNote->reason,
-                '$'.number_format((float) $creditNote->total, 2),
+                \App\Support\ReportFormatter::money($creditNote->total),
                 $creditNote->status->label(),
             ],
             'actions' => array_values(array_filter([

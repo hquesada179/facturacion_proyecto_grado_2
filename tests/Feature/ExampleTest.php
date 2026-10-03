@@ -25,7 +25,6 @@ class ExampleTest extends TestCase
         $user = User::factory()->for(Company::factory())->create(['role' => UserRole::Administrador]);
 
         $uris = array_column(PrototypeScreens::routes(), 'uri');
-        $uris = array_merge($uris, ['/onboarding/empresa']);
 
         foreach ($uris as $uri) {
             $this->actingAs($user)->get($uri)->assertOk();

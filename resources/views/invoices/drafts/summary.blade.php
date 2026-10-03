@@ -7,30 +7,37 @@
         $taxesByCode = [];
         foreach ($invoice->items as $item) {
             foreach ($item->itemTaxes as $itemTax) {
-                $taxesByCode[$itemTax->code] ??= ['name' => $itemTax->name, 'base' => 0, 'value' => 0];
-                $taxesByCode[$itemTax->code]['base'] += (float) $itemTax->base;
-                $taxesByCode[$itemTax->code]['value'] += (float) $itemTax->value;
+                $taxesByCode[$itemTax->code] ??= ['name' => $itemTax->name, 'base' => \Brick\Math\BigDecimal::zero(), 'value' => \Brick\Math\BigDecimal::zero()];
+                $taxesByCode[$itemTax->code]['base'] = $taxesByCode[$itemTax->code]['base']->plus($itemTax->base);
+                $taxesByCode[$itemTax->code]['value'] = $taxesByCode[$itemTax->code]['value']->plus($itemTax->value);
             }
         }
-        $totalDiscounts = $invoice->items->sum(fn ($item) => (float) $item->discount_total);
+        foreach ($taxesByCode as $code => $data) {
+            $taxesByCode[$code]['base'] = (string) $data['base']->toScale(2, \Brick\Math\RoundingMode::HalfEven);
+            $taxesByCode[$code]['value'] = (string) $data['value']->toScale(2, \Brick\Math\RoundingMode::HalfEven);
+        }
+        $totalDiscounts = (string) $invoice->items->reduce(
+            fn (\Brick\Math\BigDecimal $carry, $item) => $carry->plus($item->discount_total),
+            \Brick\Math\BigDecimal::zero()
+        )->toScale(2, \Brick\Math\RoundingMode::HalfEven);
     @endphp
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Subtotal</p>
-            <p class="font-title-lg text-title-lg text-on-surface font-mono">${{ number_format((float) $invoice->subtotal, 2) }}</p>
+            <p class="font-title-lg text-title-lg text-on-surface font-mono">{{ \App\Support\ReportFormatter::money($invoice->subtotal) }}</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Descuentos</p>
-            <p class="font-title-lg text-title-lg text-on-surface font-mono">${{ number_format($totalDiscounts, 2) }}</p>
+            <p class="font-title-lg text-title-lg text-on-surface font-mono">{{ \App\Support\ReportFormatter::money($totalDiscounts) }}</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Total impuestos</p>
-            <p class="font-title-lg text-title-lg text-on-surface font-mono">${{ number_format((float) $invoice->tax_total, 2) }}</p>
+            <p class="font-title-lg text-title-lg text-on-surface font-mono">{{ \App\Support\ReportFormatter::money($invoice->tax_total) }}</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Total a pagar</p>
-            <p class="font-title-lg text-title-lg text-on-surface font-mono">${{ number_format((float) $invoice->total, 2) }}</p>
+            <p class="font-title-lg text-title-lg text-on-surface font-mono">{{ \App\Support\ReportFormatter::money($invoice->total) }}</p>
         </div>
     </div>
 
@@ -49,8 +56,8 @@
                     @foreach ($taxesByCode as $code => $data)
                         <tr class="border-b border-surface-variant last:border-b-0">
                             <td class="py-sm text-on-surface">{{ $code }} — {{ $data['name'] }}</td>
-                            <td class="py-sm font-mono text-on-surface-variant">${{ number_format($data['base'], 2) }}</td>
-                            <td class="py-sm font-mono text-on-surface-variant">${{ number_format($data['value'], 2) }}</td>
+                            <td class="py-sm font-mono text-on-surface-variant">{{ \App\Support\ReportFormatter::money($data['base']) }}</td>
+                            <td class="py-sm font-mono text-on-surface-variant">{{ \App\Support\ReportFormatter::money($data['value']) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -107,9 +114,9 @@
         'rows' => $invoice->items->map(fn ($item) => [
             $item->description,
             (string) $item->quantity,
-            '$'.number_format((float) $item->unit_price, 2),
-            '$'.number_format((float) $item->discount_total, 2),
-            '$'.number_format((float) $item->line_total, 2),
+            \App\Support\ReportFormatter::money($item->unit_price),
+            \App\Support\ReportFormatter::money($item->discount_total),
+            \App\Support\ReportFormatter::money($item->line_total),
         ])->all(),
     ]" />
 
