@@ -16,6 +16,7 @@ use App\Policies\NumberingResolutionPolicy;
 use App\Policies\ProductServicePolicy;
 use App\Policies\TaxPolicy;
 use App\Services\Assistant\PrototypeAssistantProvider;
+use App\Services\Invoices\Validation\ValidationEngine;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(AssistantProvider::class, PrototypeAssistantProvider::class);
+
+        // Without this, the container's constructor autowiring would build
+        // ValidationEngine with its bare `$rules = []` default and silently
+        // run zero rules instead of ValidationEngine::defaultRules().
+        $this->app->bind(ValidationEngine::class, static fn (): ValidationEngine => ValidationEngine::default());
     }
 
     /**

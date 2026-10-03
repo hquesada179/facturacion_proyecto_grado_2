@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Invoices\InvoiceValidationController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\Settings\BillingSettingsController;
@@ -109,4 +110,11 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/productos-servicios/{product}', [ProductServiceController::class, 'destroy'])
         ->middleware('can:manage-invoicing')
         ->name('products.destroy');
+
+    Route::get('/facturas/nueva/validacion', [InvoiceValidationController::class, 'show'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.create.validation');
+    Route::post('/facturas/validar', [InvoiceValidationController::class, 'store'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.validate');
 });

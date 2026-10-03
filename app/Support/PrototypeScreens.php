@@ -149,24 +149,6 @@ final class PrototypeScreens
                 ],
                 self::lineItemsTable()
             ) + ['permission' => 'manage-invoicing'],
-            'invoices.create.validation' => self::formPage(
-                'invoices.create.validation',
-                '/facturas/nueva/validacion',
-                'invoices.create.validation',
-                'Nueva factura',
-                'Validación simulada de datos antes de finalizar el documento.',
-                'invoices',
-                'nueva_factura_paso_4_validaci_n',
-                4,
-                [
-                    self::section('Validaciones', [
-                        ['label' => 'Cliente', 'value' => 'Datos fiscales completos'],
-                        ['label' => 'Productos', 'value' => 'Impuestos configurados'],
-                        ['label' => 'Totales', 'value' => 'Valores consistentes'],
-                    ]),
-                ],
-                self::validationTable()
-            ) + ['permission' => 'manage-invoicing'],
             'invoices.create.finished' => [
                 'key' => 'invoices.create.finished',
                 'uri' => '/facturas/nueva/finalizada',
