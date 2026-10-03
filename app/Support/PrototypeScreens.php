@@ -188,14 +188,6 @@ final class PrototypeScreens
             ],
             'invoices.show' => self::detailPage('invoices.show', '/facturas/FV-00156', 'invoices.show', 'Detalle de factura FV-00156', 'Consulta del documento, productos, trazabilidad y estado simulado.', 'invoices', 'detalle_de_factura_fv_00156_facturapro_col', self::invoiceDetailCards(), self::lineItemsTable(), self::timeline()),
             'invoices.cancel' => self::formPage('invoices.cancel', '/facturas/FV-00156/anular', 'invoices.cancel', 'Anular factura FV-00156', 'Anulación simulada con motivo obligatorio y confirmación del usuario.', 'invoices', 'anular_factura_fv_00156_facturapro_col', null, [self::section('Motivo de anulación', [['label' => 'Tipo de motivo', 'value' => 'Error en datos del cliente', 'type' => 'select'], ['label' => 'Justificación', 'value' => 'El NIT del cliente debe corregirse antes de emitir un nuevo documento.', 'type' => 'textarea']])]) + ['permission' => 'manage-invoicing'],
-            'customers.index' => self::listPage('customers.index', '/clientes', 'customers.index', 'Clientes', 'Administra clientes ficticios usados en el prototipo.', 'customers', 'listado_de_clientes_facturapro_col', self::customersTable(), self::customerMetrics(), ['label' => 'Nuevo cliente', 'icon' => 'person_add', 'route' => 'customers.create']),
-            'customers.create' => self::formPage('customers.create', '/clientes/nuevo', 'customers.create', 'Nuevo cliente', 'Registra información básica y fiscal del cliente.', 'customers', 'nuevo_cliente_facturapro_col', null, self::customerFormSections()) + ['permission' => 'manage-invoicing'],
-            'customers.show' => self::detailPage('customers.show', '/clientes/comercializadora-andina', 'customers.show', 'Comercializadora Andina SAS', 'Detalle del cliente, documentos recientes y datos fiscales.', 'customers', 'detalle_de_cliente_comercializadora_andina_sas', self::customerDetailCards(), self::invoiceTable(), self::timeline()),
-            'customers.edit' => self::formPage('customers.edit', '/clientes/comercializadora-andina/editar', 'customers.edit', 'Editar cliente', 'Actualiza datos ficticios del cliente.', 'customers', 'editar_cliente_facturapro_col', null, self::customerFormSections()) + ['permission' => 'manage-invoicing'],
-            'products.index' => self::listPage('products.index', '/productos-servicios', 'products.index', 'Productos y servicios', 'Catálogo base para la facturación simulada.', 'products', 'productos_y_servicios_facturapro_col', self::productsTable(), self::productMetrics(), ['label' => 'Nuevo producto', 'icon' => 'add_box', 'route' => 'products.create']),
-            'products.create' => self::formPage('products.create', '/productos-servicios/nuevo', 'products.create', 'Nuevo producto o servicio', 'Define precio, tipo e impuesto asociado.', 'products', 'nuevo_producto_o_servicio_facturapro_col', null, self::productFormSections()) + ['permission' => 'manage-invoicing'],
-            'products.show' => self::detailPage('products.show', '/productos-servicios/PS-014', 'products.show', 'Servicio mensual de soporte', 'Detalle del producto o servicio reutilizable.', 'products', 'detalle_de_producto_o_servicio_facturapro_col', self::productDetailCards(), self::productInvoicesTable(), self::timeline()),
-            'products.edit' => self::formPage('products.edit', '/productos-servicios/PS-014/editar', 'products.edit', 'Editar producto o servicio', 'Ajusta datos comerciales e impuesto simulado.', 'products', 'editar_producto_facturapro_col', null, self::productFormSections()) + ['permission' => 'manage-invoicing'],
             'credit-notes.index' => self::listPage('credit-notes.index', '/notas-credito', 'credit-notes.index', 'Notas crédito', 'Documentos de corrección simulados asociados a facturas.', 'credit-notes', 'notas_cr_dito_facturapro_col', self::creditNotesTable(), self::creditNoteMetrics(), ['label' => 'Crear nota crédito', 'icon' => 'add', 'route' => 'credit-notes.create']),
             'credit-notes.create' => self::formPage('credit-notes.create', '/notas-credito/crear', 'credit-notes.create', 'Crear nota crédito', 'Selecciona factura origen y motivo de corrección.', 'credit-notes', 'crear_nota_cr_dito_facturapro_col', null, self::creditNoteFormSections(), self::lineItemsTable()) + ['permission' => 'manage-invoicing'],
             'credit-notes.review' => self::formPage('credit-notes.review', '/notas-credito/revisar', 'credit-notes.review', 'Revisar nota crédito', 'Verifica valores antes de finalizar la nota crédito.', 'credit-notes', 'revisar_nota_cr_dito_facturapro_col', null, self::creditNoteReviewSections(), self::validationTable()) + ['permission' => 'manage-invoicing'],
@@ -204,8 +196,6 @@ final class PrototypeScreens
             'reports.errors' => self::reportPage('reports.errors', '/reportes/errores-productividad', 'reports.errors', 'Errores y productividad', 'Seguimiento de errores simulados y asistencia contextual.', 'reports', 'reporte_detallado_de_errores_y_productividad_facturapro_col'),
             'assistant.index' => ['key' => 'assistant.index', 'uri' => '/asistente', 'route' => 'assistant.index', 'source' => 'asistente_ia_vista_completa_facturapro_col', 'title' => 'Asistente IA', 'eyebrow' => 'Asistente', 'description' => 'Vista completa del asistente contextual del prototipo.', 'active' => 'assistant', 'template' => 'assistant', 'assistant' => false, 'wide' => true],
             'traceability.index' => self::listPage('traceability.index', '/trazabilidad', 'traceability.index', 'Historial documental', 'Eventos y acciones simuladas sobre documentos.', 'traceability', null, self::traceabilityTable(), self::traceabilityMetrics(), null) + ['permission' => 'view-traceability'],
-            'settings.company' => self::settingsPage('settings.company', '/configuracion/empresa', 'settings.company', 'Datos de empresa', 'Información general de la empresa usada por el prototipo.', 'configuraci_n_datos_de_empresa_facturapro_col', self::companySettings()) + ['permission' => 'manage-company'],
-            'settings.billing' => self::settingsPage('settings.billing', '/configuracion/facturacion-impuestos', 'settings.billing', 'Facturación e impuestos', 'Prefijos, numeración simulada e impuestos base.', 'configuraci_n_facturaci_n_e_impuestos_facturapro_col', self::billingSettings()) + ['permission' => 'manage-company'],
             'settings.users' => self::settingsPage('settings.users', '/configuracion/usuarios', 'settings.users', 'Usuarios', 'Roles administrativos previstos para la siguiente fase.', 'configuraci_n_usuarios_facturapro_col', self::usersSettings()) + ['permission' => 'manage-company'],
             'settings.security' => self::settingsPage('settings.security', '/configuracion/seguridad', 'settings.security', 'Seguridad', 'Preferencias de acceso y acciones críticas.', 'configuraci_n_seguridad_facturapro_col', self::securitySettings()) + ['permission' => 'manage-company'],
             'settings.preferences' => self::settingsPage('settings.preferences', '/configuracion/preferencias', 'settings.preferences', 'Preferencias', 'Ajustes visuales y del asistente contextual.', 'configuraci_n_preferencias_facturapro_col', self::preferencesSettings()) + ['permission' => 'manage-company'],
@@ -260,16 +250,6 @@ final class PrototypeScreens
         return [['label' => 'Emitidas este mes', 'value' => '38', 'icon' => 'receipt_long', 'tone' => 'primary'], ['label' => 'Pendientes', 'value' => '12', 'icon' => 'pending_actions', 'tone' => 'warning'], ['label' => 'Con error', 'value' => '2', 'icon' => 'error_outline', 'tone' => 'error']];
     }
 
-    private static function customerMetrics(): array
-    {
-        return [['label' => 'Clientes activos', 'value' => '42', 'icon' => 'group', 'tone' => 'primary'], ['label' => 'Por validar', 'value' => '3', 'icon' => 'fact_check', 'tone' => 'warning'], ['label' => 'Nuevos este mes', 'value' => '6', 'icon' => 'person_add', 'tone' => 'secondary']];
-    }
-
-    private static function productMetrics(): array
-    {
-        return [['label' => 'Items activos', 'value' => '87', 'icon' => 'inventory_2', 'tone' => 'primary'], ['label' => 'Servicios', 'value' => '54', 'icon' => 'home_repair_service', 'tone' => 'secondary'], ['label' => 'Sin impuesto', 'value' => '4', 'icon' => 'warning', 'tone' => 'warning']];
-    }
-
     private static function creditNoteMetrics(): array
     {
         return [['label' => 'Notas creadas', 'value' => '5', 'icon' => 'assignment_return', 'tone' => 'secondary'], ['label' => 'En revisión', 'value' => '2', 'icon' => 'rate_review', 'tone' => 'warning'], ['label' => 'Finalizadas', 'value' => '3', 'icon' => 'check_circle', 'tone' => 'primary']];
@@ -288,16 +268,6 @@ final class PrototypeScreens
     private static function invoiceTable(): array
     {
         return ['title' => 'Documentos recientes', 'headers' => ['N° Factura', 'Cliente', 'Fecha', 'Valor total', 'Estado'], 'rows' => [['FV-00156', 'Comercializadora Andina SAS', '2026-09-02', '$1.428.000', 'Validada'], ['FV-00155', 'Tienda La Esquina', '2026-09-01', '$450.000', 'Pendiente'], ['FV-00154', 'Servicios Logísticos', '2026-08-30', '$2.800.000', 'Con error'], ['FV-00153', 'Restaurante Gourmet', '2026-08-28', '$600.000', 'Anulada']]];
-    }
-
-    private static function customersTable(): array
-    {
-        return ['title' => 'Clientes', 'headers' => ['Cliente', 'Identificación', 'Ciudad', 'Correo', 'Estado'], 'rows' => [['Comercializadora Andina SAS', 'NIT 900.123.456-7', 'Bogotá D.C.', 'contabilidad@andina.co', 'Activo'], ['Tienda La Esquina', 'CC 1.020.303.404', 'Bucaramanga', 'admin@laesquina.co', 'Activo'], ['Servicios Logísticos', 'NIT 901.884.221-3', 'Medellín', 'facturacion@logistica.co', 'Por validar']]];
-    }
-
-    private static function productsTable(): array
-    {
-        return ['title' => 'Catálogo', 'headers' => ['Código', 'Nombre', 'Tipo', 'Impuesto', 'Precio'], 'rows' => [['PS-014', 'Servicio mensual de soporte', 'Servicio', 'IVA 19%', '$1.200.000'], ['PR-022', 'Licencia de software básico', 'Producto', 'IVA 19%', '$380.000'], ['PS-031', 'Acompañamiento tributario', 'Servicio', 'Excluido', '$720.000']]];
     }
 
     private static function creditNotesTable(): array
@@ -320,11 +290,6 @@ final class PrototypeScreens
         return ['title' => 'Validaciones del documento', 'headers' => ['Regla', 'Descripción', 'Estado', 'Acción sugerida'], 'rows' => [['Cliente', 'Identificación y correo completos', 'Correcto', 'Continuar'], ['Impuestos', 'IVA aplicado según configuración', 'Correcto', 'Continuar'], ['Totales', 'Subtotal + impuesto coincide con total', 'Correcto', 'Finalizar']]];
     }
 
-    private static function productInvoicesTable(): array
-    {
-        return ['title' => 'Uso reciente', 'headers' => ['Factura', 'Cliente', 'Cantidad', 'Total', 'Estado'], 'rows' => [['FV-00156', 'Comercializadora Andina SAS', '1', '$1.428.000', 'Validada'], ['FV-00148', 'Tienda La Esquina', '1', '$1.428.000', 'Validada']]];
-    }
-
     private static function reportTable(): array
     {
         return ['title' => 'Indicadores operativos', 'headers' => ['Indicador', 'Periodo actual', 'Periodo anterior', 'Tendencia'], 'rows' => [['Facturas emitidas', '38', '31', '+22%'], ['Errores detectados', '2', '7', '-71%'], ['Tiempo promedio', '2 min 45 s', '4 min 10 s', '+34%'], ['Consultas IA', '128', '96', '+33%']]];
@@ -333,16 +298,6 @@ final class PrototypeScreens
     private static function invoiceDetailCards(): array
     {
         return [['label' => 'Cliente', 'value' => 'Comercializadora Andina SAS'], ['label' => 'Fecha de emisión', 'value' => '2026-09-02'], ['label' => 'Estado', 'value' => 'Validada'], ['label' => 'Total', 'value' => '$1.428.000']];
-    }
-
-    private static function customerDetailCards(): array
-    {
-        return [['label' => 'Identificación', 'value' => 'NIT 900.123.456-7'], ['label' => 'Correo', 'value' => 'contabilidad@andina.co'], ['label' => 'Ciudad', 'value' => 'Bogotá D.C.'], ['label' => 'Estado', 'value' => 'Activo']];
-    }
-
-    private static function productDetailCards(): array
-    {
-        return [['label' => 'Código', 'value' => 'PS-014'], ['label' => 'Tipo', 'value' => 'Servicio'], ['label' => 'Impuesto', 'value' => 'IVA 19%'], ['label' => 'Precio base', 'value' => '$1.200.000']];
     }
 
     private static function creditNoteDetailCards(): array
@@ -365,16 +320,6 @@ final class PrototypeScreens
         return [['title' => 'Borrador creado', 'description' => 'El usuario inició el documento con datos ficticios.', 'time' => '10:24'], ['title' => 'Validación simulada', 'description' => 'El sistema verificó campos obligatorios y totales.', 'time' => '10:32'], ['title' => 'Consulta al asistente', 'description' => 'Se pidió orientación contextual antes de finalizar.', 'time' => '10:33']];
     }
 
-    private static function customerFormSections(): array
-    {
-        return [self::section('Información general', [['label' => 'Nombre o razón social', 'value' => 'Comercializadora Andina SAS'], ['label' => 'Tipo de identificación', 'value' => 'NIT', 'type' => 'select'], ['label' => 'Número de identificación', 'value' => '900.123.456-7'], ['label' => 'Correo electrónico', 'value' => 'contabilidad@andina.co', 'type' => 'email']]), self::section('Ubicación y contacto', [['label' => 'Teléfono', 'value' => '+57 601 555 0198'], ['label' => 'Ciudad', 'value' => 'Bogotá D.C.'], ['label' => 'Dirección', 'value' => 'Carrera 15 # 88-21']])];
-    }
-
-    private static function productFormSections(): array
-    {
-        return [self::section('Datos comerciales', [['label' => 'Código interno', 'value' => 'PS-014'], ['label' => 'Nombre', 'value' => 'Servicio mensual de soporte'], ['label' => 'Tipo', 'value' => 'Servicio', 'type' => 'select'], ['label' => 'Precio base', 'value' => '1200000']]), self::section('Impuestos', [['label' => 'Impuesto aplicado', 'value' => 'IVA 19%', 'type' => 'select'], ['label' => 'Unidad de medida', 'value' => 'Servicio'], ['label' => 'Notas', 'value' => 'Servicio recurrente usado en datos de prueba.', 'type' => 'textarea']])];
-    }
-
     private static function creditNoteFormSections(): array
     {
         return [self::section('Factura origen', [['label' => 'Factura', 'value' => 'FV-00150', 'type' => 'select'], ['label' => 'Cliente', 'value' => 'Comercializadora Andina SAS'], ['label' => 'Motivo', 'value' => 'Corrección de valor', 'type' => 'select']]), self::section('Detalle', [['label' => 'Justificación', 'value' => 'Ajuste parcial del servicio por acuerdo comercial.', 'type' => 'textarea']])];
@@ -383,16 +328,6 @@ final class PrototypeScreens
     private static function creditNoteReviewSections(): array
     {
         return [self::section('Revisión final', [['label' => 'Factura origen', 'value' => 'FV-00150'], ['label' => 'Valor a descontar', 'value' => '$238.000'], ['label' => 'Confirmación requerida', 'value' => 'Pendiente de usuario']])];
-    }
-
-    private static function companySettings(): array
-    {
-        return [self::section('Empresa', [['label' => 'Razón social', 'value' => 'FacturaPro Demo SAS'], ['label' => 'NIT', 'value' => '900.000.111-2'], ['label' => 'Correo', 'value' => 'admin@empresa.com.co', 'type' => 'email'], ['label' => 'Ciudad', 'value' => 'Bucaramanga']])];
-    }
-
-    private static function billingSettings(): array
-    {
-        return [self::section('Facturación simulada', [['label' => 'Prefijo', 'value' => 'FV'], ['label' => 'Próximo consecutivo', 'value' => '00157'], ['label' => 'Impuesto por defecto', 'value' => 'IVA 19%', 'type' => 'select'], ['label' => 'Modo DIAN', 'value' => 'Simulado', 'type' => 'select']])];
     }
 
     private static function usersSettings(): array

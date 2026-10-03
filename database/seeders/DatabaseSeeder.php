@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Company;
 use App\Models\User;
+use App\Services\Customers\CustomerService;
+use App\Services\Tax\NitDvCalculator;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,18 +14,30 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database with a single demo company and one
-     * user per role. These are development-only, clearly fictitious
-     * accounts (facturapro.test domain) — never real credentials.
+     * Seed the application's database with the global tax catalog, a
+     * single demo company and one user per role. These are
+     * development-only, clearly fictitious accounts (facturapro.test
+     * domain) — never real credentials.
      */
     public function run(): void
     {
+        $this->call(TaxSeeder::class);
+
+        $nit = '900000111';
+
         $company = Company::factory()->create([
             'name' => 'FacturaPro Demo SAS',
             'legal_name' => 'FacturaPro Demo SAS',
-            'nit' => '900000111-2',
+            'person_type' => 'juridica',
+            'nit' => $nit,
+            'nit_dv' => (string) NitDvCalculator::calculate($nit),
             'email' => 'contacto@facturapro.test',
             'city' => 'Bucaramanga',
+            'department' => 'Santander',
+            'country' => 'Colombia',
+            'currency' => 'COP',
+            'is_test_environment' => true,
+            'fiscal_responsibilities' => ['O-48'],
         ]);
 
         User::factory()->administrador()->create([
@@ -49,5 +63,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Auditor Demo',
             'email' => 'auditor@facturapro.test',
         ]);
+
+        app(CustomerService::class)->ensureFinalConsumer($company);
     }
 }

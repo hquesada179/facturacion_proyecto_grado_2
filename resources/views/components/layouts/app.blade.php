@@ -25,6 +25,28 @@
             <x-topbar />
 
             <main class="flex-1 w-full mx-auto p-margin-mobile md:p-margin-desktop {{ $wide ? 'max-w-[1440px]' : 'max-w-[1280px]' }}">
+                @if (session('status'))
+                    <div class="mb-lg bg-primary-fixed border border-primary-fixed-dim text-on-primary-fixed rounded-lg p-md font-body-sm text-body-sm">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/30 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/30 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
+                        <ul class="list-disc list-inside space-y-xs">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if ($assistant)
                     <div class="flex flex-col xl:flex-row gap-lg items-start">
                         <section class="w-full min-w-0 flex-1">
