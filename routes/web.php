@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\CreditNotes\CreditNoteController;
 use App\Http\Controllers\CreditNotes\CreditNotePdfController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Documents\DocumentVerificationController;
 use App\Http\Controllers\Invoices\InvoiceController;
 use App\Http\Controllers\Invoices\InvoiceDraftController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Invoices\InvoicePdfController;
 use App\Http\Controllers\Invoices\InvoiceValidationController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PrototypeController;
+use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\Settings\BillingSettingsController;
 use App\Http\Controllers\Settings\CompanyController;
 use App\Http\Controllers\Settings\NumberingResolutionController;
@@ -43,12 +45,25 @@ Route::get('/verificar-documento/{token}', [DocumentVerificationController::clas
     ->name('documents.verify');
 
 Route::middleware('auth')->group(function (): void {
-    Route::get('/', [PrototypeController::class, 'show'])
-        ->defaults('screen', 'dashboard')
+    Route::get('/', DashboardController::class)
         ->name('home');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/reportes', [ReportsController::class, 'index'])
+        ->middleware('can:view-reports')
+        ->name('reports.index');
+    Route::get('/reportes/errores-productividad', [ReportsController::class, 'errors'])
+        ->middleware('can:view-reports')
+        ->name('reports.errors');
+    Route::get('/reportes/exportar', [ReportsController::class, 'export'])
+        ->middleware('can:view-reports')
+        ->name('reports.export');
 
     foreach (PrototypeScreens::routes() as $screen) {
-        if (str_starts_with($screen['route'], 'credit-notes.')) {
+        if (str_starts_with($screen['route'], 'credit-notes.')
+            || $screen['route'] === 'dashboard'
+            || str_starts_with($screen['route'], 'reports.')
+        ) {
             continue;
         }
 

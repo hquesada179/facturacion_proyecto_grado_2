@@ -67,6 +67,20 @@ class AppServiceProvider extends ServiceProvider
             fn (User $user): bool => in_array($user->role, [UserRole::Administrador, UserRole::Auditor], true)
         );
 
+        // Administrador, Auditor and Contador can read company-level
+        // documentary indicators. Facturador can read reports too, but
+        // report services restrict sensitive metrics to their own documents.
+        Gate::define(
+            'view-reports',
+            fn (User $user): bool => $user->company_id !== null
+                && in_array($user->role, [UserRole::Administrador, UserRole::Auditor, UserRole::Contador, UserRole::Facturador], true)
+        );
+
+        Gate::define(
+            'view-user-report',
+            fn (User $user): bool => in_array($user->role, [UserRole::Administrador, UserRole::Auditor], true)
+        );
+
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(CreditNote::class, CreditNotePolicy::class);
         Gate::policy(NumberingResolution::class, NumberingResolutionPolicy::class);
