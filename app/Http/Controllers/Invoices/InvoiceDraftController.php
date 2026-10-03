@@ -124,6 +124,7 @@ class InvoiceDraftController extends Controller
 
         $item = new InvoiceItem([
             'product_service_id' => $product?->id,
+            'product_code' => $product?->sku,
             'description' => ($data['description'] ?? null) ?: $product?->name ?: 'Línea sin descripción',
             'unit' => ($data['unit'] ?? null) ?: $product?->unit ?: 'unidad',
             'quantity' => $data['quantity'],
@@ -162,6 +163,7 @@ class InvoiceDraftController extends Controller
 
         $item->forceFill([
             'product_service_id' => $product?->id,
+            'product_code' => $product?->sku,
             'description' => ($data['description'] ?? null) ?: $item->description,
             'unit' => ($data['unit'] ?? null) ?: $item->unit,
             'quantity' => $data['quantity'],

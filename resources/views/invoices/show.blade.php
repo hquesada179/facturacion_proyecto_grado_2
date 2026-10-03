@@ -1,6 +1,33 @@
 <x-layouts.app title="{{ $invoice->number ?? 'Borrador de factura' }}" active="invoices">
     <x-page-header eyebrow="Facturas" :title="$invoice->number ?? 'Borrador de factura #'.$invoice->id" description="Consulta del documento, productos y trazabilidad.">
         <x-slot:actions>
+            @if ($invoice->status->value === 'issued')
+                @can('downloadPdf', $invoice)
+                    <a href="{{ route('invoices.pdf.show', $invoice) }}" target="_blank" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                        Ver documento
+                    </a>
+                    <a href="{{ route('invoices.pdf.download', $invoice) }}" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">download</span>
+                        Descargar PDF
+                    </a>
+                @endcan
+                @can('sendSimulatedDelivery', $invoice)
+                    <form method="POST" action="{{ route('invoices.delivery.send', $invoice) }}">
+                        @csrf
+                        <button type="submit" class="px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm">
+                            <span class="material-symbols-outlined text-[18px]">outgoing_mail</span>
+                            Enviar factura
+                        </button>
+                    </form>
+                @endcan
+                @can('view-traceability')
+                    <a href="#trazabilidad" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">history</span>
+                        Ver trazabilidad
+                    </a>
+                @endcan
+            @endif
             <x-ui.badge :status="$invoice->status->label()" />
         </x-slot:actions>
     </x-page-header>
@@ -19,6 +46,12 @@
                 Validación simulada — Documento de prueba, sin validez tributaria.
             </p>
             <p>CUFE simulado: <span class="font-mono break-all">{{ $invoice->simulated_cufe }}</span></p>
+            @if ($invoice->pdf_generated_at)
+                <p>PDF histórico generado: {{ $invoice->pdf_generated_at->format('Y-m-d H:i') }} · Hash SHA-256 <span class="font-mono break-all">{{ $invoice->pdf_hash }}</span></p>
+            @endif
+            @if ($invoice->delivery_status)
+                <p>Entrega simulada: {{ str_replace('_', ' ', $invoice->delivery_status) }}@if($invoice->delivery_simulated_at) · {{ $invoice->delivery_simulated_at->format('Y-m-d H:i') }}@endif</p>
+            @endif
         </div>
     @elseif (in_array($invoice->status->value, ['simulated_rejected', 'technical_error'], true))
         <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/20 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
@@ -60,31 +93,33 @@
             ])->all(),
         ]" />
 
-        <section class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
-            <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Trazabilidad</h3>
-            <div class="space-y-md">
-                @forelse ($invoice->events as $event)
-                    <div class="flex gap-sm">
-                        <div class="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[18px]">history</span>
+        @can('view-traceability')
+            <section id="trazabilidad" class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+                <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Trazabilidad</h3>
+                <div class="space-y-md">
+                    @forelse ($invoice->events as $event)
+                        <div class="flex gap-sm">
+                            <div class="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-[18px]">history</span>
+                            </div>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface">
+                                    {{ $event->description }}
+                                    <span class="text-on-surface-variant">{{ $event->created_at->format('Y-m-d H:i') }}</span>
+                                </p>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                                    {{ $event->user?->name ?? 'Sistema' }} · {{ $event->type }}
+                                    @if ($event->from_status || $event->to_status)
+                                        · {{ $event->from_status ?? '—' }} → {{ $event->to_status ?? '—' }}
+                                    @endif
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-label-md text-label-md text-on-surface">
-                                {{ $event->description }}
-                                <span class="text-on-surface-variant">{{ $event->created_at->format('Y-m-d H:i') }}</span>
-                            </p>
-                            <p class="font-body-sm text-body-sm text-on-surface-variant">
-                                {{ $event->user?->name ?? 'Sistema' }} · {{ $event->type }}
-                                @if ($event->from_status || $event->to_status)
-                                    · {{ $event->from_status ?? '—' }} → {{ $event->to_status ?? '—' }}
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                @empty
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">Sin eventos registrados.</p>
-                @endforelse
-            </div>
-        </section>
+                    @empty
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Sin eventos registrados.</p>
+                    @endforelse
+                </div>
+            </section>
+        @endcan
     </div>
 </x-layouts.app>

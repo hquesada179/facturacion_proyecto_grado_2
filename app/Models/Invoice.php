@@ -15,10 +15,11 @@ class Invoice extends Model
     /**
      * number, status, validation_status, subtotal, tax_total, total,
      * simulated_dian_code, numbering_resolution_id, simulated_cufe,
-     * issued_at, validation_at, dian_simulation_result/message and the
-     * issuer/customer snapshots are intentionally excluded: they are only
-     * ever computed and assigned by InvoiceRecalculationService /
-     * IssueInvoiceService, never taken directly from request input.
+     * verification_token, issued_at, validation_at,
+     * dian_simulation_result/message, issuer/customer snapshots and the
+     * PDF/delivery fields are intentionally excluded: they are only ever
+     * computed and assigned by application services, never taken directly
+     * from request input.
      */
     protected $fillable = [
         'customer_id',
@@ -43,6 +44,8 @@ class Invoice extends Model
             'validation_at' => 'datetime',
             'issuer_snapshot' => 'array',
             'customer_snapshot' => 'array',
+            'pdf_generated_at' => 'datetime',
+            'delivery_simulated_at' => 'datetime',
         ];
     }
 

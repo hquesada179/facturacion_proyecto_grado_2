@@ -19,10 +19,12 @@ class InvoiceTraceLogger
         ?InvoiceStatus $from = null,
         ?InvoiceStatus $to = null,
         array $metadata = [],
+        ?int $userId = null,
+        bool $useAuthenticatedUser = true,
     ): InvoiceEvent {
         return InvoiceEvent::create([
             'invoice_id' => $invoice->id,
-            'user_id' => Auth::id(),
+            'user_id' => $useAuthenticatedUser ? Auth::id() : $userId,
             'type' => $type,
             'from_status' => $from?->value,
             'to_status' => $to?->value,

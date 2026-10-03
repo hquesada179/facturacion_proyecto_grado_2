@@ -4,9 +4,11 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Documents\DocumentVerificationController;
 use App\Http\Controllers\Invoices\InvoiceController;
 use App\Http\Controllers\Invoices\InvoiceDraftController;
 use App\Http\Controllers\Invoices\InvoiceDraftValidationController;
+use App\Http\Controllers\Invoices\InvoicePdfController;
 use App\Http\Controllers\Invoices\InvoiceValidationController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PrototypeController;
@@ -33,6 +35,9 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
 Route::view('/onboarding/empresa', 'onboarding.company')->name('onboarding.company');
+
+Route::get('/verificar-documento/{token}', [DocumentVerificationController::class, 'show'])
+    ->name('documents.verify');
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', [PrototypeController::class, 'show'])
@@ -169,4 +174,7 @@ Route::middleware('auth')->group(function (): void {
         ->name('invoices.draft.discard');
 
     Route::get('/facturas/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/facturas/{invoice}/pdf', [InvoicePdfController::class, 'show'])->name('invoices.pdf.show');
+    Route::get('/facturas/{invoice}/pdf/descargar', [InvoicePdfController::class, 'download'])->name('invoices.pdf.download');
+    Route::post('/facturas/{invoice}/enviar-simulada', [InvoicePdfController::class, 'send'])->name('invoices.delivery.send');
 });

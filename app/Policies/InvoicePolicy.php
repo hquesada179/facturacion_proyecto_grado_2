@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\User;
 
@@ -25,5 +26,18 @@ class InvoicePolicy
     public function update(User $user, Invoice $invoice): bool
     {
         return $user->can('manage-invoicing') && $user->company_id === $invoice->company_id;
+    }
+
+    public function downloadPdf(User $user, Invoice $invoice): bool
+    {
+        return $user->company_id === $invoice->company_id
+            && $invoice->status === InvoiceStatus::Issued;
+    }
+
+    public function sendSimulatedDelivery(User $user, Invoice $invoice): bool
+    {
+        return $user->can('manage-invoicing')
+            && $user->company_id === $invoice->company_id
+            && $invoice->status === InvoiceStatus::Issued;
     }
 }
