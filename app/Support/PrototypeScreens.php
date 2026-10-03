@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\Invoice;
+
 final class PrototypeScreens
 {
     public static function find(string $key): ?array
@@ -42,13 +44,29 @@ final class PrototypeScreens
         ];
     }
 
-    public static function invoiceSteps(): array
+    /**
+     * Real, persisted wizard (Fase 4): each step needs the current draft's
+     * id, so this returns ready-made hrefs instead of bare route names —
+     * see <x-invoice-stepper>. $invoice is only null for the standalone
+     * Fase 3 demo page (/facturas/nueva/validacion), which has no draft to
+     * link steps 2-3 to.
+     */
+    public static function invoiceSteps(?Invoice $invoice = null): array
     {
+        if ($invoice === null) {
+            return [
+                ['number' => 1, 'label' => 'Cliente', 'href' => route('invoices.create.customer')],
+                ['number' => 2, 'label' => 'Productos y servicios', 'href' => '#'],
+                ['number' => 3, 'label' => 'Resumen y totales', 'href' => '#'],
+                ['number' => 4, 'label' => 'Validación', 'href' => route('invoices.create.validation')],
+            ];
+        }
+
         return [
-            ['number' => 1, 'label' => 'Cliente', 'route' => 'invoices.create.customer'],
-            ['number' => 2, 'label' => 'Productos y servicios', 'route' => 'invoices.create.items'],
-            ['number' => 3, 'label' => 'Resumen y totales', 'route' => 'invoices.create.summary'],
-            ['number' => 4, 'label' => 'Validación', 'route' => 'invoices.create.validation'],
+            ['number' => 1, 'label' => 'Cliente', 'href' => route('invoices.draft.customer', $invoice)],
+            ['number' => 2, 'label' => 'Productos y servicios', 'href' => route('invoices.draft.items', $invoice)],
+            ['number' => 3, 'label' => 'Resumen y totales', 'href' => route('invoices.draft.summary', $invoice)],
+            ['number' => 4, 'label' => 'Validación', 'href' => route('invoices.draft.validation', $invoice)],
         ];
     }
 
@@ -86,89 +104,6 @@ final class PrototypeScreens
                 self::invoiceMetrics(),
                 ['label' => 'Nueva factura', 'icon' => 'add', 'route' => 'invoices.create.customer']
             ),
-            'invoices.create.customer' => self::formPage(
-                'invoices.create.customer',
-                '/facturas/nueva/cliente',
-                'invoices.create.customer',
-                'Nueva factura',
-                'Selecciona o registra el cliente antes de agregar productos.',
-                'invoices',
-                'nueva_factura_selecci_n_de_cliente',
-                1,
-                [
-                    self::section('Cliente', [
-                        ['label' => 'Buscar cliente', 'value' => 'Comercializadora Andina SAS', 'icon' => 'search'],
-                        ['label' => 'Tipo de documento', 'value' => 'NIT', 'type' => 'select'],
-                        ['label' => 'Número de identificación', 'value' => '900.123.456-7'],
-                        ['label' => 'Correo electrónico', 'value' => 'contabilidad@andina.co', 'type' => 'email'],
-                    ]),
-                    self::section('Datos fiscales', [
-                        ['label' => 'Responsabilidad tributaria', 'value' => 'Responsable de IVA', 'type' => 'select'],
-                        ['label' => 'Ciudad', 'value' => 'Bogotá D.C.'],
-                        ['label' => 'Dirección', 'value' => 'Carrera 15 # 88-21'],
-                    ]),
-                ]
-            ) + ['permission' => 'manage-invoicing'],
-            'invoices.create.items' => self::formPage(
-                'invoices.create.items',
-                '/facturas/nueva/productos',
-                'invoices.create.items',
-                'Nueva factura',
-                'Agrega productos y servicios con impuesto simulado.',
-                'invoices',
-                'nueva_factura_productos_y_servicios_mejorado',
-                2,
-                [
-                    self::section('Producto o servicio', [
-                        ['label' => 'Descripción', 'value' => 'Servicio mensual de soporte administrativo'],
-                        ['label' => 'Cantidad', 'value' => '1', 'type' => 'number'],
-                        ['label' => 'Valor unitario', 'value' => '1200000'],
-                        ['label' => 'Impuesto', 'value' => 'IVA 19%', 'type' => 'select'],
-                    ]),
-                ],
-                self::lineItemsTable()
-            ) + ['permission' => 'manage-invoicing'],
-            'invoices.create.summary' => self::formPage(
-                'invoices.create.summary',
-                '/facturas/nueva/resumen',
-                'invoices.create.summary',
-                'Nueva factura',
-                'Revisa subtotales, impuestos y observaciones antes de validar.',
-                'invoices',
-                'nueva_factura_resumen_y_totales',
-                3,
-                [
-                    self::section('Resumen financiero', [
-                        ['label' => 'Subtotal', 'value' => '$1.200.000'],
-                        ['label' => 'IVA', 'value' => '$228.000'],
-                        ['label' => 'Total', 'value' => '$1.428.000'],
-                    ]),
-                    self::section('Observaciones', [
-                        ['label' => 'Notas internas', 'value' => 'Factura simulada para flujo académico.', 'type' => 'textarea'],
-                    ]),
-                ],
-                self::lineItemsTable()
-            ) + ['permission' => 'manage-invoicing'],
-            'invoices.create.finished' => [
-                'key' => 'invoices.create.finished',
-                'uri' => '/facturas/nueva/finalizada',
-                'route' => 'invoices.create.finished',
-                'source' => 'factura_finalizada_con_xito_facturapro_col',
-                'title' => 'Factura finalizada',
-                'eyebrow' => 'Facturas',
-                'description' => 'Documento simulado generado correctamente.',
-                'active' => 'invoices',
-                'template' => 'final',
-                'assistant' => true,
-                'permission' => 'manage-invoicing',
-                'summary' => [
-                    ['label' => 'Factura', 'value' => 'FV-00156'],
-                    ['label' => 'Cliente', 'value' => 'Comercializadora Andina SAS'],
-                    ['label' => 'Total', 'value' => '$1.428.000'],
-                    ['label' => 'Estado', 'value' => 'Validada'],
-                ],
-            ],
-            'invoices.show' => self::detailPage('invoices.show', '/facturas/FV-00156', 'invoices.show', 'Detalle de factura FV-00156', 'Consulta del documento, productos, trazabilidad y estado simulado.', 'invoices', 'detalle_de_factura_fv_00156_facturapro_col', self::invoiceDetailCards(), self::lineItemsTable(), self::timeline()),
             'invoices.cancel' => self::formPage('invoices.cancel', '/facturas/FV-00156/anular', 'invoices.cancel', 'Anular factura FV-00156', 'Anulación simulada con motivo obligatorio y confirmación del usuario.', 'invoices', 'anular_factura_fv_00156_facturapro_col', null, [self::section('Motivo de anulación', [['label' => 'Tipo de motivo', 'value' => 'Error en datos del cliente', 'type' => 'select'], ['label' => 'Justificación', 'value' => 'El NIT del cliente debe corregirse antes de emitir un nuevo documento.', 'type' => 'textarea']])]) + ['permission' => 'manage-invoicing'],
             'credit-notes.index' => self::listPage('credit-notes.index', '/notas-credito', 'credit-notes.index', 'Notas crédito', 'Documentos de corrección simulados asociados a facturas.', 'credit-notes', 'notas_cr_dito_facturapro_col', self::creditNotesTable(), self::creditNoteMetrics(), ['label' => 'Crear nota crédito', 'icon' => 'add', 'route' => 'credit-notes.create']),
             'credit-notes.create' => self::formPage('credit-notes.create', '/notas-credito/crear', 'credit-notes.create', 'Crear nota crédito', 'Selecciona factura origen y motivo de corrección.', 'credit-notes', 'crear_nota_cr_dito_facturapro_col', null, self::creditNoteFormSections(), self::lineItemsTable()) + ['permission' => 'manage-invoicing'],
@@ -275,11 +210,6 @@ final class PrototypeScreens
     private static function reportTable(): array
     {
         return ['title' => 'Indicadores operativos', 'headers' => ['Indicador', 'Periodo actual', 'Periodo anterior', 'Tendencia'], 'rows' => [['Facturas emitidas', '38', '31', '+22%'], ['Errores detectados', '2', '7', '-71%'], ['Tiempo promedio', '2 min 45 s', '4 min 10 s', '+34%'], ['Consultas IA', '128', '96', '+33%']]];
-    }
-
-    private static function invoiceDetailCards(): array
-    {
-        return [['label' => 'Cliente', 'value' => 'Comercializadora Andina SAS'], ['label' => 'Fecha de emisión', 'value' => '2026-09-02'], ['label' => 'Estado', 'value' => 'Validada'], ['label' => 'Total', 'value' => '$1.428.000']];
     }
 
     private static function creditNoteDetailCards(): array

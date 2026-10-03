@@ -4,6 +4,9 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Invoices\InvoiceController;
+use App\Http\Controllers\Invoices\InvoiceDraftController;
+use App\Http\Controllers\Invoices\InvoiceDraftValidationController;
 use App\Http\Controllers\Invoices\InvoiceValidationController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PrototypeController;
@@ -117,4 +120,53 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/facturas/validar', [InvoiceValidationController::class, 'store'])
         ->middleware('can:manage-invoicing')
         ->name('invoices.validate');
+
+    // Real, persisted invoice wizard (Fase 4). "invoices.create.customer"
+    // keeps its historic name/URI (sidebar/dashboard CTAs already link to
+    // it) but now creates a real draft and redirects into it.
+    Route::get('/facturas/nueva/cliente', [InvoiceDraftController::class, 'create'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.create.customer');
+
+    Route::get('/facturas/{invoice}/cliente', [InvoiceDraftController::class, 'customer'])
+        ->name('invoices.draft.customer');
+    Route::post('/facturas/{invoice}/cliente', [InvoiceDraftController::class, 'updateCustomer'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.customer.update');
+    Route::post('/facturas/{invoice}/cliente/rapido', [InvoiceDraftController::class, 'quickCreateCustomer'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.customer.quick-create');
+
+    Route::get('/facturas/{invoice}/productos', [InvoiceDraftController::class, 'items'])
+        ->name('invoices.draft.items');
+    Route::post('/facturas/{invoice}/productos', [InvoiceDraftController::class, 'storeItem'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.items.store');
+    Route::put('/facturas/{invoice}/productos/{item}', [InvoiceDraftController::class, 'updateItem'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.items.update');
+    Route::delete('/facturas/{invoice}/productos/{item}', [InvoiceDraftController::class, 'destroyItem'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.items.destroy');
+
+    Route::get('/facturas/{invoice}/resumen', [InvoiceDraftController::class, 'summary'])
+        ->name('invoices.draft.summary');
+    Route::post('/facturas/{invoice}/resumen', [InvoiceDraftController::class, 'updateSummary'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.summary.update');
+
+    Route::get('/facturas/{invoice}/validacion', [InvoiceDraftValidationController::class, 'show'])
+        ->name('invoices.draft.validation');
+    Route::post('/facturas/{invoice}/validar', [InvoiceDraftValidationController::class, 'validate'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.validate');
+    Route::post('/facturas/{invoice}/emitir', [InvoiceDraftValidationController::class, 'issue'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.issue');
+
+    Route::post('/facturas/{invoice}/descartar', [InvoiceDraftController::class, 'discard'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.discard');
+
+    Route::get('/facturas/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
 });

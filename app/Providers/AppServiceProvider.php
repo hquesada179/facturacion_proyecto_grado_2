@@ -6,12 +6,14 @@ use App\Contracts\AssistantProvider;
 use App\Enums\UserRole;
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\Invoice;
 use App\Models\NumberingResolution;
 use App\Models\ProductService;
 use App\Models\Tax;
 use App\Models\User;
 use App\Policies\CompanyPolicy;
 use App\Policies\CustomerPolicy;
+use App\Policies\InvoicePolicy;
 use App\Policies\NumberingResolutionPolicy;
 use App\Policies\ProductServicePolicy;
 use App\Policies\TaxPolicy;
@@ -68,5 +70,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Tax::class, TaxPolicy::class);
         Gate::policy(Customer::class, CustomerPolicy::class);
         Gate::policy(ProductService::class, ProductServicePolicy::class);
+        Gate::policy(Invoice::class, InvoicePolicy::class);
     }
 }

@@ -4,6 +4,8 @@ namespace App\Services\Invoices;
 
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\ProductService;
 use App\Models\Tax;
 use App\Services\Invoices\Calculation\InvoiceCalculator;
@@ -112,6 +114,37 @@ class InvoiceDraftContextBuilder
             issueDate: isset($data['issue_date']) ? Carbon::parse($data['issue_date']) : null,
             dueDate: isset($data['due_date']) ? Carbon::parse($data['due_date']) : null,
         );
+    }
+
+    /**
+     * Builds the same ValidationContext as build(), but from a real
+     * persisted draft instead of a raw request array — used by the real
+     * wizard (Fase 4) and by IssueInvoiceService. Each item's own current
+     * itemTaxes is always used as-is (never re-derived from the product's
+     * live tax list), since a persisted line is itself the source of
+     * truth once saved.
+     */
+    public function buildFromInvoice(Invoice $invoice): ValidationContext
+    {
+        $invoice->loadMissing('items.itemTaxes');
+
+        $data = [
+            'customer_id' => $invoice->customer_id,
+            'payment_type' => $invoice->payment_type,
+            'issue_date' => optional($invoice->issue_date)->toDateString(),
+            'due_date' => optional($invoice->due_date)->toDateString(),
+            'items' => $invoice->items->map(static fn (InvoiceItem $item): array => [
+                'product_service_id' => $item->product_service_id,
+                'description' => $item->description,
+                'unit' => $item->unit,
+                'quantity' => (string) $item->quantity,
+                'unit_price' => (string) $item->unit_price,
+                'discount_percent' => (string) $item->discount_percent,
+                'tax_ids' => $item->itemTaxes->pluck('tax_id')->filter()->values()->all(),
+            ])->all(),
+        ];
+
+        return $this->build($invoice->company, $data);
     }
 
     private function numericString(mixed $value): string
