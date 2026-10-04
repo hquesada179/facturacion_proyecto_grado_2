@@ -19,8 +19,8 @@ use App\Policies\NumberingResolutionPolicy;
 use App\Policies\ProductServicePolicy;
 use App\Policies\TaxPolicy;
 use App\Services\Assistant\Contracts\AiProviderInterface;
-use App\Services\Assistant\Providers\ExternalAiProvider;
 use App\Services\Assistant\Providers\LocalFallbackProvider;
+use App\Services\Assistant\Providers\OpenAiProvider;
 use App\Services\Invoices\Validation\ValidationEngine;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -36,13 +36,17 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LocalFallbackProvider::class);
+        $this->app->singleton(OpenAiProvider::class);
         $this->app->bind(AiProviderInterface::class, function ($app): AiProviderInterface {
-            $provider = (string) config('services.assistant_ai.provider', 'local');
-            $apiKey = (string) config('services.assistant_ai.api_key', '');
-            $endpoint = (string) config('services.assistant_ai.endpoint', '');
+            $enabled = (bool) config('ai.enabled', false);
+            $provider = (string) config('ai.provider', 'local');
 
-            if ($provider !== 'local' && $apiKey !== '' && $endpoint !== '') {
-                return $app->make(ExternalAiProvider::class);
+            if ($enabled && $provider === 'openai') {
+                $openAi = $app->make(OpenAiProvider::class);
+
+                if ($openAi->isConfigured()) {
+                    return $openAi;
+                }
             }
 
             return $app->make(LocalFallbackProvider::class);

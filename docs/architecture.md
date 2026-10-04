@@ -59,7 +59,7 @@ Los servicios que necesitan cruzar el scope intencionalmente (por ejemplo, el as
 
 1. `AssistantContextBuilder` — construye el contexto mínimo necesario (pantalla, rol, recurso actual) sin exponer toda la base de datos.
 2. Un conjunto de *tools* de solo lectura (`Services/Assistant/Tools/*`) que reutilizan los mismos servicios de dominio (`ValidationEngine`, trazabilidad, etc.) — la IA nunca calcula nada por su cuenta.
-3. `AiProviderInterface`, con dos implementaciones: `ExternalAiProvider` (si hay credenciales en `.env`) y `LocalFallbackProvider` (determinista, sin red, usado por defecto).
+3. `AiProviderInterface`, con dos implementaciones: `OpenAiProvider` (si `AI_ENABLED=true`, `AI_PROVIDER=openai` y hay API key/modelo en `.env`) y `LocalFallbackProvider` (determinista, sin red, usado por defecto y ante cualquier fallo del proveedor externo). La selección ocurre en `AppServiceProvider` y nunca requiere tocar código para cambiar de proveedor — solo variables de entorno.
 4. `AssistantActionService` para acciones críticas: el proveedor de IA solo puede *proponer* una acción con un token de confirmación de un solo uso; la ejecución real pasa siempre por el servicio de dominio correspondiente (p. ej. `IssueInvoiceService`), nunca por el texto generado.
 
 Si se elimina por completo el módulo de IA, el sistema de facturación sigue funcionando exactamente igual — no hay ninguna dependencia en sentido inverso.
@@ -76,6 +76,8 @@ Variables relevantes (ver `.env.example` para la lista completa, sin secretos):
 | `APP_LOCALE` | `es` | `es` |
 | `SESSION_SECURE_COOKIE` | *(vacío)* | `true`, detrás de HTTPS |
 | `DB_CONNECTION` | `sqlite` | `mysql`/`pgsql` según infraestructura |
-| `ASSISTANT_AI_PROVIDER` | `local` | `local` o un proveedor externo configurado explícitamente |
+| `AI_ENABLED` | `false` | `true` únicamente si hay un proveedor externo real configurado |
+| `AI_PROVIDER` | `local` | `openai` (u otro proveedor soportado) |
+| `OPENAI_API_KEY` / `OPENAI_MODEL` | *(vacío)* | credenciales reales, solo en `.env`, nunca en Git |
 
 Nunca se sube `.env` al repositorio (está en `.gitignore`); `.env.example` nunca debe contener claves, contraseñas ni tokens reales.

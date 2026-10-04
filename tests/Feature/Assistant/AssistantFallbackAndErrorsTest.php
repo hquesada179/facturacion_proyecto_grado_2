@@ -22,9 +22,10 @@ class AssistantFallbackAndErrorsTest extends TestCase
     public function test_local_fallback_answers_without_any_external_credentials(): void
     {
         config([
-            'services.assistant_ai.provider' => 'local',
-            'services.assistant_ai.api_key' => '',
-            'services.assistant_ai.endpoint' => '',
+            'ai.enabled' => false,
+            'ai.provider' => 'local',
+            'ai.openai.api_key' => '',
+            'ai.openai.model' => '',
         ]);
 
         $user = $this->facturador();

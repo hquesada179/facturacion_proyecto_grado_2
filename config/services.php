@@ -35,12 +35,4 @@ return [
         ],
     ],
 
-    'assistant_ai' => [
-        'provider' => env('ASSISTANT_AI_PROVIDER', 'local'),
-        'api_key' => env('ASSISTANT_AI_API_KEY'),
-        'endpoint' => env('ASSISTANT_AI_ENDPOINT'),
-        'model' => env('ASSISTANT_AI_MODEL', 'local-fallback'),
-        'timeout' => env('ASSISTANT_AI_TIMEOUT', 10),
-    ],
-
 ];
