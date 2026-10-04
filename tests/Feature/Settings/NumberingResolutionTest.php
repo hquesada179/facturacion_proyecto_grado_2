@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Settings;
 
+use App\Enums\DocumentType;
 use App\Exceptions\NumberingRangeExhaustedException;
 use App\Models\Company;
 use App\Models\NumberingResolution;
 use App\Models\User;
 use App\Services\Numbering\NumberingService;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -211,6 +213,25 @@ class NumberingResolutionTest extends TestCase
 
         $this->expectException(NumberingRangeExhaustedException::class);
         $service->reserveNextNumber($resolution);
+    }
+
+    public function test_database_seeder_creates_a_demo_invoice_resolution_ready_for_issuance(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $company = Company::query()->where('email', 'contacto@facturapro.test')->firstOrFail();
+        $service = app(NumberingService::class);
+        $resolution = $service->activeResolutionFor($company, DocumentType::Invoice);
+
+        $this->assertNotNull($resolution);
+        $this->assertSame('FV', $resolution->prefix);
+        $this->assertSame('SIM-DEMO-FV-000001', $resolution->authorization_number_simulated);
+        $this->assertSame(1, $resolution->range_from);
+        $this->assertSame(999999, $resolution->range_to);
+        $this->assertSame(1, $resolution->current_consecutive);
+        $this->assertTrue($resolution->is_active);
+        $this->assertSame(1, $service->reserveNextNumber($resolution));
+        $this->assertSame(2, $resolution->refresh()->current_consecutive);
     }
 
     /**

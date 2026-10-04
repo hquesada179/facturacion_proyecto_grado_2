@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DocumentType;
 use App\Models\Company;
+use App\Models\NumberingResolution;
 use App\Models\User;
 use App\Services\Customers\CustomerService;
 use App\Services\Tax\NitDvCalculator;
@@ -65,5 +67,33 @@ class DatabaseSeeder extends Seeder
         ]);
 
         app(CustomerService::class)->ensureFinalConsumer($company);
+
+        $this->createDemoInvoiceResolution($company);
+    }
+
+    private function createDemoInvoiceResolution(Company $company): void
+    {
+        $resolution = NumberingResolution::query()
+            ->withoutGlobalScopes()
+            ->firstOrNew([
+                'company_id' => $company->id,
+                'document_type' => DocumentType::Invoice->value,
+                'prefix' => 'FV',
+            ]);
+
+        $resolution->authorization_number_simulated = 'SIM-DEMO-FV-000001';
+        $resolution->range_from = 1;
+        $resolution->range_to = 999999;
+        $resolution->valid_from = now()->subDay()->toDateString();
+        $resolution->valid_until = now()->addYears(5)->toDateString();
+        $resolution->simulated_technical_key = 'DOCUMENTO-DE-PRUEBA-SIN-VALIDEZ-TRIBUTARIA';
+        $resolution->is_active = true;
+
+        if (! $resolution->exists) {
+            $resolution->current_consecutive = 1;
+        }
+
+        $resolution->status = $resolution->determineStatus();
+        $resolution->save();
     }
 }
