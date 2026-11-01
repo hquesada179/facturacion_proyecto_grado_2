@@ -36,6 +36,7 @@
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Valor unitario</span>
                     <input id="price-input" name="unit_price" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="number" step="0.01" min="0" value="0">
+                    <span id="tax-included-hint" class="hidden font-label-sm text-label-sm text-on-surface-variant mt-xs">Este precio ya incluye el impuesto; la base gravable se calculará automáticamente.</span>
                 </label>
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Descuento %</span>
@@ -80,14 +81,23 @@
                 </label>
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Tipo</span>
-                    <select name="type" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
+                    <select id="quick-product-type-select" name="type" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
                         <option value="product" @selected(old('type') === 'product')>Producto</option>
                         <option value="service" @selected(old('type', 'service') === 'service')>Servicio</option>
                     </select>
                 </label>
                 <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Categoría</span>
+                    <input name="category" value="{{ old('category') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="text" placeholder="Opcional">
+                </label>
+                <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Unidad de medida</span>
-                    <input name="unit" value="{{ old('unit', 'unidad') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="text">
+                    @php($quickUnit = old('unit', 'unidad'))
+                    <select name="unit" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
+                        @foreach (\App\Models\ProductService::UNITS as $value => $label)
+                            <option value="{{ $value }}" @selected($quickUnit === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </label>
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Precio base</span>
@@ -96,6 +106,14 @@
                 <label class="flex items-center gap-sm mt-lg">
                     <input type="checkbox" name="tax_included" value="1" @checked(old('tax_included')) class="rounded border-outline-variant text-primary focus:ring-primary/20">
                     <span class="font-label-md text-label-md text-on-surface">Precio incluye impuesto</span>
+                </label>
+                <label id="quick-inventory-checkbox-label" class="flex items-center gap-sm mt-lg">
+                    <input type="checkbox" id="quick-inventory-checkbox" name="is_inventoried" value="1" @checked(old('is_inventoried')) class="rounded border-outline-variant text-primary focus:ring-primary/20">
+                    <span class="font-label-md text-label-md text-on-surface">Controlar inventario</span>
+                </label>
+                <label id="quick-stock-quantity-field">
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Existencia disponible</span>
+                    <input name="stock_quantity" value="{{ old('stock_quantity') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="number" step="0.01" min="0">
                 </label>
                 <label class="md:col-span-2">
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Descripción</span>
@@ -197,6 +215,7 @@
             const description = document.getElementById('description-input');
             const unit = document.getElementById('unit-input');
             const price = document.getElementById('price-input');
+            const taxIncludedHint = document.getElementById('tax-included-hint');
 
             function applySelectedProduct() {
                 const product = products.find(function (p) { return String(p.id) === select.value; });
@@ -205,6 +224,10 @@
                 });
 
                 if (! product) {
+                    if (taxIncludedHint) {
+                        taxIncludedHint.classList.add('hidden');
+                    }
+
                     return;
                 }
 
@@ -217,6 +240,10 @@
                         checkbox.checked = true;
                     }
                 });
+
+                if (taxIncludedHint) {
+                    taxIncludedHint.classList.toggle('hidden', ! product.tax_included);
+                }
             }
 
             select.addEventListener('change', applySelectedProduct);
@@ -252,6 +279,35 @@
             if (select.value) {
                 applySelectedProduct();
             }
+        })();
+
+        (function () {
+            const typeSelect = document.getElementById('quick-product-type-select');
+            const inventoryLabel = document.getElementById('quick-inventory-checkbox-label');
+            const inventoryCheckbox = document.getElementById('quick-inventory-checkbox');
+            const stockField = document.getElementById('quick-stock-quantity-field');
+
+            if (! typeSelect || ! inventoryCheckbox) {
+                return;
+            }
+
+            function isProduct() {
+                return typeSelect.value === 'product';
+            }
+
+            function refresh() {
+                inventoryLabel.style.display = isProduct() ? '' : 'none';
+
+                if (! isProduct()) {
+                    inventoryCheckbox.checked = false;
+                }
+
+                stockField.style.display = inventoryCheckbox.checked ? '' : 'none';
+            }
+
+            typeSelect.addEventListener('change', refresh);
+            inventoryCheckbox.addEventListener('change', refresh);
+            refresh();
         })();
     </script>
 </x-layouts.app>

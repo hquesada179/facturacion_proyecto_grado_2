@@ -16,17 +16,29 @@
         </label>
         <label>
             <span class="block font-label-md text-label-md text-on-surface mb-xs">Tipo</span>
-            <select name="type" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md">
+            <select id="product-type-select" name="type" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md">
                 <option value="product" @selected(old('type', $product->type) === 'product')>Producto</option>
                 <option value="service" @selected(old('type', $product->type) === 'service')>Servicio</option>
             </select>
         </label>
         <label>
-            <span class="block font-label-md text-label-md text-on-surface mb-xs">Unidad de medida</span>
-            <input name="unit" value="{{ old('unit', $product->unit) }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" type="text">
+            <span class="block font-label-md text-label-md text-on-surface mb-xs">Categoría</span>
+            <input name="category" value="{{ old('category', $product->category) }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" type="text" placeholder="Opcional, p. ej. Software, Ferretería...">
         </label>
         <label>
-            <span class="block font-label-md text-label-md text-on-surface mb-xs">Precio base</span>
+            <span class="block font-label-md text-label-md text-on-surface mb-xs">Unidad de medida</span>
+            @php($currentUnit = old('unit', $product->unit))
+            <select name="unit" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md">
+                @foreach (\App\Models\ProductService::UNITS as $value => $label)
+                    <option value="{{ $value }}" @selected($currentUnit === $value)>{{ $label }}</option>
+                @endforeach
+                @if ($currentUnit && ! array_key_exists($currentUnit, \App\Models\ProductService::UNITS))
+                    <option value="{{ $currentUnit }}" selected>{{ $currentUnit }} (valor existente)</option>
+                @endif
+            </select>
+        </label>
+        <label>
+            <span class="block font-label-md text-label-md text-on-surface mb-xs">Precio {{ old('tax_included', $product->tax_included) ? '(incluye impuesto)' : 'base' }}</span>
             <input name="price" value="{{ old('price', $product->price) }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" type="number" step="0.01" min="0">
         </label>
         <label>
@@ -46,6 +58,19 @@
             <textarea name="description" class="w-full min-h-28 rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md">{{ old('description', $product->description) }}</textarea>
         </label>
     </div>
+</section>
+
+<section id="inventory-section" class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg">
+    <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Inventario</h3>
+    <label class="flex items-center gap-sm mb-md">
+        <input type="checkbox" id="inventory-checkbox" name="is_inventoried" value="1" @checked(old('is_inventoried', $product->is_inventoried)) class="rounded border-outline-variant text-primary focus:ring-primary/20">
+        <span class="font-label-md text-label-md text-on-surface">Controlar inventario</span>
+    </label>
+    <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Solo aplica a productos. Al activarlo, registra la existencia inicial disponible; nunca podrá quedar en negativo.</p>
+    <label id="stock-quantity-field" class="block max-w-xs">
+        <span class="block font-label-md text-label-md text-on-surface mb-xs">Existencia disponible</span>
+        <input name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity) }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md" type="number" step="0.01" min="0">
+    </label>
 </section>
 
 <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg">
@@ -68,3 +93,30 @@
         Guardar
     </button>
 </div>
+
+<script>
+    (function () {
+        const typeSelect = document.getElementById('product-type-select');
+        const inventorySection = document.getElementById('inventory-section');
+        const inventoryCheckbox = document.getElementById('inventory-checkbox');
+        const stockField = document.getElementById('stock-quantity-field');
+
+        function isProduct() {
+            return typeSelect.value === 'product';
+        }
+
+        function refresh() {
+            inventorySection.style.display = isProduct() ? '' : 'none';
+
+            if (! isProduct()) {
+                inventoryCheckbox.checked = false;
+            }
+
+            stockField.style.display = inventoryCheckbox.checked ? '' : 'none';
+        }
+
+        typeSelect.addEventListener('change', refresh);
+        inventoryCheckbox.addEventListener('change', refresh);
+        refresh();
+    })();
+</script>

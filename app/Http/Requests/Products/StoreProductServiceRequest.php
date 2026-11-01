@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Products;
 
 use App\Enums\ProductStatus;
+use App\Rules\ValidTaxCombination;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,12 +25,15 @@ class StoreProductServiceRequest extends FormRequest
             ],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
+            'category' => ['nullable', 'string', 'max:100'],
             'type' => ['required', Rule::in(['product', 'service'])],
             'unit' => ['required', 'string', 'max:50'],
             'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(array_map(fn (ProductStatus $status) => $status->value, ProductStatus::cases()))],
             'tax_included' => ['nullable', 'boolean'],
-            'taxes' => ['nullable', 'array'],
+            'is_inventoried' => ['nullable', 'boolean'],
+            'stock_quantity' => ['nullable', 'numeric', 'min:0', 'required_if:is_inventoried,1'],
+            'taxes' => ['nullable', 'array', new ValidTaxCombination],
             'taxes.*' => ['integer', 'exists:taxes,id'],
         ];
     }

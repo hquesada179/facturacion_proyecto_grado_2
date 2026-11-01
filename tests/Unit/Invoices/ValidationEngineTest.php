@@ -582,6 +582,69 @@ class ValidationEngineTest extends TestCase
         $this->assertNotContains('PRO-PAYMENT-004', $this->codes($results));
     }
 
+    public function test_two_iva_nature_taxes_on_one_line_block(): void
+    {
+        $iva19 = $this->activeTax(['id' => 1, 'code' => 'IVA19', 'rate' => '19', 'nature' => 'IVA', 'condition' => 'gravado']);
+        $iva5 = $this->activeTax(['id' => 2, 'code' => 'IVA5', 'rate' => '5', 'nature' => 'IVA', 'condition' => 'gravado']);
+
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct(), 'taxes' => [$iva19, $iva5]]],
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertTrue($results->hasBlocking());
+        $this->assertContains('PRO-TAX-005', $this->codes($results));
+    }
+
+    public function test_exento_with_iva_gravado_on_one_line_blocks(): void
+    {
+        $iva19 = $this->activeTax(['id' => 1, 'code' => 'IVA19', 'rate' => '19', 'nature' => 'IVA', 'condition' => 'gravado']);
+        $exento = $this->activeTax(['id' => 2, 'code' => 'EXENTO', 'rate' => '0', 'nature' => 'IVA', 'condition' => 'exento']);
+
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct(), 'taxes' => [$iva19, $exento]]],
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertTrue($results->hasBlocking());
+        $this->assertContains('PRO-TAX-005', $this->codes($results));
+    }
+
+    public function test_excluido_with_iva_gravado_on_one_line_blocks(): void
+    {
+        $iva19 = $this->activeTax(['id' => 1, 'code' => 'IVA19', 'rate' => '19', 'nature' => 'IVA', 'condition' => 'gravado']);
+        $excluido = $this->activeTax(['id' => 2, 'code' => 'EXCLUIDO', 'rate' => '0', 'nature' => 'ninguna', 'condition' => 'excluido']);
+
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct(), 'taxes' => [$iva19, $excluido]]],
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertTrue($results->hasBlocking());
+        $this->assertContains('PRO-TAX-005', $this->codes($results));
+    }
+
+    public function test_iva_with_inc_on_one_line_does_not_block(): void
+    {
+        $iva19 = $this->activeTax(['id' => 1, 'code' => 'IVA19', 'rate' => '19', 'nature' => 'IVA', 'condition' => 'gravado']);
+        $inc8 = $this->activeTax(['id' => 2, 'code' => 'INC8', 'rate' => '8', 'nature' => 'INC', 'condition' => 'gravado']);
+
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct(), 'taxes' => [$iva19, $inc8]]],
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertNotContains('PRO-TAX-005', $this->codes($results));
+    }
+
     public function test_json_result_preserves_required_fields(): void
     {
         $context = $this->buildContext(null, [['product' => $this->activeProduct()]]);

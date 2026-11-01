@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Invoices;
 
+use App\Rules\ValidTaxCombination;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateInvoiceItemRequest extends FormRequest
@@ -20,7 +21,7 @@ class UpdateInvoiceItemRequest extends FormRequest
             'quantity' => ['required', 'numeric'],
             'unit_price' => ['required', 'numeric'],
             'discount_percent' => ['nullable', 'numeric'],
-            'tax_ids' => ['nullable', 'array'],
+            'tax_ids' => ['nullable', 'array', new ValidTaxCombination],
             'tax_ids.*' => ['integer', 'exists:taxes,id'],
         ];
     }

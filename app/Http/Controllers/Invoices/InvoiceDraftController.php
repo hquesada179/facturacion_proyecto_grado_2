@@ -16,6 +16,7 @@ use App\Models\InvoiceItem;
 use App\Models\ProductService;
 use App\Models\Tax;
 use App\Services\Customers\CustomerService;
+use App\Services\Invoices\Calculation\TaxInclusivePriceResolver;
 use App\Services\Invoices\InvoiceRecalculationService;
 use App\Services\Invoices\InvoiceStateMachine;
 use App\Services\Invoices\InvoiceTraceLogger;
@@ -31,6 +32,7 @@ class InvoiceDraftController extends Controller
         private readonly InvoiceTraceLogger $logger,
         private readonly CustomerService $customers,
         private readonly ProductCatalogService $catalog,
+        private readonly TaxInclusivePriceResolver $priceResolver,
     ) {}
 
     /**
@@ -107,6 +109,7 @@ class InvoiceDraftController extends Controller
                 'unit' => $product->unit,
                 'price' => (string) $product->price,
                 'tax_ids' => $product->taxes->pluck('id')->all(),
+                'tax_included' => $product->tax_included,
             ])->values(),
             'taxes' => Tax::query()->currentlyValid()->availableFor($invoice->company_id)->get(),
             'selectedProductId' => $request->integer('selected_product') ?: null,
@@ -120,6 +123,7 @@ class InvoiceDraftController extends Controller
 
         $data = $request->validated();
         $data['tax_included'] = $request->boolean('tax_included');
+        $data['is_inventoried'] = $request->boolean('is_inventoried');
         $taxes = $data['taxes'] ?? [];
         unset($data['taxes']);
 
@@ -139,21 +143,34 @@ class InvoiceDraftController extends Controller
         $data = $request->validated();
         $product = isset($data['product_service_id']) ? ProductService::find($data['product_service_id']) : null;
 
+        $taxIds = $data['tax_ids'] ?? $product?->taxes->pluck('id')->all() ?? [];
+        $taxes = Tax::whereIn('id', $taxIds)->get();
+
+        // The price typed/autofilled here is the product's own listed price.
+        // If that product is "precio incluye impuesto", it represents the
+        // final, tax-included amount — the stored unit_price must stay the
+        // tax-exclusive base, exactly like every other line, so it can only
+        // be converted once, right here, where a fresh price enters the
+        // system (never on a later quantity-only update — see updateItem()).
+        $unitPrice = (string) $data['unit_price'];
+        if ($product?->tax_included) {
+            $unitPrice = $this->priceResolver->extractBase($unitPrice, $taxes);
+        }
+
         $item = new InvoiceItem([
             'product_service_id' => $product?->id,
             'product_code' => $product?->sku,
             'description' => ($data['description'] ?? null) ?: $product?->name ?: 'Línea sin descripción',
             'unit' => ($data['unit'] ?? null) ?: $product?->unit ?: 'unidad',
             'quantity' => $data['quantity'],
-            'unit_price' => $data['unit_price'],
+            'unit_price' => $unitPrice,
             'discount_percent' => $data['discount_percent'] ?? 0,
         ]);
         $item->invoice_id = $invoice->id;
         $item->save();
 
-        $taxIds = $data['tax_ids'] ?? $product?->taxes->pluck('id')->all() ?? [];
         $item->itemTaxes()->createMany(
-            Tax::whereIn('id', $taxIds)->get()->map(fn (Tax $tax) => [
+            $taxes->map(fn (Tax $tax) => [
                 'tax_id' => $tax->id,
                 'code' => $tax->code ?? ('TAX-'.$tax->id),
                 'name' => $tax->name,

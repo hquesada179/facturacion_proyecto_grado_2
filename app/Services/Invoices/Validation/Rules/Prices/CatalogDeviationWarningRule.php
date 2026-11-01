@@ -2,6 +2,7 @@
 
 namespace App\Services\Invoices\Validation\Rules\Prices;
 
+use App\Services\Invoices\Calculation\TaxInclusivePriceResolver;
 use App\Services\Invoices\Validation\Rules\RuleInterface;
 use App\Services\Invoices\Validation\ValidationContext;
 use App\Services\Invoices\Validation\ValidationResult;
@@ -27,7 +28,13 @@ final class CatalogDeviationWarningRule implements RuleInterface
                 continue;
             }
 
-            $catalogPrice = BigDecimal::of((string) $line->product->price);
+            // The stored line price is always tax-exclusive (Fase 3), so a
+            // tax-included catalog price must be converted to the same base
+            // before comparing — otherwise every tax-included product would
+            // falsely "deviate" from its own catalog price by the tax amount.
+            $catalogPrice = $line->product->tax_included
+                ? BigDecimal::of((new TaxInclusivePriceResolver)->extractBase((string) $line->product->price, $line->taxes))
+                : BigDecimal::of((string) $line->product->price);
 
             if ($catalogPrice->isZero()) {
                 continue;

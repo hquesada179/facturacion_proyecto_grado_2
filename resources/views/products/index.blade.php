@@ -28,12 +28,20 @@
                     <option value="{{ $status->value }}" @selected(($filters['status'] ?? '') === $status->value)>{{ $status->label() }}</option>
                 @endforeach
             </select>
+            @if ($categories->isNotEmpty())
+                <select name="category" onchange="this.form.submit()" class="rounded-lg border border-outline-variant bg-surface px-md py-sm font-body-sm text-body-sm">
+                    <option value="">Todas las categorías</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category }}" @selected(($filters['category'] ?? '') === $category)>{{ $category }}</option>
+                    @endforeach
+                </select>
+            @endif
         </form>
     </div>
 
     <x-ui.data-table :table="[
         'title' => 'Catálogo',
-        'headers' => ['Código', 'Nombre', 'Tipo', 'Impuestos', 'Precio', 'Estado'],
+        'headers' => ['Código', 'Nombre', 'Categoría', 'Tipo', 'Impuestos', 'Precio', 'Estado'],
         'hideViewAll' => true,
         'emptyMessage' => 'No hay productos ni servicios registrados.',
         'paginator' => $products,
@@ -41,6 +49,7 @@
             'cells' => [
                 $product->sku,
                 $product->name,
+                $product->category ?? '-',
                 $product->type === 'product' ? 'Producto' : 'Servicio',
                 $product->taxes->pluck('code')->implode(', ') ?: 'Sin impuesto',
                 '$'.number_format((float) $product->price, 0, ',', '.'),

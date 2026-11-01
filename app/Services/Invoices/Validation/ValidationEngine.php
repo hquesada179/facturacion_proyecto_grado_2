@@ -52,6 +52,7 @@ class ValidationEngine
             new Rules\Taxes\TaxIsCurrentlyValidRule,
             new Rules\Taxes\TaxNotDuplicatedRule,
             new Rules\Taxes\TaxCalculationConsistentRule,
+            new Rules\Taxes\TaxCombinationValidRule,
 
             new Rules\Totals\LineSumConsistentRule,
             new Rules\Totals\TaxSumConsistentRule,

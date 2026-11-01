@@ -23,14 +23,23 @@ class ProductServiceController extends Controller
             ->search($request->string('q')->toString() ?: null)
             ->status($request->string('status')->toString() ?: null)
             ->type($request->string('type')->toString() ?: null)
+            ->category($request->string('category')->toString() ?: null)
             ->with('taxes')
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
 
+        $categories = ProductService::query()
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
         return view('products.index', [
             'products' => $products,
-            'filters' => $request->only(['q', 'status', 'type']),
+            'filters' => $request->only(['q', 'status', 'type', 'category']),
+            'categories' => $categories,
         ]);
     }
 
@@ -50,6 +59,7 @@ class ProductServiceController extends Controller
 
         $data = $request->validated();
         $data['tax_included'] = $request->boolean('tax_included');
+        $data['is_inventoried'] = $request->boolean('is_inventoried');
         $taxes = $data['taxes'] ?? [];
         unset($data['taxes']);
 
@@ -63,7 +73,10 @@ class ProductServiceController extends Controller
         $this->authorize('view', $product);
 
         return view('products.show', [
-            'product' => $product->load('taxes'),
+            'product' => $product->load([
+                'taxes',
+                'invoiceItems' => fn ($query) => $query->with(['invoice'])->latest('id'),
+            ]),
         ]);
     }
 
@@ -83,11 +96,11 @@ class ProductServiceController extends Controller
 
         $data = $request->validated();
         $data['tax_included'] = $request->boolean('tax_included');
+        $data['is_inventoried'] = $request->boolean('is_inventoried');
         $taxes = $data['taxes'] ?? [];
         unset($data['taxes']);
 
-        $product->update($data);
-        $product->taxes()->sync($taxes);
+        $this->catalog->updateFromData($product, $data, $taxes);
 
         return redirect()->route('products.show', $product)->with('status', 'Producto actualizado correctamente.');
     }
