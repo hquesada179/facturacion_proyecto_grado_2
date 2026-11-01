@@ -8,7 +8,15 @@ use Illuminate\Support\Facades\Gate;
 
 class GetTraceabilityTool
 {
-    public function handle(User $user, int $invoiceId): array
+    private const LIMIT = 20;
+
+    /**
+     * $invoiceId is the current-screen context; $number is an explicit
+     * reference parsed from the user's own message (e.g. "FV-000002").
+     * An explicit number always takes priority over local context — see
+     * the IA 2.0-B report's priority rule.
+     */
+    public function handle(User $user, ?int $invoiceId = null, ?string $number = null): array
     {
         if (Gate::forUser($user)->denies('view-traceability')) {
             return [
@@ -18,10 +26,7 @@ class GetTraceabilityTool
             ];
         }
 
-        $invoice = Invoice::withoutGlobalScopes()
-            ->where('company_id', $user->company_id)
-            ->whereKey($invoiceId)
-            ->first();
+        $invoice = $this->resolveInvoice($user, $invoiceId, $number);
 
         if (! $invoice || Gate::forUser($user)->denies('view', $invoice)) {
             return [
@@ -36,10 +41,12 @@ class GetTraceabilityTool
             'tool' => 'traceability',
             'allowed' => true,
             'found' => true,
+            'invoice_number' => $invoice->number ?: 'Borrador #'.$invoice->id,
+            'total_events' => $invoice->events()->count(),
             'events' => $invoice->events()
                 ->with('user')
                 ->oldest()
-                ->limit(15)
+                ->limit(self::LIMIT)
                 ->get()
                 ->map(fn ($event): array => [
                     'type' => $event->type,
@@ -51,5 +58,20 @@ class GetTraceabilityTool
                 ])
                 ->all(),
         ];
+    }
+
+    private function resolveInvoice(User $user, ?int $invoiceId, ?string $number): ?Invoice
+    {
+        $query = Invoice::withoutGlobalScopes()->where('company_id', $user->company_id);
+
+        if ($number !== null && trim($number) !== '') {
+            return $query->where('number', trim($number))->first();
+        }
+
+        if ($invoiceId !== null) {
+            return $query->whereKey($invoiceId)->first();
+        }
+
+        return null;
     }
 }

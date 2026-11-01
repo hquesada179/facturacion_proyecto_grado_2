@@ -183,6 +183,296 @@ export function renderAssistantMarkdown(text) {
     return container;
 }
 
+/**
+ * IA 2.0-B — renders the `components` array (invoice/customer/product/
+ * credit-note lists, metric summaries, traceability summaries) as compact
+ * cards instead of a JSON blob. Every `href` rendered here was already
+ * built server-side (Laravel's `route()`, inside AssistantComponentBuilder)
+ * from an item the user was already authorized to see — this module never
+ * constructs a URL itself and never reads a URL out of the model's text.
+ * A missing url/pdf_url/traceability_url on an item simply means that
+ * action isn't available for it (wrong status, or the role lacks the
+ * policy) — the corresponding button is omitted, never disabled-but-shown.
+ */
+
+function formatAssistantMoney(value) {
+    const amount = Math.round(Number(value) || 0);
+
+    return '$'+amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function formatAssistantDate(value) {
+    if (! value) {
+        return '';
+    }
+
+    const [year, month, day] = String(value).slice(0, 10).split('-');
+
+    return (year && month && day) ? `${day}/${month}/${year}` : String(value);
+}
+
+function assistantCardShell() {
+    const card = document.createElement('div');
+    card.className = 'rounded-lg border border-outline-variant/40 bg-surface-container-low p-sm';
+
+    return card;
+}
+
+function assistantCardLine(text, className) {
+    const p = document.createElement('p');
+    p.className = className;
+    p.textContent = text;
+
+    return p;
+}
+
+function assistantCardActions(actions) {
+    const row = document.createElement('div');
+    row.className = 'mt-xs flex flex-wrap gap-xs';
+
+    actions
+        .filter((action) => action.href)
+        .forEach((action) => {
+            const link = document.createElement('a');
+            link.href = action.href;
+            link.textContent = action.label;
+            link.className = 'px-sm py-xs rounded-full border border-outline-variant font-label-sm text-label-sm hover:border-primary hover:text-primary';
+
+            if (action.newTab) {
+                link.target = '_blank';
+                link.rel = 'noopener';
+            }
+
+            row.appendChild(link);
+        });
+
+    return row;
+}
+
+function buildAssistantInvoiceCard(item) {
+    const card = assistantCardShell();
+    card.appendChild(assistantCardLine('Factura '+(item.number ?? ''), 'font-label-md text-label-md text-on-surface'));
+
+    if (item.status_label) {
+        card.appendChild(assistantCardLine(item.status_label, 'font-body-sm text-body-sm text-on-surface-variant'));
+    }
+
+    if (item.customer) {
+        card.appendChild(assistantCardLine(item.customer, 'font-body-sm text-body-sm text-on-surface-variant'));
+    }
+
+    if (item.total !== null && item.total !== undefined) {
+        card.appendChild(assistantCardLine(formatAssistantMoney(item.total), 'font-label-md text-label-md text-on-surface'));
+    }
+
+    if (item.date) {
+        card.appendChild(assistantCardLine(formatAssistantDate(item.date), 'font-label-sm text-label-sm text-on-surface-variant'));
+    }
+
+    card.appendChild(assistantCardActions([
+        { label: 'Ver factura', href: item.url },
+        { label: 'PDF', href: item.pdf_url, newTab: true },
+        { label: 'Trazabilidad', href: item.traceability_url },
+    ]));
+
+    return card;
+}
+
+function buildAssistantCreditNoteCard(item) {
+    const card = assistantCardShell();
+    card.appendChild(assistantCardLine('Nota crédito '+(item.number ?? ''), 'font-label-md text-label-md text-on-surface'));
+
+    if (item.status_label) {
+        card.appendChild(assistantCardLine(item.status_label, 'font-body-sm text-body-sm text-on-surface-variant'));
+    }
+
+    if (item.customer) {
+        card.appendChild(assistantCardLine(item.customer, 'font-body-sm text-body-sm text-on-surface-variant'));
+    }
+
+    if (item.invoice_number) {
+        card.appendChild(assistantCardLine('Factura origen: '+item.invoice_number, 'font-label-sm text-label-sm text-on-surface-variant'));
+    }
+
+    if (item.total !== null && item.total !== undefined) {
+        card.appendChild(assistantCardLine(formatAssistantMoney(item.total), 'font-label-md text-label-md text-on-surface'));
+    }
+
+    if (item.date) {
+        card.appendChild(assistantCardLine(formatAssistantDate(item.date), 'font-label-sm text-label-sm text-on-surface-variant'));
+    }
+
+    card.appendChild(assistantCardActions([
+        { label: 'Ver nota crédito', href: item.url },
+        { label: 'PDF', href: item.pdf_url, newTab: true },
+    ]));
+
+    return card;
+}
+
+function buildAssistantCustomerCard(item) {
+    const card = assistantCardShell();
+    card.appendChild(assistantCardLine(item.name ?? '', 'font-label-md text-label-md text-on-surface'));
+
+    if (item.identification) {
+        card.appendChild(assistantCardLine(item.identification, 'font-body-sm text-body-sm text-on-surface-variant'));
+    }
+
+    if (item.status) {
+        card.appendChild(assistantCardLine(item.status, 'font-label-sm text-label-sm text-on-surface-variant'));
+    }
+
+    if (item.documents_count !== null && item.documents_count !== undefined) {
+        card.appendChild(assistantCardLine(item.documents_count+' documento(s)', 'font-label-sm text-label-sm text-on-surface-variant'));
+    }
+
+    card.appendChild(assistantCardActions([{ label: 'Ver cliente', href: item.url }]));
+
+    return card;
+}
+
+function buildAssistantProductCard(item) {
+    const card = assistantCardShell();
+    card.appendChild(assistantCardLine(item.name ?? '', 'font-label-md text-label-md text-on-surface'));
+
+    if (item.sku) {
+        card.appendChild(assistantCardLine(item.sku, 'font-body-sm text-body-sm text-on-surface-variant'));
+    }
+
+    if (item.price !== null && item.price !== undefined) {
+        card.appendChild(assistantCardLine(formatAssistantMoney(item.price), 'font-label-md text-label-md text-on-surface'));
+    }
+
+    if (item.taxes) {
+        card.appendChild(assistantCardLine(item.taxes, 'font-label-sm text-label-sm text-on-surface-variant'));
+    }
+
+    card.appendChild(assistantCardActions([{ label: 'Ver producto', href: item.url }]));
+
+    return card;
+}
+
+function renderAssistantDocumentList(component, buildCard) {
+    const items = Array.isArray(component.items) ? component.items : [];
+
+    if (items.length === 0) {
+        return null;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'space-y-xs';
+
+    items.forEach((item) => wrapper.appendChild(buildCard(item)));
+
+    const total = component.total_matches ?? items.length;
+    const showing = component.showing ?? items.length;
+
+    if (total > showing) {
+        wrapper.appendChild(assistantCardLine(
+            `Mostrando ${showing} de ${total} resultados.`,
+            'font-label-sm text-label-sm text-on-surface-variant',
+        ));
+    }
+
+    return wrapper;
+}
+
+function renderAssistantMetricSummary(component) {
+    const items = Array.isArray(component.items) ? component.items : [];
+
+    if (items.length === 0) {
+        return null;
+    }
+
+    const card = assistantCardShell();
+    card.classList.add('grid', 'grid-cols-2', 'gap-xs');
+
+    if (component.title) {
+        const title = assistantCardLine(component.title, 'font-label-md text-label-md text-on-surface mb-xs');
+        title.classList.add('col-span-2');
+        card.appendChild(title);
+    }
+
+    items.forEach((metric) => {
+        const box = document.createElement('div');
+        box.appendChild(assistantCardLine(metric.label ?? '', 'font-label-sm text-label-sm text-on-surface-variant'));
+        box.appendChild(assistantCardLine(metric.value ?? '', 'font-title-sm text-title-sm text-on-surface'));
+        card.appendChild(box);
+    });
+
+    return card;
+}
+
+function renderAssistantTraceabilitySummary(component) {
+    const items = Array.isArray(component.items) ? component.items : [];
+
+    if (items.length === 0) {
+        return null;
+    }
+
+    const card = assistantCardShell();
+    card.appendChild(assistantCardLine(
+        'Trazabilidad — '+(component.invoice_number ?? ''),
+        'font-label-md text-label-md text-on-surface mb-xs',
+    ));
+
+    const list = document.createElement('ol');
+    list.className = 'list-decimal list-inside space-y-xs font-body-sm text-body-sm text-on-surface-variant';
+
+    items.forEach((event) => {
+        const li = document.createElement('li');
+        li.textContent = `${event.date}: ${event.description}`;
+        list.appendChild(li);
+    });
+
+    card.appendChild(list);
+
+    const total = component.total_events ?? items.length;
+
+    if (total > items.length) {
+        card.appendChild(assistantCardLine(
+            `Mostrando ${items.length} de ${total} eventos.`,
+            'font-label-sm text-label-sm text-on-surface-variant mt-xs',
+        ));
+    }
+
+    return card;
+}
+
+function renderAssistantComponent(component) {
+    switch (component?.type) {
+        case 'invoice_list':
+            return renderAssistantDocumentList(component, buildAssistantInvoiceCard);
+        case 'credit_note_list':
+            return renderAssistantDocumentList(component, buildAssistantCreditNoteCard);
+        case 'customer_list':
+            return renderAssistantDocumentList(component, buildAssistantCustomerCard);
+        case 'product_list':
+            return renderAssistantDocumentList(component, buildAssistantProductCard);
+        case 'metric_summary':
+            return renderAssistantMetricSummary(component);
+        case 'traceability_summary':
+            return renderAssistantTraceabilitySummary(component);
+        default:
+            return null;
+    }
+}
+
+export function renderAssistantComponents(components) {
+    const container = document.createElement('div');
+    container.className = 'assistant-components space-y-sm';
+
+    (Array.isArray(components) ? components : []).forEach((component) => {
+        const node = renderAssistantComponent(component);
+
+        if (node) {
+            container.appendChild(node);
+        }
+    });
+
+    return container;
+}
+
 class AssistantPanel {
     constructor(root) {
         this.root = root;
@@ -335,13 +625,10 @@ class AssistantPanel {
         content.classList.add('text-on-surface');
         wrapper.appendChild(content);
 
-        // IA 2.0-A: `components` is always present in the response but no
-        // producer fills it yet and no renderer exists for it — recognized
-        // here only so later phases (invoice/customer cards, etc.) have a
-        // single place to hook into, without changing behaviour today.
         const components = Array.isArray(data.components) ? data.components : [];
+
         if (components.length) {
-            // Reserved for a future phase — intentionally not rendered yet.
+            wrapper.appendChild(renderAssistantComponents(components));
         }
 
         if (Array.isArray(data.suggestions) && data.suggestions.length) {

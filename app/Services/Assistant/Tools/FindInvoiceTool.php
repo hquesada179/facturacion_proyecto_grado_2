@@ -8,14 +8,20 @@ use Illuminate\Support\Facades\Gate;
 
 class FindInvoiceTool
 {
-    public function handle(User $user, ?string $term): array
+    private const MAX_LIMIT = 10;
+
+    /**
+     * @param  array<string, mixed>  $filters  Optional keys: status,
+     *   customer_term, date_from, date_to.
+     */
+    public function handle(User $user, ?string $term, array $filters = [], int $limit = 5): array
     {
         $term = trim((string) $term);
+        $limit = max(1, min($limit, self::MAX_LIMIT));
 
         $query = Invoice::withoutGlobalScopes()
             ->with('customer')
-            ->where('company_id', $user->company_id)
-            ->latest('updated_at');
+            ->where('company_id', $user->company_id);
 
         if ($term !== '') {
             $query->where(function ($query) use ($term): void {
@@ -27,7 +33,26 @@ class FindInvoiceTool
             });
         }
 
-        $matches = $query->limit(5)->get()
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['customer_term'])) {
+            $customerTerm = $filters['customer_term'];
+            $query->whereHas('customer', fn ($q) => $q->where('name', 'like', '%'.$customerTerm.'%'));
+        }
+
+        if (! empty($filters['date_from'])) {
+            $query->where('created_at', '>=', $filters['date_from']);
+        }
+
+        if (! empty($filters['date_to'])) {
+            $query->where('created_at', '<=', $filters['date_to']);
+        }
+
+        $totalMatches = (clone $query)->count();
+
+        $matches = $query->latest('updated_at')->limit($limit)->get()
             ->filter(fn (Invoice $invoice): bool => Gate::forUser($user)->allows('view', $invoice))
             ->map(fn (Invoice $invoice): array => [
                 'id' => $invoice->id,
@@ -43,6 +68,7 @@ class FindInvoiceTool
 
         return [
             'tool' => 'find_invoice',
+            'total_matches' => $totalMatches,
             'matches' => $matches,
         ];
     }
