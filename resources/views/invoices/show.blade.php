@@ -90,6 +90,32 @@
         </div>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Condición de pago</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ \App\Models\Invoice::PAYMENT_TYPES[$invoice->payment_type] ?? 'Sin definir' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Método de pago</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ \App\Models\Invoice::PAYMENT_METHODS[$invoice->payment_method] ?? 'Sin definir' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Vencimiento</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ optional($invoice->due_date)->format('Y-m-d') ?? 'No aplica' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Moneda</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $invoice->currency ?? 'COP' }}</p>
+        </div>
+    </div>
+
+    @if ($invoice->notes)
+        <div class="mb-lg bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Observaciones</p>
+            <p class="font-body-md text-body-md text-on-surface">{{ $invoice->notes }}</p>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-lg">
         <x-ui.data-table :table="[
             'title' => 'Productos y servicios',

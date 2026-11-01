@@ -15,10 +15,12 @@ class CufeGeneratorTest extends TestCase
 
         $invoice = new Invoice(array_merge([
             'customer_id' => 1,
-            'issue_date' => '2026-10-03',
         ], $overrides));
         $invoice->number = $overrides['number'] ?? 'FV-000001';
         $invoice->total = $overrides['total'] ?? '119000.00';
+        // issued_at is intentionally excluded from $fillable (only ever
+        // assigned by the issuance service), so it must be set directly.
+        $invoice->issued_at = $overrides['issued_at'] ?? '2026-10-03 10:00:00';
         $invoice->setRelation('company', $company);
 
         return $invoice;

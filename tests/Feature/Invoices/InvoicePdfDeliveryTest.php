@@ -151,6 +151,94 @@ class InvoicePdfDeliveryTest extends TestCase
         $this->assertStringContainsString('Total factura', $html);
     }
 
+    /**
+     * Regression test: the PDF showed payment_type ("Forma de pago")
+     * but never payment_method (added in Fase 2), and the notes field
+     * captured in the wizard's summary step never appeared anywhere in
+     * the generated document.
+     */
+    public function test_pdf_shows_payment_condition_method_and_observations_when_present(): void
+    {
+        $user = $this->facturador();
+        $context = $this->issuedInvoiceFor($user);
+        $invoice = $context['invoice'];
+        $invoice->forceFill([
+            'payment_type' => 'credito',
+            'payment_method' => 'transferencia',
+            'notes' => 'Entregar en portería principal.',
+        ])->save();
+
+        $html = view('invoices.pdf', app(InvoicePdfService::class)->viewData($invoice->refresh()))->render();
+
+        $this->assertStringContainsString('Crédito', $html);
+        $this->assertStringContainsString('Transferencia', $html);
+        $this->assertStringContainsString('Entregar en portería principal.', $html);
+    }
+
+    public function test_pdf_shows_sin_definir_when_payment_fields_are_not_set(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->issuedInvoiceFor($user)['invoice'];
+
+        $html = view('invoices.pdf', app(InvoicePdfService::class)->viewData($invoice->refresh()))->render();
+
+        $this->assertStringContainsString('Condición de pago: Sin definir', $html);
+        $this->assertStringContainsString('Método de pago: Sin definir', $html);
+    }
+
+    /**
+     * Regression test: the detail screen only showed cliente/fecha de
+     * emisión/estado/total — payment_type, payment_method, due_date and
+     * notes were captured but never displayed, even though the PDF
+     * (once fixed) shows them.
+     */
+    public function test_invoice_detail_screen_shows_payment_due_date_and_observations(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->issuedInvoiceFor($user)['invoice'];
+        $invoice->forceFill([
+            'payment_type' => 'credito',
+            'payment_method' => 'tarjeta',
+            'due_date' => now()->addDays(30),
+            'notes' => 'Observación visible en pantalla.',
+        ])->save();
+
+        $response = $this->actingAs($user)->get(route('invoices.show', $invoice));
+
+        $response->assertOk();
+        $response->assertSee('Crédito');
+        $response->assertSee('Tarjeta');
+        $response->assertSee('Observación visible en pantalla.');
+    }
+
+    /**
+     * Fase 5 robustness check: a long, unbroken description and a long
+     * company/customer name must not break PDF generation and should
+     * wrap instead of overflowing the page.
+     */
+    public function test_pdf_generation_survives_long_descriptions_and_names(): void
+    {
+        $user = $this->facturador();
+        $longWord = str_repeat('Descripcionextremadamentelargasinespacios', 4);
+        $context = $this->issuedInvoiceFor(
+            $user,
+            customerOverrides: ['name' => str_repeat('Comercializadora Internacional de Insumos Industriales SAS ', 2)],
+        );
+        $invoice = $context['invoice'];
+        $item = $invoice->items()->firstOrFail();
+        $item->forceFill(['description' => $longWord])->save();
+
+        $html = view('invoices.pdf', app(InvoicePdfService::class)->viewData($invoice->refresh()))->render();
+
+        $this->assertStringContainsString($longWord, $html);
+        $this->assertStringContainsString('word-wrap', $html);
+
+        // The real DomPDF render must also complete without throwing.
+        $response = $this->actingAs($user)->get(route('invoices.pdf.show', $invoice));
+        $response->assertOk();
+        $this->assertStringStartsWith('%PDF', $response->content());
+    }
+
     public function test_qr_is_generated_for_internal_verification_and_never_points_to_dian(): void
     {
         $user = $this->facturador();

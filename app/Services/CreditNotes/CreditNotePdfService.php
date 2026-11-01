@@ -4,6 +4,8 @@ namespace App\Services\CreditNotes;
 
 use App\Enums\CreditNoteStatus;
 use App\Models\CreditNote;
+use App\Models\Invoice;
+use App\Services\Invoices\InvoiceQrCodeService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
@@ -13,11 +15,15 @@ use RuntimeException;
 
 class CreditNotePdfService
 {
-    public function __construct(private readonly CreditNoteTraceLogger $logger) {}
+    public function __construct(
+        private readonly CreditNoteTraceLogger $logger,
+        private readonly InvoiceQrCodeService $qrCode,
+    ) {}
 
     public function ensureGenerated(CreditNote $creditNote): CreditNote
     {
         $this->ensureIssued($creditNote);
+        $creditNote = $this->ensureVerificationToken($creditNote);
 
         if ($creditNote->pdf_path !== null) {
             if (Storage::disk('local')->exists($creditNote->pdf_path)) {
@@ -56,6 +62,7 @@ class CreditNotePdfService
     public function viewData(CreditNote $creditNote): array
     {
         $this->ensureIssued($creditNote);
+        $creditNote = $this->ensureVerificationToken($creditNote);
         $creditNote->loadMissing(['invoice.items', 'invoice.company', 'items']);
 
         $taxesByCode = [];
@@ -80,13 +87,42 @@ class CreditNotePdfService
             $taxesByCode[$code]['value'] = (string) $tax['value']->toScale(2, RoundingMode::HalfEven);
         }
 
+        $verificationUrl = $this->verificationUrl($creditNote);
+
         return [
             'creditNote' => $creditNote,
             'invoice' => $creditNote->invoice,
             'issuer' => $creditNote->invoice->issuer_snapshot ?? [],
             'customer' => $creditNote->invoice->customer_snapshot ?? [],
             'taxesByCode' => $taxesByCode,
+            'verificationUrl' => $verificationUrl,
+            'qrDataUri' => $this->qrCode->dataUri($verificationUrl),
         ];
+    }
+
+    public function verificationUrl(CreditNote $creditNote): string
+    {
+        $creditNote = $this->ensureVerificationToken($creditNote);
+
+        return route('documents.verify', ['token' => $creditNote->verification_token]);
+    }
+
+    public function ensureVerificationToken(CreditNote $creditNote): CreditNote
+    {
+        if ($creditNote->verification_token !== null) {
+            return $creditNote;
+        }
+
+        do {
+            $token = Str::random(64);
+        } while (
+            Invoice::withoutGlobalScopes()->where('verification_token', $token)->exists()
+            || CreditNote::withoutGlobalScopes()->where('verification_token', $token)->exists()
+        );
+
+        $creditNote->forceFill(['verification_token' => $token])->save();
+
+        return $creditNote->refresh();
     }
 
     private function ensureIssued(CreditNote $creditNote): void

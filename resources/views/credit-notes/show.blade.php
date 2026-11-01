@@ -41,6 +41,11 @@
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Total acreditado</p><p class="font-title-lg text-title-lg font-mono">{{ \App\Support\ReportFormatter::money($creditNote->total) }}</p></div>
     </div>
 
+    <div class="mb-lg bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+        <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Justificación</p>
+        <p class="font-body-md text-body-md text-on-surface">{{ $creditNote->reason_text }}</p>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-lg">
         <x-ui.data-table :table="[
             'title' => 'Líneas acreditadas',

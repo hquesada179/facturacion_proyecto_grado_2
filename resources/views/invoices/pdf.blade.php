@@ -61,11 +61,19 @@
             padding: 7px 5px;
             text-align: left;
             text-transform: uppercase;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         td {
             border-bottom: 1px solid #e5eeff;
             padding: 7px 5px;
             vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        h1, .brand, .box strong {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .right { text-align: right; }
         .mono { font-family: DejaVu Sans Mono, Consolas, monospace; }
@@ -120,7 +128,8 @@
             <div>Fecha emisión: {{ optional($invoice->issued_at)->format('Y-m-d H:i') }}</div>
             <div>Vencimiento: {{ optional($invoice->due_date)->format('Y-m-d') ?? 'No aplica' }}</div>
             <div>Moneda: {{ $invoice->currency }}</div>
-            <div>Forma de pago: {{ $invoice->payment_type ? ucfirst($invoice->payment_type) : 'Sin definir' }}</div>
+            <div>Condición de pago: {{ \App\Models\Invoice::PAYMENT_TYPES[$invoice->payment_type] ?? 'Sin definir' }}</div>
+            <div>Método de pago: {{ \App\Models\Invoice::PAYMENT_METHODS[$invoice->payment_method] ?? 'Sin definir' }}</div>
         </div>
     </div>
 
@@ -199,6 +208,13 @@
             </table>
         </div>
     </div>
+
+    @if ($invoice->notes)
+        <div class="box" style="margin-top: 14px;">
+            <h2>Observaciones</h2>
+            <div>{{ $invoice->notes }}</div>
+        </div>
+    @endif
 
     <div class="qr-row">
         <div>

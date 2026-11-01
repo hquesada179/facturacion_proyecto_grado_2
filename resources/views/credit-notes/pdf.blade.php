@@ -20,14 +20,20 @@
         .grid > div { display: table-cell; padding-right: 14px; vertical-align: top; width: 50%; }
         .grid > div:last-child { padding-right: 0; }
         table { border-collapse: collapse; margin-top: 8px; width: 100%; }
-        th { background: #eff4ff; color: #0b1c30; font-size: 9px; padding: 7px 5px; text-align: left; text-transform: uppercase; }
-        td { border-bottom: 1px solid #e5eeff; padding: 7px 5px; vertical-align: top; }
+        th { background: #eff4ff; color: #0b1c30; font-size: 9px; padding: 7px 5px; text-align: left; text-transform: uppercase; word-wrap: break-word; overflow-wrap: break-word; }
+        td { border-bottom: 1px solid #e5eeff; padding: 7px 5px; vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
+        h1, .brand, .box strong { word-wrap: break-word; overflow-wrap: break-word; }
         .right { text-align: right; }
         .mono { font-family: DejaVu Sans Mono, Consolas, monospace; }
         .totals { margin-left: auto; width: 310px; }
         .totals td { border-bottom: 0; padding: 5px; }
         .totals tr:last-child td { border-top: 1px solid #00236f; color: #00236f; font-size: 14px; font-weight: 700; padding-top: 8px; }
         .legend { background: #fdf6b2; border: 1px solid rgba(114, 59, 19, 0.25); color: #723b13; margin-top: 12px; padding: 8px; }
+        .qr-row { display: table; margin-top: 16px; width: 100%; }
+        .qr-row > div { display: table-cell; vertical-align: top; }
+        .qr { text-align: right; width: 160px; }
+        .qr img { height: 132px; width: 132px; }
+        .muted { color: #444651; }
         .platform-footer { border-top: 1px solid #e5eeff; color: #757682; font-size: 8px; letter-spacing: 0.06em; margin-top: 16px; padding-top: 8px; text-align: center; text-transform: uppercase; }
         .platform-footer strong { color: #0b1c30; }
     </style>
@@ -63,9 +69,9 @@
         </div>
         <div>
             <div class="box">
-                <h2>Motivo</h2>
-                <strong>{{ $creditNote->reason }}</strong><br>
-                {{ $creditNote->reason_text }}
+                <h2>Motivo y justificación</h2>
+                <div><strong>Motivo:</strong> {{ $creditNote->reason }}</div>
+                <div><strong>Justificación:</strong> {{ $creditNote->reason_text }}</div>
                 <div class="mono">CUFE/ID SIMULADO: {{ $creditNote->simulated_cufe }}</div>
             </div>
         </div>
@@ -124,8 +130,17 @@
         </div>
     </div>
 
-    <div class="legend">
-        Validación DIAN simulada. Esta nota crédito pertenece a un prototipo académico y no representa un documento tributario real.
+    <div class="qr-row">
+        <div>
+            <div class="legend">
+                Validación DIAN simulada. Esta nota crédito pertenece a un prototipo académico y no representa un documento tributario real.
+                Verificación interna: <span class="mono">{{ $verificationUrl }}</span>
+            </div>
+        </div>
+        <div class="qr">
+            <img src="{{ $qrDataUri }}" alt="QR de verificación interna">
+            <div class="muted">QR interno del prototipo</div>
+        </div>
     </div>
 
     <div class="platform-footer">Generado con <strong>Fiscora</strong> · Plataforma de Facturación</div>

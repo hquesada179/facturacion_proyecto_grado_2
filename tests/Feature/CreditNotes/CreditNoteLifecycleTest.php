@@ -122,6 +122,25 @@ class CreditNoteLifecycleTest extends TestCase
         ]);
     }
 
+    /**
+     * Regression test: the detail screen showed "Motivo" (reason) but
+     * never reason_text (justificación), even though the PDF already
+     * showed both — a direct screen/PDF inconsistency.
+     */
+    public function test_credit_note_detail_screen_shows_the_justification(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '1', 'PROTO_PARTIAL_RETURN');
+        $creditNote->forceFill(['reason_text' => 'El cliente devolvió una unidad defectuosa.'])->save();
+
+        $response = $this->actingAs($user)->get(route('credit-notes.show', $creditNote));
+
+        $response->assertOk();
+        $response->assertSee('Justificación');
+        $response->assertSee('El cliente devolvió una unidad defectuosa.');
+    }
+
     public function test_partial_credit_note_leaves_invoice_partially_credited(): void
     {
         $user = $this->facturador();

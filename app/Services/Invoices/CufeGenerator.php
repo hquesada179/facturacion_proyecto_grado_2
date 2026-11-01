@@ -17,7 +17,11 @@ class CufeGenerator
             $invoice->company->nit,
             $invoice->number,
             $invoice->total,
-            optional($invoice->issue_date)->toDateString(),
+            // issued_at, not issue_date: the latter is a draft-only field
+            // the wizard never populates, so it was almost always null
+            // here — issued_at is the real emission timestamp set right
+            // before this generator runs (see IssueInvoiceService).
+            optional($invoice->issued_at)->toDateString(),
             $invoice->customer_id,
         ]);
 
