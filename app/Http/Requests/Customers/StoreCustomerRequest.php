@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Customers;
 
 use App\Models\Customer;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,6 +12,21 @@ class StoreCustomerRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user() !== null && $this->user()->can('manage-invoicing');
+    }
+
+    /**
+     * Normalize before the uniqueness check runs, not just before
+     * saving — otherwise "900.373.115" would validate as "not a
+     * duplicate" against an already-stored "900373115" and still slip
+     * through.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('identification_number')) {
+            $this->merge([
+                'identification_number' => Customer::normalizeIdentificationNumber((string) $this->input('identification_number')),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -23,6 +39,11 @@ class StoreCustomerRequest extends FormRequest
                 'string',
                 'max:20',
                 Rule::unique('customers')->where('company_id', $this->user()?->company_id),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (in_array($this->input('identification_type'), Customer::NUMERIC_IDENTIFICATION_TYPES, true) && ! ctype_digit((string) $value)) {
+                        $fail('Para este tipo de identificación, el número solo puede contener dígitos.');
+                    }
+                },
             ],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],

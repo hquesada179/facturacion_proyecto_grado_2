@@ -306,6 +306,47 @@ class InvoiceDraftWizardTest extends TestCase
             ->assertDontSee('onclick="return confirm(', false);
     }
 
+    /**
+     * Regression test: the customer step listed every customer
+     * regardless of status, so picking an inactive one always ended in
+     * a confusing PRO-CUSTOMER-002 block at validation with no warning
+     * at the point of selection.
+     */
+    public function test_inactive_customers_are_not_offered_in_the_customer_step(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->draftInvoiceFor($user);
+        $active = Customer::factory()->for($user->company)->create(['name' => 'Cliente Activo']);
+        Customer::factory()->for($user->company)->inactive()->create(['name' => 'Cliente Inactivo']);
+
+        $response = $this->actingAs($user)->get(route('invoices.draft.customer', $invoice));
+
+        $response->assertOk();
+        $response->assertSee('Cliente Activo');
+        $response->assertDontSee('Cliente Inactivo');
+    }
+
+    /**
+     * If a draft already has an inactive customer assigned (it became
+     * inactive after the draft picked it), reopening this step must not
+     * make the selection silently disappear from the dropdown.
+     */
+    public function test_already_assigned_inactive_customer_still_appears_in_the_customer_step(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->draftInvoiceFor($user);
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Cliente Que Se Inactivó']);
+        $invoice->customer_id = $customer->id;
+        $invoice->save();
+
+        $customer->update(['status' => 'inactive']);
+
+        $response = $this->actingAs($user)->get(route('invoices.draft.customer', $invoice));
+
+        $response->assertOk();
+        $response->assertSee('Cliente Que Se Inactivó');
+    }
+
     public function test_contador_cannot_mutate_a_draft_but_can_view_it(): void
     {
         $company = Company::factory()->create();

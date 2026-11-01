@@ -36,16 +36,46 @@
             <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->identification_type }} {{ $customer->identification_number }}@if ($customer->dv)-{{ $customer->dv }}@endif</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Tipo de persona</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->person_type === 'juridica' ? 'Persona jurídica' : 'Persona natural' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Correo</p>
             <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->email ?? '-' }}</p>
         </div>
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
-            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Ciudad</p>
-            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->city ?? '-' }}</p>
-        </div>
-        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Estado</p>
             <x-ui.badge :status="$customer->status === 'active' ? 'Activo' : 'Inactivo'" />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Teléfono</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->phone ?? '-' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Dirección</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->address ?? '-' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Ciudad / Departamento</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->city ?? '-' }}@if ($customer->department) / {{ $customer->department }}@endif</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">País</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->country ?? '-' }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Responsabilidad tributaria</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->tax_responsibility ?? 'Sin definir' }}</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
+            <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Tributo</p>
+            <p class="font-title-lg text-title-lg text-on-surface">{{ $customer->tax?->name ?? 'Sin definir' }}</p>
         </div>
     </div>
 

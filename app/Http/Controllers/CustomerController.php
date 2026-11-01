@@ -7,7 +7,6 @@ use App\Http\Requests\Customers\UpdateCustomerRequest;
 use App\Models\Customer;
 use App\Models\Tax;
 use App\Services\Customers\CustomerService;
-use App\Services\Tax\NitDvCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -81,13 +80,7 @@ class CustomerController extends Controller
     {
         $this->authorize('update', $customer);
 
-        $data = $request->validated();
-
-        $customer->fill($data);
-        $customer->dv = $data['identification_type'] === 'NIT'
-            ? (string) NitDvCalculator::calculate($data['identification_number'])
-            : null;
-        $customer->save();
+        $this->customers->updateFromData($customer, $request->validated());
 
         return redirect()->route('customers.show', $customer)->with('status', 'Cliente actualizado correctamente.');
     }

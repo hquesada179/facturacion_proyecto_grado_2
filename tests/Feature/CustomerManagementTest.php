@@ -209,6 +209,172 @@ class CustomerManagementTest extends TestCase
         $response->assertDontSee('Este cliente todavía no tiene facturas.');
     }
 
+    /**
+     * Regression test: "Consumidor Final" had no special protection —
+     * an admin could edit, inactivate, or permanently delete it like
+     * any regular customer, silently corrupting or removing the
+     * company's only fixed placeholder.
+     */
+    public function test_final_consumer_cannot_be_edited(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $finalConsumer = app(CustomerService::class)->ensureFinalConsumer($user->company);
+
+        $this->actingAs($user)->get(route('customers.edit', $finalConsumer))->assertForbidden();
+        $this->actingAs($user)->put(route('customers.update', $finalConsumer), $this->validPayload([
+            'identification_number' => '1111111111',
+        ]))->assertForbidden();
+
+        $this->assertSame('0000000000', $finalConsumer->refresh()->identification_number);
+    }
+
+    public function test_final_consumer_cannot_be_inactivated(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $finalConsumer = app(CustomerService::class)->ensureFinalConsumer($user->company);
+
+        $this->actingAs($user)->patch(route('customers.toggle-status', $finalConsumer))->assertForbidden();
+
+        $this->assertSame('active', $finalConsumer->refresh()->status);
+    }
+
+    public function test_final_consumer_cannot_be_deleted(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $finalConsumer = app(CustomerService::class)->ensureFinalConsumer($user->company);
+
+        $this->actingAs($user)->delete(route('customers.destroy', $finalConsumer))->assertForbidden();
+
+        $this->assertDatabaseHas('customers', ['id' => $finalConsumer->id]);
+    }
+
+    public function test_final_consumer_edit_and_delete_actions_are_hidden_from_its_detail_page(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $finalConsumer = app(CustomerService::class)->ensureFinalConsumer($user->company);
+
+        $response = $this->actingAs($user)->get(route('customers.show', $finalConsumer));
+
+        $response->assertOk();
+        $response->assertDontSee('Editar');
+        $response->assertDontSee('route(\'customers.destroy\'', false);
+    }
+
+    /**
+     * Regression test: duplicate identification numbers with purely
+     * cosmetic formatting differences (dots, dashes, spaces) slipped
+     * past the uniqueness check because nothing normalized the value
+     * before comparing or storing it.
+     */
+    public function test_identification_number_with_different_formatting_is_treated_as_a_duplicate(): void
+    {
+        $user = User::factory()->for(Company::factory())->facturador()->create();
+        Customer::factory()->for($user->company)->create(['identification_number' => '900373115']);
+
+        $response = $this->actingAs($user)->post(route('customers.store'), $this->validPayload([
+            'person_type' => 'juridica',
+            'identification_type' => 'NIT',
+            'identification_number' => '900.373.115',
+            'phone' => '6015550000',
+            'address' => 'Calle 1 # 2-3',
+        ]));
+
+        $response->assertSessionHasErrors('identification_number');
+    }
+
+    public function test_identification_number_is_stored_normalized(): void
+    {
+        $user = User::factory()->for(Company::factory())->facturador()->create();
+
+        $this->actingAs($user)->post(route('customers.store'), $this->validPayload([
+            'person_type' => 'juridica',
+            'identification_type' => 'NIT',
+            'identification_number' => '900.373.115',
+            'phone' => '6015550000',
+            'address' => 'Calle 1 # 2-3',
+        ]));
+
+        $this->assertDatabaseHas('customers', ['identification_number' => '900373115']);
+        $this->assertDatabaseMissing('customers', ['identification_number' => '900.373.115']);
+    }
+
+    public function test_cc_identification_number_must_be_purely_numeric(): void
+    {
+        $user = User::factory()->for(Company::factory())->facturador()->create();
+
+        $response = $this->actingAs($user)->post(route('customers.store'), $this->validPayload([
+            'identification_type' => 'CC',
+            'identification_number' => '10AB304050',
+        ]));
+
+        $response->assertSessionHasErrors('identification_number');
+    }
+
+    public function test_passport_identification_number_may_contain_letters(): void
+    {
+        $user = User::factory()->for(Company::factory())->facturador()->create();
+
+        $response = $this->actingAs($user)->post(route('customers.store'), $this->validPayload([
+            'identification_type' => 'PAS',
+            'identification_number' => 'AB1234567',
+        ]));
+
+        $response->assertSessionDoesntHaveErrors('identification_number');
+        $this->assertDatabaseHas('customers', ['identification_number' => 'AB1234567']);
+    }
+
+    /**
+     * Regression test: editing a customer duplicated the DV-calculation
+     * logic instead of reusing CustomerService — functionally identical
+     * today, but a maintenance trap. Covering the behavior here so a
+     * future refactor can't silently drop it.
+     */
+    public function test_updating_a_customer_recalculates_the_check_digit_via_the_shared_service(): void
+    {
+        $user = User::factory()->for(Company::factory())->facturador()->create();
+        $customer = Customer::factory()->for($user->company)->create(['identification_type' => 'CC']);
+
+        $this->actingAs($user)->put(route('customers.update', $customer), $this->validPayload([
+            'person_type' => 'juridica',
+            'identification_type' => 'NIT',
+            'identification_number' => '900373115',
+            'phone' => '6015550000',
+            'address' => 'Calle 1 # 2-3',
+        ]));
+
+        $this->assertSame('3', $customer->refresh()->dv);
+    }
+
+    /**
+     * Regression test: the customer detail page only showed 4 of the
+     * ~13 captured fields — person_type, phone, address, department,
+     * country, responsibility and tributo were invisible after saving.
+     */
+    public function test_customer_detail_shows_all_captured_fields(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $tax = \App\Models\Tax::factory()->create(['company_id' => null, 'name' => 'IVA 19% test']);
+        $customer = Customer::factory()->for($user->company)->create([
+            'person_type' => 'juridica',
+            'phone' => '6011234567',
+            'address' => 'Calle 123',
+            'department' => 'Antioquia',
+            'country' => 'Colombia',
+            'tax_responsibility' => 'Responsable de IVA',
+            'tax_id' => $tax->id,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('customers.show', $customer));
+
+        $response->assertOk();
+        $response->assertSee('Persona jurídica');
+        $response->assertSee('6011234567');
+        $response->assertSee('Calle 123');
+        $response->assertSee('Antioquia');
+        $response->assertSee('Responsable de IVA');
+        $response->assertSee('IVA 19% test');
+    }
+
     public function test_a_user_only_sees_customers_from_their_own_company(): void
     {
         $companyA = Company::factory()->create();

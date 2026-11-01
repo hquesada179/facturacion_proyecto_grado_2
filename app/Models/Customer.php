@@ -29,6 +29,25 @@ class Customer extends Model
     public const STATUSES = ['active' => 'Activo', 'inactive' => 'Inactivo'];
 
     /**
+     * In Colombia these four are always purely numeric — CE and PAS are
+     * left unrestricted since a passport (and some historical foreign-ID
+     * documents) can legitimately contain letters.
+     */
+    public const NUMERIC_IDENTIFICATION_TYPES = ['CC', 'TI', 'RC', 'NIT'];
+
+    /**
+     * Strips purely cosmetic grouping characters (spaces, dots, dashes)
+     * that make the same real-world document number compare as a
+     * different string — "900373115" and "900.373.115" must be treated
+     * as the same identification for the per-company uniqueness check.
+     * Letters are preserved (passport numbers can contain them).
+     */
+    public static function normalizeIdentificationNumber(string $value): string
+    {
+        return preg_replace('/[\s.\-]/', '', trim($value)) ?? trim($value);
+    }
+
+    /**
      * dv is intentionally excluded: it is always recalculated from
      * identification_number via NitDvCalculator when identification_type
      * is NIT, never taken directly from request input.

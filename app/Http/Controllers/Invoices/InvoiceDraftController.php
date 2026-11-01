@@ -57,7 +57,16 @@ class InvoiceDraftController extends Controller
 
         return view('invoices.drafts.customer', [
             'invoice' => $invoice,
-            'customers' => Customer::orderBy('name')->get(),
+            // Selecting an inactive customer is always going to be
+            // blocked at validation (PRO-CUSTOMER-002) with no clear
+            // explanation to the user — don't offer it as a choice. The
+            // one already assigned stays visible/selected even if it
+            // became inactive after the draft picked it, so reopening
+            // this step never looks like the selection silently vanished.
+            'customers' => Customer::where('status', 'active')
+                ->when($invoice->customer_id, fn ($query, $customerId) => $query->orWhere('id', $customerId))
+                ->orderBy('name')
+                ->get(),
             'finalConsumer' => Customer::where('is_final_consumer', true)->first(),
         ]);
     }

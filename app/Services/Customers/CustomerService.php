@@ -18,12 +18,32 @@ class CustomerService
     public function createFromData(array $data): Customer
     {
         $customer = new Customer($data);
-        $customer->dv = ($data['identification_type'] ?? null) === 'NIT'
-            ? (string) NitDvCalculator::calculate($data['identification_number'])
-            : null;
+        $customer->dv = $this->calculateDv($data);
         $customer->save();
 
         return $customer;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function updateFromData(Customer $customer, array $data): Customer
+    {
+        $customer->fill($data);
+        $customer->dv = $this->calculateDv($data);
+        $customer->save();
+
+        return $customer;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function calculateDv(array $data): ?string
+    {
+        return ($data['identification_type'] ?? null) === 'NIT'
+            ? (string) NitDvCalculator::calculate($data['identification_number'])
+            : null;
     }
 
     /**
