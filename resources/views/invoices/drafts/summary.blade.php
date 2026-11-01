@@ -71,7 +71,7 @@
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Datos de la factura</h3>
         <form method="POST" action="{{ route('invoices.draft.summary.update', $invoice) }}" class="space-y-md">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Moneda</span>
                     <select name="currency" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
@@ -80,17 +80,29 @@
                         @endforeach
                     </select>
                 </label>
+                <div></div>
                 <label>
-                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Forma de pago</span>
-                    <select name="payment_type" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Condición de pago</span>
+                    <select name="payment_type" id="payment-type-select" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
                         <option value="">Sin definir</option>
-                        <option value="contado" @selected($invoice->payment_type === 'contado')>Contado</option>
-                        <option value="credito" @selected($invoice->payment_type === 'credito')>Crédito</option>
+                        @foreach (\App\Models\Invoice::PAYMENT_TYPES as $value => $label)
+                            <option value="{{ $value }}" @selected($invoice->payment_type === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Método de pago</span>
+                    <select name="payment_method" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
+                        <option value="">Sin definir</option>
+                        @foreach (\App\Models\Invoice::PAYMENT_METHODS as $value => $label)
+                            <option value="{{ $value }}" @selected($invoice->payment_method === $value)>{{ $label }}</option>
+                        @endforeach
                     </select>
                 </label>
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Fecha de vencimiento</span>
-                    <input name="due_date" value="{{ optional($invoice->due_date)->format('Y-m-d') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="date">
+                    <input id="due-date-input" name="due_date" value="{{ optional($invoice->due_date)->format('Y-m-d') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="date">
+                    <span class="block font-label-sm text-label-sm text-on-surface-variant mt-xs">Si es contado, puede coincidir con la fecha de emisión. Si es crédito, es obligatoria.</span>
                 </label>
             </div>
             <label>
@@ -124,4 +136,22 @@
         <a href="{{ route('invoices.draft.items', $invoice) }}" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md">Volver a productos</a>
         <a href="{{ route('invoices.draft.validation', $invoice) }}" class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover">Continuar a validación</a>
     </div>
+
+    <script>
+        (function () {
+            const paymentType = document.getElementById('payment-type-select');
+            const dueDate = document.getElementById('due-date-input');
+
+            if (! paymentType || ! dueDate) {
+                return;
+            }
+
+            paymentType.addEventListener('change', function () {
+                if (paymentType.value === 'contado' && ! dueDate.value) {
+                    const today = new Date().toISOString().slice(0, 10);
+                    dueDate.value = today;
+                }
+            });
+        })();
+    </script>
 </x-layouts.app>

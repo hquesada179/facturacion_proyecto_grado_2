@@ -13,7 +13,13 @@
 
     @can('manage-invoicing')
         <div class="px-md mb-md">
-            <a href="{{ route('invoices.create.customer') }}" class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded-lg flex items-center justify-center gap-sm shadow-hover">
+            <a
+                href="{{ route('invoices.create.customer') }}"
+                class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded-lg flex items-center justify-center gap-sm shadow-hover"
+                @if (request()->routeIs('invoices.draft.*'))
+                    onclick="return confirm('Ya tienes una factura en progreso en este asistente. Si creas una nueva, esta quedará como un borrador aparte y dejarás de ver la factura actual. ¿Deseas continuar?');"
+                @endif
+            >
                 <span class="material-symbols-outlined">add</span>
                 Nueva factura
             </a>

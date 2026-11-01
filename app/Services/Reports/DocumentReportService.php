@@ -62,11 +62,27 @@ class DocumentReportService
                 ->count()
             : 0;
 
-        $rejected = $includeInvoices
+        $rejectedStatuses = [InvoiceStatus::SimulatedRejected->value, InvoiceStatus::TechnicalError->value];
+        $creditNoteRejectedStatuses = [CreditNoteStatus::SimulatedRejected->value, CreditNoteStatus::TechnicalError->value];
+
+        // "Rechazadas o con error" must stay coherent with the operational
+        // error metrics (Errores técnicos / Rechazos y errores), which
+        // already count both document types — a credit note stuck in
+        // technical_error should show up here too, even though it never
+        // affects financial totals (those stay gated to status=Issued).
+        $rejectedInvoices = $includeInvoices
             ? (clone $this->queries->invoices($user, $filters, $range))
-                ->whereIn('status', [InvoiceStatus::SimulatedRejected->value, InvoiceStatus::TechnicalError->value])
+                ->whereIn('status', $rejectedStatuses)
                 ->count()
             : 0;
+
+        $rejectedCreditNotes = $includeCreditNotes
+            ? (clone $this->queries->creditNotes($user, $filters, $range))
+                ->whereIn('status', $creditNoteRejectedStatuses)
+                ->count()
+            : 0;
+
+        $rejected = $rejectedInvoices + $rejectedCreditNotes;
 
         $voided = $includeInvoices
             ? (clone $this->queries->invoices($user, $filters, $range))
@@ -109,7 +125,7 @@ class DocumentReportService
         return [
             ['label' => 'Facturas creadas', 'value' => ReportFormatter::integer($summary['created']), 'icon' => 'note_add', 'tone' => 'primary'],
             ['label' => 'Facturas emitidas', 'value' => ReportFormatter::integer($summary['emitted']), 'icon' => 'receipt_long', 'tone' => 'secondary'],
-            ['label' => 'Rechazadas o con error', 'value' => ReportFormatter::integer($summary['rejected']), 'icon' => 'error', 'tone' => 'error'],
+            ['label' => 'Documentos rechazados o con error', 'value' => ReportFormatter::integer($summary['rejected']), 'icon' => 'error', 'tone' => 'error'],
             ['label' => 'Facturas anuladas', 'value' => ReportFormatter::integer($summary['voided']), 'icon' => 'block', 'tone' => 'warning'],
             ['label' => 'Notas crédito', 'value' => ReportFormatter::integer($summary['credit_notes']), 'icon' => 'assignment_return', 'tone' => 'secondary'],
             ['label' => 'Valor bruto facturado', 'value' => ReportFormatter::money($summary['gross']), 'icon' => 'payments', 'tone' => 'primary'],
@@ -229,6 +245,7 @@ class DocumentReportService
 
         if ($this->queries->includeCreditNotes($filters)) {
             $creditQuery = $this->queries->creditNotes($user, $filters, $range)
+                ->where('credit_notes.status', CreditNoteStatus::Issued->value)
                 ->join('invoices as credited_invoices', 'credited_invoices.id', '=', 'credit_notes.invoice_id')
                 ->leftJoin('customers', 'customers.id', '=', 'credited_invoices.customer_id')
                 ->selectRaw("customers.id as customer_id, COALESCE(customers.name, 'Cliente sin asociar') as customer_name")
@@ -299,7 +316,8 @@ class DocumentReportService
         if ($this->queries->includeCreditNotes($filters)) {
             $query = DB::table('credit_note_items')
                 ->join('credit_notes', 'credit_notes.id', '=', 'credit_note_items.credit_note_id')
-                ->join('invoices as credited_invoices', 'credited_invoices.id', '=', 'credit_notes.invoice_id');
+                ->join('invoices as credited_invoices', 'credited_invoices.id', '=', 'credit_notes.invoice_id')
+                ->where('credit_notes.status', CreditNoteStatus::Issued->value);
 
             $this->queries->applyCreditNoteFilters($query, $user, $filters, $range, 'created_at', 'credit_notes', 'credited_invoices');
 
@@ -369,6 +387,7 @@ class DocumentReportService
 
         if ($this->queries->includeCreditNotes($filters)) {
             $query = $this->queries->creditNotes($user, $filters, $range)
+                ->where('credit_notes.status', CreditNoteStatus::Issued->value)
                 ->leftJoin('users', 'users.id', '=', 'credit_notes.user_id')
                 ->selectRaw("users.id as user_id, COALESCE(users.name, 'Sin usuario') as user_name")
                 ->selectRaw('COUNT(credit_notes.id) as credit_notes_count')

@@ -51,7 +51,15 @@
         <a href="{{ route('credit-notes.create', ['invoice_id' => $creditNote->invoice_id]) }}" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md">Crear otra nota</a>
         <div class="flex gap-sm justify-end">
             @can('update', $creditNote)
-                @if ($creditNote->status !== \App\Enums\CreditNoteStatus::LocallyValidated)
+                @if ($creditNote->status === \App\Enums\CreditNoteStatus::TechnicalError)
+                    <form method="POST" action="{{ route('credit-notes.retry', $creditNote) }}">
+                        @csrf
+                        <button class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm" type="submit">
+                            <span class="material-symbols-outlined text-[18px]">refresh</span>
+                            Reintentar emisión
+                        </button>
+                    </form>
+                @elseif ($creditNote->status !== \App\Enums\CreditNoteStatus::LocallyValidated)
                     <form method="POST" action="{{ route('credit-notes.validate', $creditNote) }}">
                         @csrf
                         <button class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm" type="submit">

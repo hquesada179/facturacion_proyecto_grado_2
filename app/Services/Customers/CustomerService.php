@@ -4,9 +4,28 @@ namespace App\Services\Customers;
 
 use App\Models\Company;
 use App\Models\Customer;
+use App\Services\Tax\NitDvCalculator;
 
 class CustomerService
 {
+    /**
+     * Shared by the standalone customer form and the invoice wizard's
+     * "quick create" step, so the NIT check-digit rule can never drift
+     * between the two entry points.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function createFromData(array $data): Customer
+    {
+        $customer = new Customer($data);
+        $customer->dv = ($data['identification_type'] ?? null) === 'NIT'
+            ? (string) NitDvCalculator::calculate($data['identification_number'])
+            : null;
+        $customer->save();
+
+        return $customer;
+    }
+
     /**
      * The identification number used for the prototype's "Consumidor
      * final" placeholder customer. Purely fictitious — not a real DIAN

@@ -21,6 +21,20 @@
             default => 'bg-[#def7ec] text-[#03543f] border-[#03543f]/20',
         };
         $summaryTone = $validation->hasBlocking() ? 'bloqueo' : ($validation->warningCount() > 0 ? 'advertencia' : 'correcto');
+
+        $stepFor = function (string $campo) use ($invoice): ?array {
+            if ($campo === 'customer_id' || str_starts_with($campo, 'customer.')) {
+                return ['label' => 'Ir a cliente', 'href' => route('invoices.draft.customer', $invoice)];
+            }
+            if (str_starts_with($campo, 'items') || in_array($campo, ['subtotal', 'total_taxes'], true)) {
+                return ['label' => 'Ir a productos', 'href' => route('invoices.draft.items', $invoice)];
+            }
+            if (in_array($campo, ['payment_type', 'payment_method', 'due_date', 'issue_date'], true)) {
+                return ['label' => 'Corregir datos de pago', 'href' => route('invoices.draft.summary', $invoice)];
+            }
+
+            return null;
+        };
     @endphp
 
     <div class="mb-lg rounded-lg p-md font-body-sm text-body-sm border {{ $toneClasses($summaryTone) }}">
@@ -52,10 +66,19 @@
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Resultados de validación</h3>
         <div class="space-y-sm">
             @forelse ($validation->all() as $result)
+                @php($action = $stepFor($result->campo))
                 <div class="rounded-lg p-md border font-body-sm text-body-sm {{ $toneClasses($result->severidad->value) }}">
                     <p class="font-label-md text-label-md mb-xs">{{ $result->regla }} <span class="font-mono text-xs opacity-70">({{ $result->codigo }})</span></p>
                     <p>{{ $result->mensaje }}</p>
-                    <p class="mt-xs opacity-80">Campo: {{ $result->campo }} — {{ $result->sugerencia }}</p>
+                    <div class="mt-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-xs">
+                        <p class="opacity-80">Campo: {{ $result->campo }} — {{ $result->sugerencia }}</p>
+                        @if ($action)
+                            <a href="{{ $action['href'] }}" class="inline-flex items-center gap-xs font-label-sm text-label-sm underline hover:no-underline whitespace-nowrap">
+                                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                {{ $action['label'] }}
+                            </a>
+                        @endif
+                    </div>
                 </div>
             @empty
                 <p class="font-body-sm text-body-sm text-on-surface-variant">No hay resultados de validación.</p>

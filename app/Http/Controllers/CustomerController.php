@@ -6,6 +6,7 @@ use App\Http\Requests\Customers\StoreCustomerRequest;
 use App\Http\Requests\Customers\UpdateCustomerRequest;
 use App\Models\Customer;
 use App\Models\Tax;
+use App\Services\Customers\CustomerService;
 use App\Services\Tax\NitDvCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class CustomerController extends Controller
 {
+    public function __construct(private readonly CustomerService $customers) {}
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Customer::class);
@@ -47,13 +50,7 @@ class CustomerController extends Controller
     {
         $this->authorize('create', Customer::class);
 
-        $data = $request->validated();
-
-        $customer = new Customer($data);
-        $customer->dv = $data['identification_type'] === 'NIT'
-            ? (string) NitDvCalculator::calculate($data['identification_number'])
-            : null;
-        $customer->save();
+        $customer = $this->customers->createFromData($request->validated());
 
         return redirect()->route('customers.show', $customer)->with('status', 'Cliente creado correctamente.');
     }
@@ -63,7 +60,10 @@ class CustomerController extends Controller
         $this->authorize('view', $customer);
 
         return view('customers.show', [
-            'customer' => $customer->load('tax'),
+            'customer' => $customer->load([
+                'tax',
+                'invoices' => fn ($query) => $query->with('creditNotes')->latest('created_at'),
+            ]),
         ]);
     }
 

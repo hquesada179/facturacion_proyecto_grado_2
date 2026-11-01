@@ -50,7 +50,7 @@ class CreditNoteLifecycleTest extends TestCase
             'current_consecutive' => 1,
         ]);
 
-        $invoice = new Invoice(['user_id' => $user->id, 'currency' => 'COP', 'payment_type' => 'contado']);
+        $invoice = new Invoice(['user_id' => $user->id, 'currency' => 'COP', 'payment_type' => 'contado', 'payment_method' => 'efectivo']);
         $invoice->company_id = $user->company_id;
         $invoice->save();
 
@@ -259,6 +259,92 @@ class CreditNoteLifecycleTest extends TestCase
             'invoice_id' => $invoice->id,
             'type' => 'credit_note_simulated_rejected',
         ]);
+    }
+
+    /**
+     * Regression test for the "stuck in technical_error" bug: emission
+     * failed because no numbering resolution existed yet for credit
+     * notes. After the resolution is created, the user should be able to
+     * retry emission without recreating the note from scratch.
+     */
+    public function test_technical_error_credit_note_can_be_retried_after_fixing_configuration(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '1');
+        $this->actingAs($user)->post(route('credit-notes.validate', $creditNote));
+
+        // No NC numbering resolution exists yet, so emission fails technically.
+        $this->actingAs($user)->post(route('credit-notes.issue', $creditNote));
+        $this->assertSame(CreditNoteStatus::TechnicalError, $creditNote->refresh()->status);
+
+        $this->createCreditNoteResolution($user);
+
+        $this->actingAs($user)->post(route('credit-notes.retry', $creditNote))
+            ->assertRedirect(route('credit-notes.review', $creditNote));
+
+        $creditNote->refresh();
+        $this->assertSame(CreditNoteStatus::LocallyValidated, $creditNote->status);
+        $this->assertSame(1, $creditNote->items()->count());
+
+        $this->actingAs($user)->post(route('credit-notes.issue', $creditNote))
+            ->assertRedirect(route('credit-notes.show', $creditNote));
+
+        $creditNote->refresh();
+        $this->assertSame(CreditNoteStatus::Issued, $creditNote->status);
+        $this->assertNotNull($creditNote->number);
+
+        $types = InvoiceEvent::where('invoice_id', $invoice->id)->pluck('type')->all();
+        $this->assertContains('credit_note_retry_requested', $types);
+    }
+
+    public function test_cannot_retry_a_credit_note_that_is_not_in_technical_error(): void
+    {
+        $user = $this->facturador();
+        $this->createCreditNoteResolution($user);
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '1');
+
+        $this->actingAs($user)->post(route('credit-notes.retry', $creditNote))
+            ->assertSessionHasErrors('status');
+
+        $this->assertSame(CreditNoteStatus::Draft, $creditNote->refresh()->status);
+    }
+
+    public function test_cannot_retry_an_already_issued_credit_note(): void
+    {
+        $user = $this->facturador();
+        $this->createCreditNoteResolution($user);
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '1');
+        $this->actingAs($user)->post(route('credit-notes.validate', $creditNote));
+        $this->actingAs($user)->post(route('credit-notes.issue', $creditNote));
+        $this->assertSame(CreditNoteStatus::Issued, $creditNote->refresh()->status);
+
+        $this->actingAs($user)->post(route('credit-notes.retry', $creditNote))
+            ->assertForbidden();
+
+        $this->assertSame(CreditNoteStatus::Issued, $creditNote->refresh()->status);
+    }
+
+    /**
+     * Regression test: "Anulación total" must cover the full remaining
+     * balance even if the request bypasses the browser's JavaScript
+     * auto-fill (e.g. a direct POST), proving the rule is enforced
+     * server-side and not only in the UI.
+     */
+    public function test_total_void_requires_covering_the_full_remaining_balance_even_without_js(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->issuedInvoiceFor($user, '2');
+        $item = $invoice->items()->firstOrFail();
+
+        $this->actingAs($user)->post(route('credit-notes.store'), [
+            'invoice_id' => $invoice->id,
+            'reason_code' => 'PROTO_TOTAL_VOID',
+            'reason_text' => 'Intento parcial sin JS',
+            'items' => [$item->id => ['quantity' => '1']],
+        ])->assertSessionHasErrors('total_void');
     }
 
     public function test_credit_note_pdf_is_generated_for_issued_note(): void

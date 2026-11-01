@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Invoices;
 
+use App\Models\Invoice;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,8 @@ class ValidateInvoiceDraftRequest extends FormRequest
     {
         return [
             'customer_id' => ['nullable', 'integer'],
-            'payment_type' => ['nullable', Rule::in(['contado', 'credito'])],
+            'payment_type' => ['nullable', Rule::in(array_keys(Invoice::PAYMENT_TYPES))],
+            'payment_method' => ['nullable', Rule::in(array_keys(Invoice::PAYMENT_METHODS))],
             'issue_date' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date'],
             'items' => ['sometimes', 'array'],

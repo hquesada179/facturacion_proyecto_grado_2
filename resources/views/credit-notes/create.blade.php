@@ -45,11 +45,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
                     <label>
                         <span class="block font-label-md text-label-md text-on-surface mb-xs">Concepto</span>
-                        <select name="reason_code" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md" required>
+                        <select name="reason_code" id="reason_code" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md" required>
                             @foreach ($reasons as $code => $label)
                                 <option value="{{ $code }}" @selected(old('reason_code') === $code)>{{ $label }}</option>
                             @endforeach
                         </select>
+                        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Para "Anulación total" las cantidades se completan automáticamente con el saldo disponible de cada línea.</p>
                     </label>
                     <label>
                         <span class="block font-label-md text-label-md text-on-surface mb-xs">Justificación</span>
@@ -83,7 +84,7 @@
                                     <td class="py-sm">{{ $item->quantity }} {{ $item->unit }}</td>
                                     <td class="py-sm">{{ $availableByItem[$item->id] ?? '0' }}</td>
                                     <td class="py-sm">
-                                        <input name="items[{{ $item->id }}][quantity]" value="{{ old('items.'.$item->id.'.quantity') }}" class="w-32 rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md" type="number" step="0.01" min="0" max="{{ $availableByItem[$item->id] ?? 0 }}">
+                                        <input name="items[{{ $item->id }}][quantity]" value="{{ old('items.'.$item->id.'.quantity') }}" data-available="{{ $availableByItem[$item->id] ?? 0 }}" class="credit-quantity-input w-32 rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md" type="number" step="0.01" min="0" max="{{ $availableByItem[$item->id] ?? 0 }}">
                                     </td>
                                 </tr>
                             @endforeach
@@ -100,5 +101,46 @@
                 </button>
             </div>
         </form>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var reasonSelect = document.getElementById('reason_code');
+                var quantityInputs = document.querySelectorAll('.credit-quantity-input');
+
+                function isTotalVoid() {
+                    return reasonSelect.value === 'PROTO_TOTAL_VOID';
+                }
+
+                function applyTotalVoid() {
+                    quantityInputs.forEach(function (input) {
+                        input.value = input.dataset.available;
+                        input.readOnly = true;
+                    });
+                }
+
+                function releaseManualEditing() {
+                    quantityInputs.forEach(function (input) {
+                        input.readOnly = false;
+                    });
+                }
+
+                reasonSelect.addEventListener('change', function () {
+                    if (isTotalVoid()) {
+                        applyTotalVoid();
+                    } else {
+                        releaseManualEditing();
+                    }
+                });
+
+                if (isTotalVoid()) {
+                    quantityInputs.forEach(function (input) {
+                        if (!input.value) {
+                            input.value = input.dataset.available;
+                        }
+                        input.readOnly = true;
+                    });
+                }
+            });
+        </script>
     @endif
 </x-layouts.app>

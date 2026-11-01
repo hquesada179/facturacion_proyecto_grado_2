@@ -145,7 +145,12 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
             @foreach ($productivityReport['cards'] as $metric)
-                <x-ui.kpi-card :label="$metric['label']" :value="$metric['value']" :icon="$metric['icon']" :tone="$metric['tone']" />
+                <div>
+                    <x-ui.kpi-card :label="$metric['label']" :value="$metric['value']" :icon="$metric['icon']" :tone="$metric['tone']" />
+                    @if (! empty($metric['hint']))
+                        <p class="mt-xs px-xs font-label-sm text-label-sm text-on-surface-variant">{{ $metric['hint'] }}</p>
+                    @endif
+                </div>
             @endforeach
         </div>
     </section>

@@ -111,6 +111,7 @@ class InvoiceDraftContextBuilder
             lines: $lineContexts,
             calculation: $calculation,
             paymentType: $data['payment_type'] ?? null,
+            paymentMethod: $data['payment_method'] ?? null,
             issueDate: isset($data['issue_date']) ? Carbon::parse($data['issue_date']) : null,
             dueDate: isset($data['due_date']) ? Carbon::parse($data['due_date']) : null,
         );
@@ -131,6 +132,7 @@ class InvoiceDraftContextBuilder
         $data = [
             'customer_id' => $invoice->customer_id,
             'payment_type' => $invoice->payment_type,
+            'payment_method' => $invoice->payment_method,
             'issue_date' => optional($invoice->issue_date)->toDateString(),
             'due_date' => optional($invoice->due_date)->toDateString(),
             'items' => $invoice->items->map(static fn (InvoiceItem $item): array => [

@@ -12,6 +12,19 @@ class Invoice extends Model
 {
     use BelongsToCompany;
 
+    public const PAYMENT_TYPES = [
+        'contado' => 'Contado',
+        'credito' => 'Crédito',
+    ];
+
+    public const PAYMENT_METHODS = [
+        'efectivo' => 'Efectivo',
+        'transferencia' => 'Transferencia',
+        'consignacion' => 'Consignación',
+        'tarjeta' => 'Tarjeta',
+        'otro' => 'Otro',
+    ];
+
     /**
      * number, status, validation_status, subtotal, tax_total, total,
      * simulated_dian_code, numbering_resolution_id, simulated_cufe,
@@ -27,6 +40,7 @@ class Invoice extends Model
         'issue_date',
         'due_date',
         'payment_type',
+        'payment_method',
         'currency',
         'notes',
     ];

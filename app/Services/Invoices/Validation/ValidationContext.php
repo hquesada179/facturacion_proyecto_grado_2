@@ -20,6 +20,7 @@ final readonly class ValidationContext
         public array $lines,
         public InvoiceCalculationResult $calculation,
         public ?string $paymentType = null,
+        public ?string $paymentMethod = null,
         public ?CarbonInterface $issueDate = null,
         public ?CarbonInterface $dueDate = null,
     ) {}

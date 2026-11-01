@@ -79,7 +79,15 @@ class ProductivityReportService
                 ['label' => 'Promedio de emisión', 'value' => ReportFormatter::duration($raw['average_emission_seconds']), 'icon' => 'timer', 'tone' => 'primary'],
                 ['label' => 'Mediana de emisión', 'value' => ReportFormatter::duration($raw['median_emission_seconds']), 'icon' => 'speed', 'tone' => 'secondary'],
                 ['label' => 'Documentos emitidos', 'value' => ReportFormatter::integer($raw['documents_emitted']), 'icon' => 'task_alt', 'tone' => 'primary'],
-                ['label' => 'Documentos por usuario', 'value' => number_format($raw['documents_per_user'], 2, ',', '.'), 'icon' => 'groups', 'tone' => 'secondary'],
+                [
+                    'label' => 'Documentos por usuario',
+                    'value' => number_format($raw['documents_per_user'], 2, ',', '.'),
+                    'icon' => 'groups',
+                    'tone' => 'secondary',
+                    'hint' => $this->queries->mustLimitToOwnDocuments($user)
+                        ? 'Tu rol solo ve documentos propios: equivale a tus facturas y notas crédito emitidas en el rango.'
+                        : 'Facturas y notas crédito emitidas en el rango, divididas entre el total de usuarios de la compañía.',
+                ],
                 ['label' => 'Éxito de validación', 'value' => ReportFormatter::percent($raw['validation_success_rate']), 'icon' => 'verified', 'tone' => 'secondary'],
                 ['label' => 'Rechazos y errores', 'value' => ReportFormatter::percent($raw['rejected_percentage']), 'icon' => 'gpp_bad', 'tone' => 'error'],
                 ['label' => 'Reprocesos', 'value' => ReportFormatter::integer($raw['reprocesses']), 'icon' => 'refresh', 'tone' => 'warning'],

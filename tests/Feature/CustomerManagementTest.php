@@ -176,6 +176,39 @@ class CustomerManagementTest extends TestCase
         $this->assertDatabaseMissing('customers', ['id' => $customer->id]);
     }
 
+    /**
+     * Regression test: customers.show previously hardcoded an empty rows
+     * array for "Facturas del cliente", so a customer with a real invoice
+     * still showed the empty-state message.
+     */
+    public function test_customer_detail_shows_its_invoices_and_credit_notes(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Cliente Demo Emisión']);
+
+        $invoice = new Invoice(['customer_id' => $customer->id]);
+        $invoice->company_id = $user->company_id;
+        $invoice->number = 'FV-000001';
+        $invoice->status = \App\Enums\InvoiceStatus::Issued;
+        $invoice->issued_at = now();
+        $invoice->total = 119000;
+        $invoice->save();
+
+        $creditNote = new \App\Models\CreditNote(['invoice_id' => $invoice->id, 'reason' => 'Anulación total (prototipo)', 'reason_code' => 'PROTO_TOTAL_VOID']);
+        $creditNote->company_id = $user->company_id;
+        $creditNote->number = 'NC-000001';
+        $creditNote->status = \App\Enums\CreditNoteStatus::Issued;
+        $creditNote->total = 19000;
+        $creditNote->save();
+
+        $response = $this->actingAs($user)->get(route('customers.show', $customer));
+
+        $response->assertOk();
+        $response->assertSee('FV-000001');
+        $response->assertSee('NC-000001');
+        $response->assertDontSee('Este cliente todavía no tiene facturas.');
+    }
+
     public function test_a_user_only_sees_customers_from_their_own_company(): void
     {
         $companyA = Company::factory()->create();

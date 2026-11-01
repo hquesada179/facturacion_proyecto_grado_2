@@ -27,11 +27,15 @@
 
     <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Seleccionar cliente existente</h3>
+        <label class="block mb-sm">
+            <span class="block font-label-md text-label-md text-on-surface mb-xs">Buscar por nombre, documento o correo</span>
+            <input type="search" id="customer-quick-search" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" placeholder="Escribe para filtrar la lista...">
+        </label>
         <form method="POST" action="{{ route('invoices.draft.customer.update', $invoice) }}" class="flex flex-col sm:flex-row gap-sm">
             @csrf
-            <select name="customer_id" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md">
+            <select name="customer_id" id="customer-select" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm focus:border-primary focus:ring focus:ring-primary/10 font-body-md text-body-md">
                 @foreach ($customers as $customer)
-                    <option value="{{ $customer->id }}" @selected($invoice->customer_id === $customer->id)>
+                    <option value="{{ $customer->id }}" data-search="{{ mb_strtolower($customer->name.' '.$customer->identification_number.' '.$customer->email) }}" @selected($invoice->customer_id === $customer->id)>
                         {{ $customer->name }} — {{ $customer->identification_type }} {{ $customer->identification_number }}
                     </option>
                 @endforeach
@@ -99,4 +103,34 @@
     <div class="flex justify-end">
         <a href="{{ route('invoices.draft.items', $invoice) }}" class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover">Continuar a productos</a>
     </div>
+
+    <script>
+        (function () {
+            const search = document.getElementById('customer-quick-search');
+            const select = document.getElementById('customer-select');
+
+            if (! search || ! select) {
+                return;
+            }
+
+            const options = Array.from(select.options);
+
+            search.addEventListener('input', function () {
+                const term = search.value.trim().toLowerCase();
+                let firstMatch = null;
+
+                options.forEach(function (option) {
+                    const matches = term === '' || (option.dataset.search || '').includes(term);
+                    option.hidden = ! matches;
+                    if (matches && firstMatch === null) {
+                        firstMatch = option;
+                    }
+                });
+
+                if (firstMatch) {
+                    select.value = firstMatch.value;
+                }
+            });
+        })();
+    </script>
 </x-layouts.app>

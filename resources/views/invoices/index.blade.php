@@ -36,7 +36,7 @@
             'cells' => [
                 $invoice->number ?? 'Borrador #'.$invoice->id,
                 $invoice->customer?->name ?? 'Sin cliente',
-                optional($invoice->issue_date)->format('Y-m-d') ?? '-',
+                ($invoice->issued_at ?? $invoice->issue_date ?? $invoice->created_at)->format('Y-m-d'),
                 \App\Support\ReportFormatter::money($invoice->total),
                 $invoice->status->label(),
             ],

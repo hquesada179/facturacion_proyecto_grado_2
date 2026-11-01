@@ -153,6 +153,31 @@ class InvoiceIssuanceTest extends TestCase
         $this->assertSame($user->id, $issuedEvent->user_id);
     }
 
+    /**
+     * Regression test: the invoices list previously rendered '-' for
+     * issued invoices because it read the draft-only issue_date column
+     * (never populated by the issuance flow) instead of issued_at, even
+     * though the detail page correctly showed the real emission date.
+     */
+    public function test_invoice_list_shows_the_real_issuance_date_not_a_dash(): void
+    {
+        $user = $this->facturador();
+        NumberingResolution::factory()->for($user->company)->create(['prefix' => 'FV', 'range_from' => 1, 'range_to' => 100, 'current_consecutive' => 1]);
+        $invoice = $this->locallyValidatedInvoice($user);
+
+        $this->actingAs($user)->post(route('invoices.draft.issue', $invoice));
+        $invoice->refresh();
+
+        $this->assertNull($invoice->issue_date);
+        $this->assertNotNull($invoice->issued_at);
+
+        $response = $this->actingAs($user)->get(route('invoices.index'));
+
+        $response->assertOk();
+        $response->assertSee($invoice->number);
+        $response->assertSee($invoice->issued_at->format('Y-m-d'));
+    }
+
     public function test_two_consecutive_issuances_do_not_reuse_numbers(): void
     {
         $user = $this->facturador();

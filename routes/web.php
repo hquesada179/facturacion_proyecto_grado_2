@@ -192,6 +192,9 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/facturas/{invoice}/productos/{item}', [InvoiceDraftController::class, 'destroyItem'])
         ->middleware('can:manage-invoicing')
         ->name('invoices.draft.items.destroy');
+    Route::post('/facturas/{invoice}/productos/rapido', [InvoiceDraftController::class, 'quickCreateProduct'])
+        ->middleware('can:manage-invoicing')
+        ->name('invoices.draft.items.quick-create-product');
 
     Route::get('/facturas/{invoice}/resumen', [InvoiceDraftController::class, 'summary'])
         ->name('invoices.draft.summary');
@@ -228,6 +231,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/notas-credito/{creditNote}/validar', [CreditNoteController::class, 'validateDraft'])->name('credit-notes.validate');
     Route::post('/notas-credito/{creditNote}/emitir', [CreditNoteController::class, 'issue'])->name('credit-notes.issue');
     Route::post('/notas-credito/{creditNote}/descartar', [CreditNoteController::class, 'discard'])->name('credit-notes.discard');
+    Route::post('/notas-credito/{creditNote}/reintentar', [CreditNoteController::class, 'retry'])->name('credit-notes.retry');
     Route::get('/notas-credito/{creditNote}/pdf', [CreditNotePdfController::class, 'show'])->name('credit-notes.pdf.show');
     Route::get('/notas-credito/{creditNote}/pdf/descargar', [CreditNotePdfController::class, 'download'])->name('credit-notes.pdf.download');
     Route::get('/notas-credito/{creditNote}', [CreditNoteController::class, 'show'])->name('credit-notes.show');

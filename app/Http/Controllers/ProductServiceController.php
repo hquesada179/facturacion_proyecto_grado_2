@@ -6,12 +6,15 @@ use App\Http\Requests\Products\StoreProductServiceRequest;
 use App\Http\Requests\Products\UpdateProductServiceRequest;
 use App\Models\ProductService;
 use App\Models\Tax;
+use App\Services\Products\ProductCatalogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductServiceController extends Controller
 {
+    public function __construct(private readonly ProductCatalogService $catalog) {}
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', ProductService::class);
@@ -50,8 +53,7 @@ class ProductServiceController extends Controller
         $taxes = $data['taxes'] ?? [];
         unset($data['taxes']);
 
-        $product = ProductService::create($data);
-        $product->taxes()->sync($taxes);
+        $product = $this->catalog->createFromData($data, $taxes);
 
         return redirect()->route('products.show', $product)->with('status', 'Producto creado correctamente.');
     }

@@ -14,6 +14,8 @@ use App\Models\InvoiceEvent;
 use App\Models\InvoiceItem;
 use App\Models\User;
 use App\Services\Reports\DashboardMetricsService;
+use App\Services\Reports\DocumentReportService;
+use App\Services\Reports\ReportDateRange;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -232,6 +234,186 @@ class DashboardAndReportsTest extends TestCase
         $response->assertSee('customer_id');
     }
 
+    /**
+     * Regression test: only an Issued credit note may discount financial
+     * totals. A credit note stuck in technical_error (e.g. created before
+     * a numbering resolution existed) must not count toward a client's,
+     * product's, or user's credited amounts — nor toward the client/user
+     * "NC" counts — even though it legitimately shows up in the status
+     * breakdown and the raw documents list.
+     */
+    public function test_reports_exclude_non_issued_credit_notes_from_financial_totals(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Cliente Demo Emisión']);
+
+        $invoice = $this->invoiceFor($user, [
+            'customer_id' => $customer->id,
+            'number' => 'FV-NC-BUG-001',
+            'status' => InvoiceStatus::PartiallyCredited,
+            'total' => 476000,
+        ]);
+        InvoiceItem::create([
+            'invoice_id' => $invoice->id,
+            'product_code' => 'SRV-NC-BUG',
+            'description' => 'Servicio acreditado erróneamente',
+            'quantity' => 1,
+            'unit_price' => 476000,
+            'taxable_base' => 476000,
+            'tax_total' => 0,
+            'line_total' => 476000,
+        ]);
+
+        $draftNote = $this->creditNoteFor($user, $invoice, [
+            'number' => 'NC-BUG-DRAFT',
+            'status' => CreditNoteStatus::Draft,
+            'total' => 476000,
+        ]);
+        $this->creditNoteItemFor($draftNote, $invoice);
+
+        $errorNote = $this->creditNoteFor($user, $invoice, [
+            'number' => 'NC-BUG-ERROR',
+            'status' => CreditNoteStatus::TechnicalError,
+            'total' => 476000,
+        ]);
+        $this->creditNoteItemFor($errorNote, $invoice);
+
+        $issuedNote = $this->creditNoteFor($user, $invoice, [
+            'number' => 'NC-BUG-ISSUED',
+            'status' => CreditNoteStatus::Issued,
+            'total' => 50000,
+        ]);
+        $this->creditNoteItemFor($issuedNote, $invoice, 50000);
+
+        $service = app(DocumentReportService::class);
+        $range = ReportDateRange::fromFilters([
+            'date_range' => 'custom',
+            'start_date' => now()->subDays(5)->toDateString(),
+            'end_date' => now()->addDay()->toDateString(),
+        ]);
+        $filters = [];
+
+        $summary = $service->summary($user, $filters, $range);
+        $this->assertSame(1, $summary['credit_notes']);
+        $this->assertEqualsWithDelta(50000.0, $summary['credited'], 0.01);
+
+        $byClients = $service->byClients($user, $filters, $range);
+        $clientRow = $byClients->firstWhere('customer', 'Cliente Demo Emisión');
+        $this->assertSame(1, $clientRow['credit_notes']);
+        $this->assertEqualsWithDelta(50000.0, $clientRow['credited_total'], 0.01);
+
+        $byProducts = $service->byProducts($user, $filters, $range);
+        $productRow = $byProducts->firstWhere('description', 'Servicio acreditado erróneamente');
+        $this->assertEqualsWithDelta(50000.0, $productRow['credited_total'], 0.01);
+
+        $byUsers = $service->byUsers($user, $filters, $range);
+        $userRow = $byUsers->firstWhere('user', $user->name);
+        $this->assertSame(1, $userRow['credit_notes']);
+    }
+
+    /**
+     * Regression test: the "Rechazadas o con error" summary card only
+     * counted invoices, so a credit note stuck in technical_error showed
+     * up in "Errores técnicos" and "Rechazos y errores" but not here,
+     * even though all three are supposed to describe the same underlying
+     * error document. The fix must stay coherent with the Phase 1 rule:
+     * the errored credit note still must NOT discount financial totals.
+     */
+    public function test_rejected_summary_metric_is_coherent_with_technical_errors_for_credit_notes(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Cliente Demo Emisión']);
+
+        $invoice = $this->invoiceFor($user, [
+            'customer_id' => $customer->id,
+            'number' => 'FV-REJ-001',
+            'status' => InvoiceStatus::Issued,
+            'total' => 100000,
+        ]);
+
+        $errorNote = $this->creditNoteFor($user, $invoice, [
+            'number' => 'NC-REJ-ERROR',
+            'status' => CreditNoteStatus::TechnicalError,
+            'total' => 50000,
+        ]);
+
+        InvoiceEvent::create([
+            'invoice_id' => $invoice->id,
+            'user_id' => $user->id,
+            'type' => 'credit_note_technical_error',
+            'description' => 'Error técnico simulado al emitir la NC.',
+            'metadata' => ['credit_note_id' => $errorNote->id],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $range = ReportDateRange::fromFilters([
+            'date_range' => 'custom',
+            'start_date' => now()->subDays(5)->toDateString(),
+            'end_date' => now()->addDay()->toDateString(),
+        ]);
+
+        $documentReport = app(DocumentReportService::class);
+        $summary = $documentReport->summary($user, [], $range);
+
+        // The error credit note must now be visible as a rejected/error
+        // document...
+        $this->assertSame(1, $summary['rejected']);
+        // ...but must still NOT discount financial totals (Phase 1 rule).
+        $this->assertSame(0.0, $summary['credited']);
+
+        $errors = app(\App\Services\Reports\ErrorReportService::class)->dataFor($user, [], $range);
+        $this->assertSame(1, $errors['metrics']['technical_errors']);
+
+        $response = $this->actingAs($user)->get(route('reports.index'));
+        $response->assertOk();
+        $response->assertSee('Documentos rechazados o con error');
+    }
+
+    /**
+     * "Documentos por usuario" divides emitted documents by the total
+     * number of company users (or by 1 when the role is scoped to its
+     * own documents). The formula itself is intentional; this test
+     * documents it and verifies the UI now explains the denominator via
+     * a hint instead of leaving the number unexplained.
+     */
+    public function test_documents_per_user_formula_and_hint_are_consistent_with_role_scope(): void
+    {
+        $company = Company::factory()->create();
+        $admin = User::factory()->for($company)->administrador()->create();
+        User::factory()->for($company)->contador()->create(); // counts toward the company-wide divisor
+
+        $invoiceA = $this->invoiceFor($admin, ['number' => 'FV-PROD-001', 'status' => InvoiceStatus::Issued]);
+        $this->invoiceFor($admin, ['number' => 'FV-PROD-002', 'status' => InvoiceStatus::Issued]);
+
+        $range = ReportDateRange::fromFilters([
+            'date_range' => 'custom',
+            'start_date' => now()->subDays(5)->toDateString(),
+            'end_date' => now()->addDay()->toDateString(),
+        ]);
+
+        $productivity = app(\App\Services\Reports\ProductivityReportService::class)->dataFor($admin, [], $range);
+
+        // 2 issued documents / 2 company users (admin + contador) = 1.00.
+        $this->assertEqualsWithDelta(1.0, $productivity['metrics']['documents_per_user'], 0.001);
+
+        $card = collect($productivity['cards'])->firstWhere('label', 'Documentos por usuario');
+        $this->assertStringContainsString('total de usuarios de la compañía', $card['hint']);
+
+        $facturador = User::factory()->for(Company::factory())->facturador()->create();
+        $this->invoiceFor($facturador, ['number' => 'FV-PROD-OWN', 'status' => InvoiceStatus::Issued]);
+
+        $ownProductivity = app(\App\Services\Reports\ProductivityReportService::class)->dataFor($facturador, [], $range);
+        $this->assertEqualsWithDelta(1.0, $ownProductivity['metrics']['documents_per_user'], 0.001);
+
+        $ownCard = collect($ownProductivity['cards'])->firstWhere('label', 'Documentos por usuario');
+        $this->assertStringContainsString('tu rol solo ve', mb_strtolower($ownCard['hint']));
+
+        $response = $this->actingAs($admin)->get(route('reports.index'));
+        $response->assertOk();
+        $response->assertSee('total de usuarios de la compañía');
+    }
+
     public function test_empty_reports_show_empty_states_without_fake_numbers(): void
     {
         $user = User::factory()->for(Company::factory())->administrador()->create();
@@ -314,6 +496,24 @@ class DashboardAndReportsTest extends TestCase
         ]);
 
         return $creditNote;
+    }
+
+    private function creditNoteItemFor(CreditNote $creditNote, Invoice $invoice, float $lineTotal = 476000): CreditNoteItem
+    {
+        $invoiceItem = $invoice->items()->firstOrFail();
+
+        return CreditNoteItem::create([
+            'credit_note_id' => $creditNote->id,
+            'invoice_item_id' => $invoiceItem->id,
+            'product_code' => $invoiceItem->product_code,
+            'description' => $invoiceItem->description,
+            'original_quantity' => 1,
+            'credited_quantity' => 1,
+            'unit_price' => $lineTotal,
+            'taxable_base' => $lineTotal,
+            'tax_total' => 0,
+            'line_total' => $lineTotal,
+        ]);
     }
 
     /**

@@ -7,13 +7,17 @@
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Agregar producto o servicio</h3>
         <form method="POST" action="{{ route('invoices.draft.items.store', $invoice) }}" class="space-y-md">
             @csrf
+            <label class="block">
+                <span class="block font-label-md text-label-md text-on-surface mb-xs">Buscar producto por código, nombre o descripción</span>
+                <input type="search" id="product-quick-search" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" placeholder="Escribe para filtrar la lista...">
+            </label>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
                 <label>
                     <span class="block font-label-md text-label-md text-on-surface mb-xs">Producto</span>
                     <select id="product-select" name="product_service_id" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
                         <option value="">— Línea personalizada —</option>
                         @foreach ($products as $product)
-                            <option value="{{ $product->id }}">{{ $product->sku }} — {{ $product->name }}</option>
+                            <option value="{{ $product->id }}" data-search="{{ mb_strtolower($product->sku.' '.$product->name.' '.$product->description) }}" @selected($selectedProductId === $product->id)>{{ $product->sku }} — {{ $product->name }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -59,6 +63,64 @@
             </div>
         </form>
     </section>
+
+    <details class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
+        <summary class="font-title-lg text-title-lg text-on-surface cursor-pointer select-none">¿No encuentras el producto? Créalo sin salir de la factura</summary>
+        <form method="POST" action="{{ route('invoices.draft.items.quick-create-product', $invoice) }}" class="space-y-md mt-md">
+            @csrf
+            <input type="hidden" name="status" value="active">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Código interno</span>
+                    <input name="sku" value="{{ old('sku') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="text">
+                </label>
+                <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Nombre</span>
+                    <input name="name" value="{{ old('name') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="text">
+                </label>
+                <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Tipo</span>
+                    <select name="type" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
+                        <option value="product" @selected(old('type') === 'product')>Producto</option>
+                        <option value="service" @selected(old('type', 'service') === 'service')>Servicio</option>
+                    </select>
+                </label>
+                <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Unidad de medida</span>
+                    <input name="unit" value="{{ old('unit', 'unidad') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="text">
+                </label>
+                <label>
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Precio base</span>
+                    <input name="price" value="{{ old('price') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="number" step="0.01" min="0">
+                </label>
+                <label class="flex items-center gap-sm mt-lg">
+                    <input type="checkbox" name="tax_included" value="1" @checked(old('tax_included')) class="rounded border-outline-variant text-primary focus:ring-primary/20">
+                    <span class="font-label-md text-label-md text-on-surface">Precio incluye impuesto</span>
+                </label>
+                <label class="md:col-span-2">
+                    <span class="block font-label-md text-label-md text-on-surface mb-xs">Descripción</span>
+                    <input name="description" value="{{ old('description') }}" class="w-full px-md py-sm rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-body-md" type="text">
+                </label>
+            </div>
+            <div>
+                <span class="block font-label-md text-label-md text-on-surface mb-xs">Impuestos</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-xs">
+                    @foreach ($taxes as $tax)
+                        <label class="flex items-center gap-sm">
+                            <input type="checkbox" name="taxes[]" value="{{ $tax->id }}" class="rounded border-outline-variant text-primary focus:ring-primary/20">
+                            <span class="font-body-sm text-body-sm text-on-surface-variant">{{ $tax->name }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm" type="submit">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    Crear y seleccionar este producto
+                </button>
+            </div>
+        </form>
+    </details>
 
     <div class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40 mb-lg">
         <div class="p-lg border-b border-surface-variant">
@@ -130,12 +192,13 @@
         (function () {
             const products = @json($productsJson);
 
+            const search = document.getElementById('product-quick-search');
             const select = document.getElementById('product-select');
             const description = document.getElementById('description-input');
             const unit = document.getElementById('unit-input');
             const price = document.getElementById('price-input');
 
-            select.addEventListener('change', function () {
+            function applySelectedProduct() {
                 const product = products.find(function (p) { return String(p.id) === select.value; });
                 document.querySelectorAll('.tax-checkbox').forEach(function (checkbox) {
                     checkbox.checked = false;
@@ -154,7 +217,41 @@
                         checkbox.checked = true;
                     }
                 });
-            });
+            }
+
+            select.addEventListener('change', applySelectedProduct);
+
+            if (search) {
+                const options = Array.from(select.options);
+
+                search.addEventListener('input', function () {
+                    const term = search.value.trim().toLowerCase();
+                    let firstMatch = null;
+
+                    options.forEach(function (option) {
+                        if (! option.value) {
+                            return;
+                        }
+                        const matches = term === '' || (option.dataset.search || '').includes(term);
+                        option.hidden = ! matches;
+                        if (matches && firstMatch === null) {
+                            firstMatch = option;
+                        }
+                    });
+
+                    if (firstMatch) {
+                        select.value = firstMatch.value;
+                        applySelectedProduct();
+                    }
+                });
+            }
+
+            // A product just created via "quick create" comes back already
+            // chosen in the option list server-side — apply its autofill
+            // immediately so the user doesn't have to re-touch the select.
+            if (select.value) {
+                applySelectedProduct();
+            }
         })();
     </script>
 </x-layouts.app>

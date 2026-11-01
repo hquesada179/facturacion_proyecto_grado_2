@@ -95,6 +95,7 @@ class ValidationEngineTest extends TestCase
         ?Carbon $issueDate = null,
         ?Carbon $dueDate = null,
         ?InvoiceCalculationResult $calculationOverride = null,
+        ?string $paymentMethod = null,
     ): ValidationContext {
         $lineInputs = [];
         foreach ($lines as $line) {
@@ -145,6 +146,7 @@ class ValidationEngineTest extends TestCase
             lines: $lineContexts,
             calculation: $calculationOverride ?? $calculation,
             paymentType: $paymentType,
+            paymentMethod: $paymentMethod,
             issueDate: $issueDate,
             dueDate: $dueDate,
         );
@@ -526,6 +528,58 @@ class ValidationEngineTest extends TestCase
 
         $this->assertNotContains('PRO-PAYMENT-001', $this->codes($results));
         $this->assertNotContains('PRO-PAYMENT-002', $this->codes($results));
+        $this->assertNotContains('PRO-PAYMENT-003', $this->codes($results));
+        $this->assertNotContains('PRO-PAYMENT-004', $this->codes($results));
+    }
+
+    /**
+     * Phase 2 rule: payment_type/payment_method stay optional together
+     * (legacy drafts and every non-wizard flow never touch them), but
+     * once one is chosen the other can't be left on "Sin definir".
+     */
+    public function test_payment_type_without_payment_method_blocks(): void
+    {
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct()]],
+            paymentType: 'contado',
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertTrue($results->hasBlocking());
+        $this->assertContains('PRO-PAYMENT-003', $this->codes($results));
+        $this->assertNotContains('PRO-PAYMENT-004', $this->codes($results));
+    }
+
+    public function test_payment_method_without_payment_type_blocks(): void
+    {
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct()]],
+            paymentMethod: 'efectivo',
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertTrue($results->hasBlocking());
+        $this->assertContains('PRO-PAYMENT-004', $this->codes($results));
+        $this->assertNotContains('PRO-PAYMENT-003', $this->codes($results));
+    }
+
+    public function test_payment_type_and_method_together_do_not_block(): void
+    {
+        $context = $this->buildContext(
+            $this->activeCustomer(),
+            [['product' => $this->activeProduct()]],
+            paymentType: 'contado',
+            paymentMethod: 'efectivo',
+        );
+
+        $results = $this->engine->run($context);
+
+        $this->assertNotContains('PRO-PAYMENT-003', $this->codes($results));
+        $this->assertNotContains('PRO-PAYMENT-004', $this->codes($results));
     }
 
     public function test_json_result_preserves_required_fields(): void

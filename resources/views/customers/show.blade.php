@@ -55,11 +55,48 @@
         </div>
     @endif
 
+    @php
+        $customerCreditNotes = $customer->invoices
+            ->flatMap(fn ($invoice) => $invoice->creditNotes->map(fn ($creditNote) => ['invoice' => $invoice, 'creditNote' => $creditNote]))
+            ->sortByDesc(fn ($pair) => $pair['creditNote']->created_at)
+            ->values();
+    @endphp
+
+    <div class="mb-lg">
+        <x-ui.data-table :table="[
+            'title' => 'Facturas del cliente',
+            'headers' => ['N° Factura', 'Fecha', 'Total', 'Estado'],
+            'hideViewAll' => true,
+            'emptyMessage' => 'Este cliente todavía no tiene facturas.',
+            'rows' => $customer->invoices->map(fn ($invoice) => [
+                'cells' => [
+                    $invoice->number ?? 'Borrador #'.$invoice->id,
+                    ($invoice->issued_at ?? $invoice->issue_date ?? $invoice->created_at)->format('Y-m-d'),
+                    \App\Support\ReportFormatter::money($invoice->total),
+                    $invoice->status->label(),
+                ],
+                'actions' => [
+                    ['label' => 'Ver factura', 'icon' => 'visibility', 'href' => route('invoices.show', $invoice), 'method' => 'GET'],
+                ],
+            ])->all(),
+        ]" />
+    </div>
+
     <x-ui.data-table :table="[
-        'title' => 'Facturas del cliente',
-        'headers' => ['N° Factura', 'Fecha', 'Total', 'Estado'],
+        'title' => 'Notas crédito relacionadas',
+        'headers' => ['N° Nota crédito', 'Factura origen', 'Total acreditado', 'Estado'],
         'hideViewAll' => true,
-        'emptyMessage' => 'Este cliente todavía no tiene facturas.',
-        'rows' => [],
+        'emptyMessage' => 'Este cliente todavía no tiene notas crédito.',
+        'rows' => $customerCreditNotes->map(fn ($pair) => [
+            'cells' => [
+                $pair['creditNote']->number ?? 'Borrador NC #'.$pair['creditNote']->id,
+                $pair['invoice']->number ?? 'Borrador #'.$pair['invoice']->id,
+                \App\Support\ReportFormatter::money($pair['creditNote']->total),
+                $pair['creditNote']->status->label(),
+            ],
+            'actions' => [
+                ['label' => 'Ver nota crédito', 'icon' => 'visibility', 'href' => route('credit-notes.show', $pair['creditNote']), 'method' => 'GET'],
+            ],
+        ])->all(),
     ]" />
 </x-layouts.app>

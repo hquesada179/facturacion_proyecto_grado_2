@@ -97,6 +97,42 @@ class IssueCreditNoteService
         return $this->draftService->validate($creditNote);
     }
 
+    /**
+     * Reopens a credit note stuck in technical_error (e.g. a missing
+     * numbering resolution at the time of emission) back to draft, then
+     * re-runs the normal local validation so it can be re-emitted through
+     * the standard issue() flow — same checks, same numbering guard,
+     * nothing bypassed. Only technical_error notes are eligible; an
+     * already-issued or still-editable note is left untouched to avoid
+     * duplicate emission.
+     */
+    public function retry(CreditNote $creditNote): CreditNote
+    {
+        if ($creditNote->status !== CreditNoteStatus::TechnicalError) {
+            throw ValidationException::withMessages([
+                'status' => 'Solo se puede reintentar la emisión de una nota crédito en error técnico.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($creditNote): CreditNote {
+            $from = $creditNote->status;
+            CreditNoteStateMachine::transition($creditNote, CreditNoteStatus::Draft);
+            $creditNote->dian_simulation_result = null;
+            $creditNote->dian_simulation_message = null;
+            $creditNote->save();
+
+            $this->creditNoteLogger->log(
+                $creditNote,
+                'credit_note_retry_requested',
+                'Se reabrió la nota crédito para reintentar su emisión tras un error técnico.',
+                $from,
+                CreditNoteStatus::Draft,
+            );
+
+            return $this->draftService->validate($creditNote);
+        });
+    }
+
     private function finishIssuing(CreditNote $creditNote): CreditNote
     {
         $resolution = $this->numberingService->activeResolutionFor($creditNote->company, DocumentType::CreditNote);

@@ -208,6 +208,104 @@ class InvoiceDraftWizardTest extends TestCase
             ->assertForbidden();
     }
 
+    /**
+     * Full reproduction of the manual QA report: assign an existing
+     * customer, add a product (including via quick-create), save
+     * payment/summary data, then validate. customer_id must still point
+     * to the same customer all the way through to ValidationEngine —
+     * none of the intermediate steps may touch it.
+     */
+    public function test_customer_id_survives_the_full_wizard_through_to_validation(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->draftInvoiceFor($user);
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'kata', 'status' => 'active']);
+        $product = ProductService::factory()->for($user->company)->create(['price' => '100000.00']);
+        $tax = Tax::factory()->create(['code' => 'IVA19', 'name' => 'IVA 19%', 'rate' => '19']);
+
+        $this->actingAs($user)->post(route('invoices.draft.customer.update', $invoice), ['customer_id' => $customer->id]);
+        $invoice->refresh();
+        $this->assertSame($customer->id, $invoice->customer_id, 'customer_id must persist right after step 1.');
+
+        $this->actingAs($user)->post(route('invoices.draft.items.store', $invoice), [
+            'product_service_id' => $product->id,
+            'quantity' => '2',
+            'unit_price' => '100000',
+            'tax_ids' => [$tax->id],
+        ]);
+        $invoice->refresh();
+        $this->assertSame($customer->id, $invoice->customer_id, 'customer_id must survive adding an item.');
+
+        // Quick-creating a product from inside the wizard (Fase 2) must
+        // not touch the invoice's customer either.
+        $this->actingAs($user)->post(route('invoices.draft.items.quick-create-product', $invoice), [
+            'sku' => 'SRV-QC-'.$invoice->id,
+            'name' => 'Instalación rápida',
+            'type' => 'service',
+            'unit' => 'unidad',
+            'price' => '5000',
+            'status' => 'active',
+        ]);
+        $invoice->refresh();
+        $this->assertSame($customer->id, $invoice->customer_id, 'customer_id must survive the quick-create-product action.');
+
+        $this->actingAs($user)->post(route('invoices.draft.summary.update', $invoice), [
+            'payment_type' => 'contado',
+            'payment_method' => 'efectivo',
+            'due_date' => now()->toDateString(),
+        ]);
+        $invoice->refresh();
+        $this->assertSame($customer->id, $invoice->customer_id, 'customer_id must survive the summary/payment update.');
+
+        $response = $this->actingAs($user)->get(route('invoices.draft.validation', $invoice));
+        $response->assertOk();
+        $response->assertDontSee('PRO-CUSTOMER-001');
+
+        $this->actingAs($user)->post(route('invoices.draft.validate', $invoice));
+        $invoice->refresh();
+        $this->assertSame(InvoiceStatus::LocallyValidated, $invoice->status);
+        $this->assertSame($customer->id, $invoice->customer_id, 'customer_id must still be correct after a successful validation.');
+    }
+
+    /**
+     * Regression test for the real root cause behind the manual QA
+     * report: it was never a persistence bug — the always-visible
+     * sidebar "Nueva factura" link silently created a second, unrelated
+     * draft (with no customer) while the user believed they were still
+     * working on the first one. The fix must warn before that happens,
+     * only while actually inside the wizard.
+     */
+    public function test_sidebar_new_invoice_link_warns_only_while_inside_the_wizard(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->draftInvoiceFor($user);
+
+        $this->actingAs($user)->get(route('invoices.draft.customer', $invoice))
+            ->assertOk()
+            ->assertSee('onclick="return confirm(', false);
+
+        $this->actingAs($user)->get(route('invoices.draft.items', $invoice))
+            ->assertOk()
+            ->assertSee('onclick="return confirm(', false);
+
+        $this->actingAs($user)->get(route('invoices.draft.summary', $invoice))
+            ->assertOk()
+            ->assertSee('onclick="return confirm(', false);
+
+        $this->actingAs($user)->get(route('invoices.draft.validation', $invoice))
+            ->assertOk()
+            ->assertSee('onclick="return confirm(', false);
+
+        // Outside the wizard, the shortcut must stay a plain, unguarded link.
+        $this->actingAs($user)->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('onclick="return confirm(', false);
+
+        $this->actingAs($user)->get(route('invoices.index'))
+            ->assertOk()
+            ->assertDontSee('onclick="return confirm(', false);
+    }
+
     public function test_contador_cannot_mutate_a_draft_but_can_view_it(): void
     {
         $company = Company::factory()->create();

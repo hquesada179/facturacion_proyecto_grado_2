@@ -37,7 +37,7 @@ class AssistantToolsTest extends TestCase
             'current_consecutive' => 1,
         ]);
 
-        $invoice = new Invoice(['user_id' => $user->id, 'currency' => 'COP', 'payment_type' => 'contado']);
+        $invoice = new Invoice(['user_id' => $user->id, 'currency' => 'COP', 'payment_type' => 'contado', 'payment_method' => 'efectivo']);
         $invoice->company_id = $user->company_id;
         $invoice->save();
 

@@ -145,6 +145,16 @@ class CreditNoteController extends Controller
         };
     }
 
+    public function retry(CreditNote $creditNote): RedirectResponse
+    {
+        $this->authorize('update', $creditNote);
+
+        $creditNote = $this->issueService->retry($creditNote);
+
+        return redirect()->route('credit-notes.review', $creditNote)
+            ->with('status', 'La nota crédito se reabrió correctamente. Quedó validada localmente y lista para emitirse de nuevo.');
+    }
+
     public function discard(CreditNote $creditNote): RedirectResponse
     {
         $this->authorize('update', $creditNote);

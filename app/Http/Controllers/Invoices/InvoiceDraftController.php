@@ -9,15 +9,17 @@ use App\Http\Requests\Invoices\StoreInvoiceItemRequest;
 use App\Http\Requests\Invoices\UpdateInvoiceCustomerRequest;
 use App\Http\Requests\Invoices\UpdateInvoiceItemRequest;
 use App\Http\Requests\Invoices\UpdateInvoiceSummaryRequest;
+use App\Http\Requests\Products\StoreProductServiceRequest;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\ProductService;
 use App\Models\Tax;
+use App\Services\Customers\CustomerService;
 use App\Services\Invoices\InvoiceRecalculationService;
 use App\Services\Invoices\InvoiceStateMachine;
 use App\Services\Invoices\InvoiceTraceLogger;
-use App\Services\Tax\NitDvCalculator;
+use App\Services\Products\ProductCatalogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,6 +29,8 @@ class InvoiceDraftController extends Controller
     public function __construct(
         private readonly InvoiceRecalculationService $recalculator,
         private readonly InvoiceTraceLogger $logger,
+        private readonly CustomerService $customers,
+        private readonly ProductCatalogService $catalog,
     ) {}
 
     /**
@@ -77,13 +81,7 @@ class InvoiceDraftController extends Controller
         $this->authorize('update', $invoice);
         $this->ensureEditable($invoice);
 
-        $data = $request->validated();
-
-        $customer = new Customer($data);
-        $customer->dv = $data['identification_type'] === 'NIT'
-            ? (string) NitDvCalculator::calculate($data['identification_number'])
-            : null;
-        $customer->save();
+        $customer = $this->customers->createFromData($request->validated());
 
         $invoice->customer_id = $customer->id;
         $invoice->save();
@@ -93,7 +91,7 @@ class InvoiceDraftController extends Controller
         return redirect()->route('invoices.draft.customer', $invoice)->with('status', 'Cliente creado y asignado correctamente.');
     }
 
-    public function items(Invoice $invoice): View
+    public function items(Request $request, Invoice $invoice): View
     {
         $this->authorize('view', $invoice);
 
@@ -111,7 +109,26 @@ class InvoiceDraftController extends Controller
                 'tax_ids' => $product->taxes->pluck('id')->all(),
             ])->values(),
             'taxes' => Tax::query()->currentlyValid()->availableFor($invoice->company_id)->get(),
+            'selectedProductId' => $request->integer('selected_product') ?: null,
         ]);
+    }
+
+    public function quickCreateProduct(StoreProductServiceRequest $request, Invoice $invoice): RedirectResponse
+    {
+        $this->authorize('update', $invoice);
+        $this->ensureEditable($invoice);
+
+        $data = $request->validated();
+        $data['tax_included'] = $request->boolean('tax_included');
+        $taxes = $data['taxes'] ?? [];
+        unset($data['taxes']);
+
+        $product = $this->catalog->createFromData($data, $taxes);
+
+        $this->logger->log($invoice, 'product_quick_created', "Se creó el producto \"{$product->name}\" desde el asistente de factura.", $invoice->status, $invoice->status, ['product_service_id' => $product->id]);
+
+        return redirect()->route('invoices.draft.items', ['invoice' => $invoice, 'selected_product' => $product->id])
+            ->with('status', "Producto \"{$product->name}\" creado. Ya está seleccionado, agrega la línea cuando quieras.");
     }
 
     public function storeItem(StoreInvoiceItemRequest $request, Invoice $invoice): RedirectResponse

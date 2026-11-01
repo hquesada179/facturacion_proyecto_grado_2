@@ -58,6 +58,7 @@ class ValidationEngine
 
             new Rules\Payment\CreditRequiresDueDateRule,
             new Rules\Payment\DueDateNotBeforeIssueDateRule,
+            new Rules\Payment\PaymentInfoConsistentRule,
         ];
     }
 
