@@ -17,7 +17,9 @@ class SearchCreditNotesTool
 
     /**
      * @param  array<string, mixed>  $filters  Optional keys: status,
-     *   customer_term, invoice_number.
+     *   customer_term, customer_id, invoice_number. customer_id is an
+     *   already-disambiguated exact match; customer_term is a plain LIKE
+     *   match for free-text search.
      */
     public function handle(User $user, array $filters = []): array
     {
@@ -37,6 +39,11 @@ class SearchCreditNotesTool
         if (! empty($filters['customer_term'])) {
             $term = $filters['customer_term'];
             $query->whereHas('invoice.customer', fn ($q) => $q->where('name', 'like', '%'.$term.'%'));
+        }
+
+        if (! empty($filters['customer_id'])) {
+            $customerId = $filters['customer_id'];
+            $query->whereHas('invoice', fn ($q) => $q->where('customer_id', $customerId));
         }
 
         $totalMatches = (clone $query)->count();

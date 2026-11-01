@@ -12,7 +12,10 @@ class FindInvoiceTool
 
     /**
      * @param  array<string, mixed>  $filters  Optional keys: status,
-     *   customer_term, date_from, date_to.
+     *   customer_term, customer_id, date_from, date_to. customer_id is an
+     *   already-disambiguated exact match (used after resolving a name via
+     *   GetCustomerInvoicesTool::resolveCustomer()); customer_term is a
+     *   plain LIKE match for free-text search.
      */
     public function handle(User $user, ?string $term, array $filters = [], int $limit = 5): array
     {
@@ -40,6 +43,10 @@ class FindInvoiceTool
         if (! empty($filters['customer_term'])) {
             $customerTerm = $filters['customer_term'];
             $query->whereHas('customer', fn ($q) => $q->where('name', 'like', '%'.$customerTerm.'%'));
+        }
+
+        if (! empty($filters['customer_id'])) {
+            $query->where('customer_id', $filters['customer_id']);
         }
 
         if (! empty($filters['date_from'])) {

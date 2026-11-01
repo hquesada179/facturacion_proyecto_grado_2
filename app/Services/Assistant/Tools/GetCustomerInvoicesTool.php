@@ -23,11 +23,9 @@ class GetCustomerInvoicesTool
 
     public function handle(User $user, ?string $term = null, ?int $customerId = null): array
     {
-        $customer = $customerId !== null
-            ? $this->resolveById($user, $customerId)
-            : null;
-
         if ($customerId !== null) {
+            $customer = $this->resolveById($user, $customerId);
+
             if (! $customer) {
                 return ['tool' => 'customer_documents', 'found' => false, 'ambiguous' => false];
             }
@@ -35,10 +33,34 @@ class GetCustomerInvoicesTool
             return $this->documentsFor($user, $customer);
         }
 
-        $term = trim((string) $term);
+        $resolution = $this->resolveCustomer($user, (string) $term);
+
+        return match ($resolution['status']) {
+            'not_found' => ['tool' => 'customer_documents', 'found' => false, 'ambiguous' => false],
+            'ambiguous' => [
+                'tool' => 'customer_documents',
+                'found' => false,
+                'ambiguous' => true,
+                'candidates' => $resolution['candidates'],
+            ],
+            default => $this->documentsFor($user, $resolution['customer']),
+        };
+    }
+
+    /**
+     * Shared, ambiguity-safe name resolution — also used by
+     * AiAssistantService to answer "¿cuántas facturas tiene <cliente>?"
+     * without a second, independent name-matching query that could
+     * disagree with this one about how many customers match.
+     *
+     * @return array{status: string, customer?: Customer, candidates?: array<int, array<string, mixed>>}
+     */
+    public function resolveCustomer(User $user, string $term): array
+    {
+        $term = trim($term);
 
         if ($term === '') {
-            return ['tool' => 'customer_documents', 'found' => false, 'ambiguous' => false];
+            return ['status' => 'not_found'];
         }
 
         $matches = Customer::withoutGlobalScopes()
@@ -53,14 +75,12 @@ class GetCustomerInvoicesTool
             ->values();
 
         if ($matches->isEmpty()) {
-            return ['tool' => 'customer_documents', 'found' => false, 'ambiguous' => false];
+            return ['status' => 'not_found'];
         }
 
         if ($matches->count() > 1) {
             return [
-                'tool' => 'customer_documents',
-                'found' => false,
-                'ambiguous' => true,
+                'status' => 'ambiguous',
                 'candidates' => $matches->take(self::AMBIGUITY_LIMIT)->map(fn (Customer $customer): array => [
                     'id' => $customer->id,
                     'name' => $customer->name,
@@ -69,7 +89,7 @@ class GetCustomerInvoicesTool
             ];
         }
 
-        return $this->documentsFor($user, $matches->first());
+        return ['status' => 'found', 'customer' => $matches->first()];
     }
 
     private function resolveById(User $user, int $customerId): ?Customer

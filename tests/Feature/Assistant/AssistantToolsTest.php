@@ -119,8 +119,17 @@ class AssistantToolsTest extends TestCase
             'resource_id' => $invoice->id,
         ])->assertOk();
 
-        $this->assertStringContainsString('Trazabilidad registrada por el sistema', $response->json('message'));
-        $this->assertStringContainsString('issued', $response->json('message'));
+        // IA 2.0-B: the text answer is a brief, explanatory sentence — the
+        // full chronological event list now lives only in the
+        // traceability_summary component, never duplicated as text.
+        $this->assertStringContainsString($invoice->number, $response->json('message'));
+        // Fixed "not configured" disclaimer + a one-line summary = 2
+        // newlines total, never one line per event.
+        $this->assertLessThanOrEqual(2, substr_count($response->json('message'), "\n"));
+
+        $summary = collect($response->json('components'))->firstWhere('type', 'traceability_summary');
+        $this->assertNotNull($summary);
+        $this->assertNotEmpty($summary['items']);
     }
 
     public function test_traceability_is_denied_for_roles_without_the_gate(): void

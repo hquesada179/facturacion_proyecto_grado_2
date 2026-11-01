@@ -64,6 +64,30 @@ class AssistantGlobalQueriesTest extends TestCase
         return $invoice->refresh()->load('customer');
     }
 
+    private function issuedInvoiceForCustomer(User $user, Customer $customer): Invoice
+    {
+        if (NumberingResolution::query()->where('company_id', $user->company_id)->where('prefix', 'FV')->doesntExist()) {
+            NumberingResolution::factory()->for($user->company)->create([
+                'prefix' => 'FV', 'range_from' => 1, 'range_to' => 1000, 'current_consecutive' => 1,
+            ]);
+        }
+
+        $invoice = new Invoice(['user_id' => $user->id]);
+        $invoice->company_id = $user->company_id;
+        $invoice->save();
+
+        $product = ProductService::factory()->for($user->company)->create(['price' => '100000.00']);
+
+        $this->actingAs($user)->post(route('invoices.draft.customer.update', $invoice), ['customer_id' => $customer->id]);
+        $this->actingAs($user)->post(route('invoices.draft.items.store', $invoice), [
+            'product_service_id' => $product->id, 'quantity' => '1', 'unit_price' => '100000',
+        ]);
+        $this->actingAs($user)->post(route('invoices.draft.validate', $invoice));
+        $this->actingAs($user)->post(route('invoices.draft.issue', $invoice));
+
+        return $invoice->refresh()->load('customer');
+    }
+
     private function draftInvoice(User $user): Invoice
     {
         $invoice = new Invoice(['user_id' => $user->id]);
@@ -121,7 +145,9 @@ class AssistantGlobalQueriesTest extends TestCase
 
         $response = $this->ask($user, 'Muéstrame las facturas de kata.')->assertOk();
 
-        $this->assertStringContainsString($invoice->number, $response->json('message'));
+        // The brief text intentionally no longer repeats the invoice
+        // number (IA 2.0-B, issue #2) — the real source of truth is the
+        // invoice_list component.
         $list = collect($response->json('components'))->firstWhere('type', 'invoice_list');
         $this->assertNotNull($list);
         $this->assertSame($invoice->number, $list['items'][0]['number']);
@@ -530,5 +556,200 @@ class AssistantGlobalQueriesTest extends TestCase
         $response = $this->ask($user, 'Busca la factura FV-000999')->assertOk();
 
         $this->assertStringContainsString('No encontré', $response->json('message'));
+    }
+
+    // --- Issue #1: counts filtered by entity --------------------------------
+
+    public function test_how_many_invoices_does_a_customer_have(): void
+    {
+        $user = $this->facturador();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
+        $this->issuedInvoiceForCustomer($user, $customer);
+        $this->issuedInvoiceForCustomer($user, $customer);
+        $this->issuedInvoice($user); // a different customer, must not be counted
+
+        $response = $this->ask($user, '¿Cuántas facturas tiene kata?')->assertOk();
+
+        $list = collect($response->json('components'))->firstWhere('type', 'invoice_list');
+        $this->assertNotNull($list);
+        $this->assertSame(2, $list['total_matches']);
+
+        foreach ($list['items'] as $item) {
+            $this->assertSame('Comercializadora Kata SAS', $item['customer']);
+        }
+    }
+
+    public function test_how_many_issued_invoices_does_a_customer_have(): void
+    {
+        $user = $this->facturador();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
+        $this->issuedInvoiceForCustomer($user, $customer);
+        $draft = new Invoice(['user_id' => $user->id, 'customer_id' => $customer->id]);
+        $draft->company_id = $user->company_id;
+        $draft->save();
+
+        $response = $this->ask($user, '¿Cuántas facturas emitidas tiene kata?')->assertOk();
+
+        $list = collect($response->json('components'))->firstWhere('type', 'invoice_list');
+        $this->assertNotNull($list);
+        $this->assertSame(1, $list['total_matches']);
+        $this->assertSame('issued', $list['items'][0]['status']);
+    }
+
+    public function test_how_many_voided_invoices_does_a_customer_have(): void
+    {
+        $user = $this->facturador();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
+        $this->issuedInvoiceForCustomer($user, $customer);
+
+        $response = $this->ask($user, '¿Cuántas facturas anuladas tiene kata?')->assertOk();
+
+        $list = collect($response->json('components'))->firstWhere('type', 'invoice_list');
+        // No voided invoice exists for kata in this fixture — must come
+        // back empty/absent, never a non-voided invoice of hers.
+        if ($list !== null) {
+            foreach ($list['items'] as $item) {
+                $this->assertSame('voided', $item['status']);
+            }
+        }
+    }
+
+    public function test_how_many_credit_notes_does_a_customer_have(): void
+    {
+        $user = $this->facturador();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
+        $invoice = $this->issuedInvoiceForCustomer($user, $customer);
+        $this->creditNoteFor($user, $invoice);
+
+        $otherInvoice = $this->issuedInvoice($user); // different customer
+        $this->creditNoteFor($user, $otherInvoice);
+
+        $response = $this->ask($user, '¿Cuántas notas crédito tiene kata?')->assertOk();
+
+        $list = collect($response->json('components'))->firstWhere('type', 'credit_note_list');
+        $this->assertNotNull($list);
+        $this->assertSame(1, $list['total_matches']);
+        $this->assertSame($invoice->number, $list['items'][0]['invoice_number']);
+    }
+
+    public function test_how_many_documents_does_a_customer_have_combines_invoices_and_credit_notes(): void
+    {
+        $user = $this->facturador();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
+        $invoice = $this->issuedInvoiceForCustomer($user, $customer);
+        $this->creditNoteFor($user, $invoice);
+
+        $response = $this->ask($user, '¿Cuántos documentos tiene kata?')->assertOk();
+
+        $invoiceList = collect($response->json('components'))->firstWhere('type', 'invoice_list');
+        $creditNoteList = collect($response->json('components'))->firstWhere('type', 'credit_note_list');
+        $this->assertNotNull($invoiceList);
+        $this->assertNotNull($creditNoteList);
+    }
+
+    public function test_count_question_for_an_ambiguous_customer_name_returns_candidates_not_a_guess(): void
+    {
+        $user = $this->facturador();
+        Customer::factory()->for($user->company)->create(['name' => 'Kata Norte SAS', 'status' => 'active']);
+        Customer::factory()->for($user->company)->create(['name' => 'Kata Sur SAS', 'status' => 'active']);
+
+        $response = $this->ask($user, '¿Cuántas facturas tiene kata?')->assertOk();
+
+        $list = collect($response->json('components'))->firstWhere('type', 'customer_list');
+        $this->assertNotNull($list);
+        $this->assertCount(2, $list['items']);
+        $this->assertEmpty(collect($response->json('components'))->where('type', 'invoice_list'));
+    }
+
+    public function test_count_question_for_an_unknown_customer_name_reports_not_found_without_inventing_a_number(): void
+    {
+        $user = $this->facturador();
+
+        $response = $this->ask($user, '¿Cuántas facturas tiene unanombreinexistente?')->assertOk();
+
+        $this->assertEmpty(collect($response->json('components'))->where('type', 'invoice_list'));
+        $this->assertStringContainsString('No encontré', $response->json('message'));
+    }
+
+    public function test_customer_filtered_count_never_crosses_company_boundaries(): void
+    {
+        $companyB = Company::factory()->create();
+        $otherUser = $this->facturador($companyB);
+        Customer::factory()->for($companyB)->create(['name' => 'Kata Exclusiva De Otra Empresa', 'status' => 'active']);
+        $this->issuedInvoiceForCustomer($otherUser, Customer::factory()->for($companyB)->create(['name' => 'Kata Exclusiva De Otra Empresa 2']));
+
+        $user = $this->facturador();
+
+        $response = $this->ask($user, '¿Cuántas facturas tiene kata?')->assertOk();
+
+        $this->assertEmpty(collect($response->json('components'))->where('type', 'invoice_list'));
+        $this->assertStringContainsString('No encontré', $response->json('message'));
+    }
+
+    // --- Issue #2: no duplication between text and components --------------
+
+    public function test_invoice_list_response_text_is_brief_and_does_not_duplicate_the_full_table(): void
+    {
+        $user = $this->facturador();
+        $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
+        $this->issuedInvoiceForCustomer($user, $customer);
+        $this->issuedInvoiceForCustomer($user, $customer);
+
+        $response = $this->ask($user, 'Muéstrame las facturas de kata.')->assertOk();
+
+        $message = $response->json('message');
+        $this->assertStringNotContainsString('|', $message);
+        $this->assertLessThanOrEqual(2, substr_count($message, "\n"));
+
+        $list = collect($response->json('components'))->firstWhere('type', 'invoice_list');
+        $this->assertCount(2, $list['items']);
+    }
+
+    public function test_product_list_response_text_is_brief_and_does_not_duplicate_the_full_table(): void
+    {
+        $user = $this->facturador();
+        $tax = Tax::factory()->create(['code' => 'IVA19', 'rate' => '19']);
+
+        foreach (range(1, 3) as $i) {
+            $product = ProductService::factory()->for($user->company)->create(['name' => "Servicio soporte {$i}"]);
+            $product->taxes()->attach($tax->id);
+        }
+
+        $response = $this->ask($user, 'Muéstrame productos con IVA 19%.')->assertOk();
+
+        $message = $response->json('message');
+        $this->assertStringNotContainsString('|', $message);
+        $this->assertLessThanOrEqual(2, substr_count($message, "\n"));
+
+        $list = collect($response->json('components'))->firstWhere('type', 'product_list');
+        $this->assertCount(3, $list['items']);
+    }
+
+    public function test_traceability_summary_response_text_does_not_dump_every_event(): void
+    {
+        $user = $this->administrador();
+        $invoice = $this->issuedInvoice($user);
+
+        $response = $this->ask($user, '¿Qué pasó con '.$invoice->number.'?')->assertOk();
+
+        $message = $response->json('message');
+        $this->assertLessThanOrEqual(2, substr_count($message, "\n"));
+
+        $summary = collect($response->json('components'))->firstWhere('type', 'traceability_summary');
+        $this->assertNotNull($summary);
+        $this->assertGreaterThanOrEqual(1, count($summary['items']));
+    }
+
+    public function test_pending_documents_response_text_is_brief(): void
+    {
+        $user = $this->facturador();
+        $this->draftInvoice($user);
+        $this->draftInvoice($user);
+
+        $response = $this->ask($user, 'Muéstrame mis borradores pendientes.')->assertOk();
+
+        $message = $response->json('message');
+        $this->assertStringNotContainsString('|', $message);
+        $this->assertLessThanOrEqual(2, substr_count($message, "\n"));
     }
 }

@@ -147,60 +147,98 @@ class LocalFallbackProvider implements AiProviderInterface
         return implode("\n", $lines);
     }
 
+    /**
+     * A single match keeps its detailed one-line answer (no card exists
+     * to show that same single value, and several existing tests —
+     * including the prompt-injection ones — rely on the entity's own
+     * name/number appearing in the text). From two matches up, the
+     * per-item breakdown is dropped entirely: that's exactly what the
+     * invoice_list/customer_list/etc. component already renders as
+     * cards, so repeating it as text would just be the same table twice.
+     */
     private function findInvoiceMessage(array $tool): string
     {
-        if (empty($tool['matches'])) {
-            return 'No encontré ese documento dentro de tu empresa.';
+        $matches = $tool['matches'] ?? [];
+
+        if (empty($matches)) {
+            return 'No encontré facturas que coincidan con esa búsqueda dentro de tu empresa.';
         }
 
-        $matches = collect($tool['matches'])
-            ->map(fn (array $invoice): string => ($invoice['number'] ?? 'Borrador #'.$invoice['id']).' · '.$invoice['status_label'].' · '.ReportFormatter::money($invoice['total']))
-            ->implode("\n");
+        $total = (int) ($tool['total_matches'] ?? count($matches));
 
-        $total = (int) ($tool['total_matches'] ?? count($tool['matches']));
-        $showing = count($tool['matches']);
-        $suffix = $total > $showing ? "\n\nMostrando {$showing} de {$total} resultados." : '';
+        if ($total === 1) {
+            $invoice = $matches[0];
 
-        return "Encontré estas facturas dentro de tu empresa:\n".$matches.$suffix;
+            return 'Encontré la factura '.($invoice['number'] ?? 'Borrador #'.$invoice['id']).': '.$invoice['status_label'].' · '.ReportFormatter::money($invoice['total']).'.';
+        }
+
+        $noun = $total === 1 ? 'factura' : 'facturas';
+
+        return "Encontré {$total} {$noun} dentro de tu empresa.";
     }
 
+    /**
+     * Short and explanatory (e.g. "la factura X fue anulada mediante la
+     * nota crédito Y"), never a line-by-line dump of every event — that
+     * duplicates traceability_summary, which already renders the full,
+     * chronologically-ordered list as a card.
+     */
     private function traceabilityMessage(array $tool): string
     {
         if (! ($tool['allowed'] ?? true)) {
             return 'Tu rol no tiene permiso para consultar la trazabilidad detallada.';
         }
 
-        if (empty($tool['events'])) {
+        $events = $tool['events'] ?? [];
+
+        if (empty($events)) {
             return 'No hay eventos de trazabilidad registrados para ese documento.';
         }
 
-        $events = collect($tool['events'])
-            ->map(fn (array $event): string => '- '.$event['date'].': '.$event['description'].' ('.$event['type'].') '.$event['from_status'].' -> '.$event['to_status'])
-            ->implode("\n");
+        $invoiceLabel = $tool['invoice_number'] ?? 'Este documento';
+        $total = (int) ($tool['total_events'] ?? count($events));
+        $last = end($events);
+        $noun = $total === 1 ? 'evento' : 'eventos';
 
-        return "Trazabilidad registrada por el sistema:\n".$events;
+        return "{$invoiceLabel} tiene {$total} {$noun} de trazabilidad. El más reciente: {$last['description']}.";
     }
 
     private function customerMessage(array $tool): string
     {
-        if (empty($tool['matches'])) {
+        $matches = $tool['matches'] ?? [];
+
+        if (empty($matches)) {
             return 'No encontré ese cliente dentro de tu empresa.';
         }
 
-        return collect($tool['matches'])
-            ->map(fn (array $customer): string => 'Dato registrado: '.$customer['name'].' · '.$customer['identification'].' · documentos: '.$customer['documents_count'])
-            ->implode("\n");
+        $total = (int) ($tool['total_matches'] ?? count($matches));
+
+        if ($total === 1) {
+            $customer = $matches[0];
+
+            return 'Dato registrado: '.$customer['name'].' · '.$customer['identification'].' · documentos: '.$customer['documents_count'];
+        }
+
+        return "Encontré {$total} clientes que coinciden con esa búsqueda.";
     }
 
     private function productMessage(array $tool): string
     {
-        if (empty($tool['matches'])) {
+        $matches = $tool['matches'] ?? [];
+
+        if (empty($matches)) {
             return 'No encontré ese producto o servicio dentro de tu empresa.';
         }
 
-        return collect($tool['matches'])
-            ->map(fn (array $product): string => 'Dato registrado del catálogo: '.$product['sku'].' · '.$product['name'].' · '.$product['status'].' · precio '.ReportFormatter::money($product['price']).' · impuestos '.$product['taxes'])
-            ->implode("\n");
+        $total = (int) ($tool['total_matches'] ?? count($matches));
+
+        if ($total === 1) {
+            $product = $matches[0];
+
+            return 'Dato registrado del catálogo: '.$product['sku'].' · '.$product['name'].' · '.$product['status'].' · precio '.ReportFormatter::money($product['price']).' · impuestos '.$product['taxes'];
+        }
+
+        return "Encontré {$total} productos o servicios que coinciden con esa búsqueda.";
     }
 
     private function creditNoteMessage(array $tool): string
@@ -235,47 +273,51 @@ class LocalFallbackProvider implements AiProviderInterface
             return 'No encontré ningún cliente que coincida con esa búsqueda dentro de tu empresa.';
         }
 
-        $customerName = $tool['customer']['name'] ?? 'Cliente';
-        $lines = ["Documentos de {$customerName} (datos reales del sistema):"];
+        $customerName = $tool['customer']['name'] ?? 'ese cliente';
+        $invoicesTotal = (int) ($tool['invoices_total_matches'] ?? count($tool['invoices'] ?? []));
+        $creditNotesTotal = (int) ($tool['credit_notes_total_matches'] ?? count($tool['credit_notes'] ?? []));
 
-        if (empty($tool['invoices']) && empty($tool['credit_notes'])) {
-            $lines[] = 'No tiene facturas ni notas crédito registradas todavía.';
-
-            return implode("\n", $lines);
+        if ($invoicesTotal === 0 && $creditNotesTotal === 0) {
+            return "{$customerName} no tiene facturas ni notas crédito registradas todavía.";
         }
 
-        foreach ($tool['invoices'] ?? [] as $invoice) {
-            $lines[] = '- Factura '.$invoice['number'].': '.$invoice['status_label'].' · '.ReportFormatter::money($invoice['total']);
+        $parts = [];
+
+        if ($invoicesTotal > 0) {
+            $parts[] = $invoicesTotal.' '.($invoicesTotal === 1 ? 'factura' : 'facturas');
         }
 
-        foreach ($tool['credit_notes'] ?? [] as $creditNote) {
-            $lines[] = '- Nota crédito '.$creditNote['number'].': '.$creditNote['status_label'].' · '.ReportFormatter::money($creditNote['total']);
+        if ($creditNotesTotal > 0) {
+            $parts[] = $creditNotesTotal.' '.($creditNotesTotal === 1 ? 'nota crédito' : 'notas crédito');
         }
 
+        $summary = 'Encontré '.implode(' y ', $parts).' de '.$customerName.'.';
         $totals = $tool['totals'] ?? null;
 
-        if ($totals) {
-            $lines[] = 'Total facturado: '.ReportFormatter::money($totals['billed']).' · Total acreditado: '.ReportFormatter::money($totals['credited']).' · Neto documental: '.ReportFormatter::money($totals['net']);
+        if ($totals && ((float) $totals['billed'] > 0 || (float) $totals['credited'] > 0)) {
+            $summary .= ' Neto documental: '.ReportFormatter::money($totals['net']).'.';
         }
 
-        return implode("\n", $lines);
+        return $summary;
     }
 
     private function searchCreditNotesMessage(array $tool): string
     {
-        if (empty($tool['matches'])) {
+        $matches = $tool['matches'] ?? [];
+
+        if (empty($matches)) {
             return 'No encontré notas crédito que coincidan con esa búsqueda dentro de tu empresa.';
         }
 
-        $matches = collect($tool['matches'])
-            ->map(fn (array $creditNote): string => $creditNote['number'].' · factura '.($creditNote['invoice_number'] ?? 'N/A').' · '.$creditNote['status_label'].' · '.ReportFormatter::money($creditNote['total']))
-            ->implode("\n");
+        $total = (int) ($tool['total_matches'] ?? count($matches));
 
-        $total = (int) ($tool['total_matches'] ?? count($tool['matches']));
-        $showing = count($tool['matches']);
-        $suffix = $total > $showing ? "\n\nMostrando {$showing} de {$total} resultados." : '';
+        if ($total === 1) {
+            $creditNote = $matches[0];
 
-        return "Encontré estas notas crédito dentro de tu empresa:\n".$matches.$suffix;
+            return 'Encontré la nota crédito '.$creditNote['number'].' · factura '.($creditNote['invoice_number'] ?? 'N/A').' · '.$creditNote['status_label'].' · '.ReportFormatter::money($creditNote['total']).'.';
+        }
+
+        return "Encontré {$total} notas crédito dentro de tu empresa.";
     }
 
     private function documentCountsMessage(array $tool): string
@@ -284,23 +326,9 @@ class LocalFallbackProvider implements AiProviderInterface
             return 'Tu rol no tiene permiso para consultar estos conteos.';
         }
 
-        $invoices = $tool['invoices_by_status'] ?? [];
-        $creditNotes = $tool['credit_notes_by_status'] ?? [];
-        $scopeNote = $tool['scope'] === 'own' ? ' (solo tus propios documentos)' : ' (de toda la empresa)';
+        $scopeNote = $tool['scope'] === 'own' ? 'tus propios documentos' : 'toda la empresa';
 
-        return implode("\n", [
-            "Conteos reales del sistema{$scopeNote}:",
-            '- Facturas totales: '.$tool['invoices_total'],
-            '- Facturas emitidas: '.($invoices['issued'] ?? 0),
-            '- Facturas anuladas: '.($invoices['voided'] ?? 0),
-            '- Borradores: '.($invoices['draft'] ?? 0),
-            '- Parcialmente abonadas: '.($invoices['partially_credited'] ?? 0),
-            '- Con error técnico: '.($invoices['technical_error'] ?? 0),
-            '- Notas crédito emitidas: '.($creditNotes['issued'] ?? 0),
-            '- Notas crédito con error: '.($creditNotes['technical_error'] ?? 0),
-            '- Clientes: '.$tool['customers_total'],
-            '- Productos activos: '.$tool['products_active'],
-        ]);
+        return "Aquí tienes el resumen de conteos reales del sistema ({$scopeNote}).";
     }
 
     private function billingSummaryMessage(array $tool): string
@@ -309,18 +337,7 @@ class LocalFallbackProvider implements AiProviderInterface
             return 'Tu rol no tiene permiso para consultar el resumen financiero.';
         }
 
-        $summary = $tool['summary'];
-
-        return implode("\n", [
-            'Resumen financiero — '.$tool['period_label'].' (datos de DocumentReportService):',
-            '- Facturación bruta: '.ReportFormatter::money($summary['gross']),
-            '- IVA / impuestos: '.ReportFormatter::money($summary['tax_total']),
-            '- Valor acreditado: '.ReportFormatter::money($summary['credited']),
-            '- Neto documental: '.ReportFormatter::money($summary['net']),
-            '- Facturas emitidas: '.$summary['emitted'],
-            '- Facturas anuladas: '.$summary['voided'],
-            '- Rechazadas o con error: '.$summary['rejected'],
-        ]);
+        return 'Resumen financiero de '.$tool['period_label'].' (datos reales de DocumentReportService).';
     }
 
     private function documentListMessage(array $tool, string $emptyMessage, string $title): string
@@ -329,24 +346,15 @@ class LocalFallbackProvider implements AiProviderInterface
             return 'Tu rol no tiene permiso para consultar esta información.';
         }
 
-        if (empty($tool['documents'])) {
+        $documents = $tool['documents'] ?? [];
+
+        if (empty($documents)) {
             return $emptyMessage;
         }
 
-        $lines = ["{$title}:"];
+        $total = (int) ($tool['total_matches'] ?? count($documents));
+        $noun = $total === 1 ? 'documento' : 'documentos';
 
-        foreach ($tool['documents'] as $document) {
-            $label = $document['type'] === 'invoice' ? 'Factura' : 'Nota crédito';
-            $lines[] = '- '.$label.' '.$document['number'].': '.$document['status_label'].' · '.ReportFormatter::money($document['total'] ?? 0);
-        }
-
-        $total = (int) ($tool['total_matches'] ?? count($tool['documents']));
-        $showing = count($tool['documents']);
-
-        if ($total > $showing) {
-            $lines[] = "Mostrando {$showing} de {$total} resultados.";
-        }
-
-        return implode("\n", $lines);
+        return "{$title}: {$total} {$noun}.";
     }
 }

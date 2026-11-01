@@ -83,6 +83,7 @@ class AiAssistantService
     private const COUNT_SUBJECT_WORDS = [
         'factura', 'facturas', 'cliente', 'clientes', 'producto', 'productos',
         'nota crédito', 'notas crédito', 'nota credito', 'notas credito',
+        'documento', 'documentos',
     ];
 
     public function __construct(
@@ -263,6 +264,12 @@ class AiAssistantService
         $invoiceNumber = $this->extractDocumentNumber($message, 'FV');
         $creditNoteNumber = $this->extractDocumentNumber($message, 'NC');
         $customerDocumentsTerm = $this->extractCustomerDocumentsTerm($message);
+        $isCountQuestion = $this->containsWholeWord($lower, self::COUNT_TRIGGER_WORDS)
+            && $this->containsWholeWord($lower, self::COUNT_SUBJECT_WORDS);
+        // "¿Cuántas facturas TIENE kata?" — an explicit customer reference
+        // inside a count question always wins over a company-wide count,
+        // same explicit-reference-first priority as everywhere else here.
+        $countCustomerTerm = $isCountQuestion ? $this->extractAfter($message, ['tiene', 'tienen']) : null;
         $results = [];
 
         // --- Local-context explanations (unchanged from earlier phases) ---
@@ -291,11 +298,13 @@ class AiAssistantService
             $results[] = $this->findInvoice->handle($user, $invoiceNumber);
         } elseif (Str::contains($lower, 'factura') && $invoiceId && $customerDocumentsTerm === null) {
             $results[] = $this->invoiceDetails->handle($user, (int) $invoiceId);
-        } elseif ($customerDocumentsTerm === null && Str::contains($lower, 'facturas')) {
+        } elseif ($customerDocumentsTerm === null && $countCustomerTerm === null && Str::contains($lower, 'facturas')) {
             // Plural "facturas" specifically — a singular, demonstrative
             // phrase like "esta factura está parcialmente acreditada" is a
             // question about one already-known document (handled by the
             // local-context branches above), never a global list request.
+            // A "¿cuántas tiene X?" count question is handled separately
+            // below, scoped to that customer — skip the unscoped list here.
             $invoiceStatus = $this->detectStatus($lower, self::INVOICE_STATUS_WORDS);
             $period = $this->detectPeriod($lower);
 
@@ -338,6 +347,9 @@ class AiAssistantService
         } elseif ($customerDocumentsTerm !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
             // Already covered by the customer_documents branch below,
             // which returns both invoices and credit notes together.
+        } elseif ($countCustomerTerm !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
+            // "¿Cuántas notas crédito tiene kata?" — handled by the
+            // customer-scoped count branch below, not an unscoped search.
         } elseif (Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
             $status = $this->detectStatus($lower, self::CREDIT_NOTE_STATUS_WORDS);
             $results[] = $this->searchCreditNotes->handle($user, array_filter(['status' => $status]));
@@ -357,7 +369,9 @@ class AiAssistantService
         // Word-boundary match for the subject only: a plain substring check
         // would make "facturado"/"facturación" (billing questions) falsely
         // trigger a counts answer just because they contain "factura".
-        if (Str::contains($lower, self::COUNT_TRIGGER_WORDS) && $this->containsWholeWord($lower, self::COUNT_SUBJECT_WORDS)) {
+        if ($countCustomerTerm !== null) {
+            $results[] = $this->countForCustomer($user, $countCustomerTerm, $lower);
+        } elseif ($isCountQuestion) {
             $results[] = $this->documentCounts->handle($user);
         }
 
@@ -427,6 +441,46 @@ class AiAssistantService
             'action' => 'critical_action_not_available',
             'summary' => 'Esta acción crítica no se ejecuta desde una respuesta textual del asistente.',
         ]];
+    }
+
+    /**
+     * "¿Cuántas facturas/notas crédito/documentos tiene <cliente>?" — reuses
+     * GetCustomerInvoicesTool::resolveCustomer() for the exact same
+     * ambiguity-safe name resolution used elsewhere (never guesses between
+     * two customers with the same name), then delegates the actual
+     * counting to the same search tools used for "muéstrame las facturas
+     * de X" so the number is always a real total_matches, never invented
+     * or recalculated separately.
+     */
+    private function countForCustomer(User $user, string $term, string $lower): array
+    {
+        $resolution = $this->customerInvoices->resolveCustomer($user, $term);
+
+        if ($resolution['status'] !== 'found') {
+            return [
+                'tool' => 'customer_documents',
+                'found' => false,
+                'ambiguous' => $resolution['status'] === 'ambiguous',
+                'candidates' => $resolution['candidates'] ?? [],
+            ];
+        }
+
+        $customerId = $resolution['customer']->id;
+        $wantsCreditNotes = Str::contains($lower, self::CREDIT_NOTE_WORDS);
+        $wantsInvoices = Str::contains($lower, ['factura', 'facturas']);
+
+        if ($wantsCreditNotes && ! $wantsInvoices) {
+            return $this->searchCreditNotes->handle($user, ['customer_id' => $customerId]);
+        }
+
+        if ($wantsInvoices && ! $wantsCreditNotes) {
+            $status = $this->detectStatus($lower, self::INVOICE_STATUS_WORDS);
+
+            return $this->findInvoice->handle($user, null, array_filter(['customer_id' => $customerId, 'status' => $status]), 10);
+        }
+
+        // Generic "documentos" (or both mentioned at once): combined count.
+        return $this->customerInvoices->handle($user, customerId: $customerId);
     }
 
     private function extractDocumentNumber(string $message, string $prefix): ?string
