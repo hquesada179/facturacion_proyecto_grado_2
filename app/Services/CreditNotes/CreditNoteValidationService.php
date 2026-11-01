@@ -3,7 +3,6 @@
 namespace App\Services\CreditNotes;
 
 use App\Enums\CreditNoteStatus;
-use App\Enums\InvoiceStatus;
 use App\Models\CreditNote;
 use App\Models\CreditNoteItem;
 use App\Models\Invoice;
@@ -20,7 +19,7 @@ class CreditNoteValidationService
         $errors = [];
         $creditNote->loadMissing(['invoice.items', 'items']);
 
-        if (! in_array($creditNote->invoice->status, [InvoiceStatus::Issued, InvoiceStatus::PartiallyCredited], true)) {
+        if (! $creditNote->invoice->status->canReceiveCreditNote()) {
             $errors['invoice'] = 'La factura origen debe estar emitida o parcialmente acreditada.';
         }
 

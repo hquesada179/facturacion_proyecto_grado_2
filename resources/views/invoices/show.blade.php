@@ -7,7 +7,7 @@
 >
     <x-page-header eyebrow="Facturas" :title="$invoice->number ?? 'Borrador de factura #'.$invoice->id" description="Consulta del documento, productos y trazabilidad.">
         <x-slot:actions>
-            @if ($invoice->status->value === 'issued')
+            @if ($invoice->status->wasIssued())
                 @can('downloadPdf', $invoice)
                     <a href="{{ route('invoices.pdf.show', $invoice) }}" target="_blank" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
                         <span class="material-symbols-outlined text-[18px]">visibility</span>
@@ -27,7 +27,7 @@
                         </button>
                     </form>
                 @endcan
-                @can('create', \App\Models\CreditNote::class)
+                @can('create', [\App\Models\CreditNote::class, $invoice])
                     <a href="{{ route('credit-notes.create', ['invoice_id' => $invoice->id]) }}" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center gap-sm">
                         <span class="material-symbols-outlined text-[18px]">assignment_return</span>
                         Crear nota crédito
@@ -51,7 +51,7 @@
         </div>
     @endif
 
-    @if ($invoice->status->value === 'issued')
+    @if ($invoice->status->wasIssued())
         <div class="mb-lg bg-[#def7ec] border border-[#03543f]/20 text-[#03543f] rounded-lg p-md font-body-sm text-body-sm">
             <p class="font-label-md text-label-md flex items-center gap-sm mb-xs">
                 <span class="material-symbols-outlined text-[18px]">science</span>

@@ -2,7 +2,6 @@
 
 namespace App\Services\Invoices;
 
-use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brick\Math\BigDecimal;
@@ -20,7 +19,7 @@ class InvoicePdfService
 
     public function ensureGenerated(Invoice $invoice): Invoice
     {
-        $this->ensureIssued($invoice);
+        $this->ensureAccessible($invoice);
         $invoice = $this->ensureVerificationToken($invoice);
 
         if ($invoice->pdf_path !== null) {
@@ -59,7 +58,7 @@ class InvoicePdfService
 
     public function viewData(Invoice $invoice): array
     {
-        $this->ensureIssued($invoice);
+        $this->ensureAccessible($invoice);
         $invoice = $this->ensureVerificationToken($invoice);
         $invoice->loadMissing(['company', 'items.itemTaxes', 'numberingResolution']);
 
@@ -130,9 +129,16 @@ class InvoicePdfService
         return $invoice->refresh();
     }
 
-    private function ensureIssued(Invoice $invoice): void
+    /**
+     * Issued, PartiallyCredited and Voided all share the one definitive
+     * PDF generated the moment the invoice was first issued — a later
+     * credit note changing the invoice's status must never block
+     * access to it. A draft or a still-pending/rejected attempt never
+     * had a definitive PDF to begin with.
+     */
+    private function ensureAccessible(Invoice $invoice): void
     {
-        if ($invoice->status !== InvoiceStatus::Issued) {
+        if (! $invoice->status->wasIssued()) {
             throw new RuntimeException('Solo una factura emitida puede generar PDF definitivo.');
         }
     }

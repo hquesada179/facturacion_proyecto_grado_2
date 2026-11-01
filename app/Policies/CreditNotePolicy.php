@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Enums\CreditNoteStatus;
 use App\Models\CreditNote;
+use App\Models\Invoice;
 use App\Models\User;
 
 class CreditNotePolicy
@@ -18,9 +19,27 @@ class CreditNotePolicy
         return $user->company_id === $creditNote->company_id;
     }
 
-    public function create(User $user): bool
+    /**
+     * $invoice is optional so existing class-level checks
+     * (`@can('create', CreditNote::class)`, `authorize('create',
+     * CreditNote::class)`) keep working unchanged. Passing the invoice
+     * (`@can('create', [CreditNote::class, $invoice])`) additionally
+     * hides the action once that specific invoice has no remaining
+     * balance to credit (Voided) — the same eligibility
+     * InvoiceStatus::canReceiveCreditNote() already enforces server-side.
+     */
+    public function create(User $user, ?Invoice $invoice = null): bool
     {
-        return $user->can('manage-invoicing');
+        if (! $user->can('manage-invoicing')) {
+            return false;
+        }
+
+        if ($invoice === null) {
+            return true;
+        }
+
+        return $user->company_id === $invoice->company_id
+            && $invoice->status->canReceiveCreditNote();
     }
 
     public function update(User $user, CreditNote $creditNote): bool

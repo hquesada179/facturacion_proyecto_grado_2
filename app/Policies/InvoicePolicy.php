@@ -30,8 +30,11 @@ class InvoicePolicy
 
     public function downloadPdf(User $user, Invoice $invoice): bool
     {
+        // Issued, PartiallyCredited and Voided all keep the same,
+        // already-generated definitive PDF — a credit note touching the
+        // invoice later must never take away access to it.
         return $user->company_id === $invoice->company_id
-            && $invoice->status === InvoiceStatus::Issued;
+            && $invoice->status->wasIssued();
     }
 
     public function sendSimulatedDelivery(User $user, Invoice $invoice): bool

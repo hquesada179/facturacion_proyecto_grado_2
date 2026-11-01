@@ -3,7 +3,6 @@
 namespace App\Services\CreditNotes;
 
 use App\Enums\CreditNoteStatus;
-use App\Enums\InvoiceStatus;
 use App\Models\CreditNote;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -31,7 +30,7 @@ class CreditNoteDraftService
             abort(404);
         }
 
-        if (! in_array($invoice->status, [InvoiceStatus::Issued, InvoiceStatus::PartiallyCredited], true)) {
+        if (! $invoice->status->canReceiveCreditNote()) {
             throw ValidationException::withMessages([
                 'invoice_id' => 'Solo se pueden crear notas crédito sobre facturas emitidas.',
             ]);

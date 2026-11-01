@@ -193,6 +193,85 @@ class CreditNoteLifecycleTest extends TestCase
         $this->assertSame(InvoiceStatus::Voided, $invoice->refresh()->status);
     }
 
+    /**
+     * Regression test: the invoice detail page hid "Ver documento",
+     * "Descargar PDF", the CUFE/PDF-hash banner and "Ver trazabilidad"
+     * entirely once status moved away from the literal 'issued' value —
+     * even though a partially credited invoice still has the exact
+     * same valid, already-generated PDF and a trace log worth viewing.
+     */
+    public function test_partially_credited_invoice_still_shows_pdf_and_traceability_actions(): void
+    {
+        $user = $this->facturador();
+        $this->createCreditNoteResolution($user);
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '1');
+        $this->actingAs($user)->post(route('credit-notes.validate', $creditNote));
+        $this->actingAs($user)->post(route('credit-notes.issue', $creditNote));
+        $this->assertSame(InvoiceStatus::PartiallyCredited, $invoice->refresh()->status);
+
+        $response = $this->actingAs($user)->get(route('invoices.show', $invoice));
+
+        $response->assertOk();
+        $response->assertSee('Ver documento');
+        $response->assertSee('Descargar PDF');
+        $response->assertSee('CUFE simulado');
+        $response->assertSee(route('invoices.pdf.show', $invoice), false);
+
+        $this->actingAs($user)->get(route('invoices.pdf.show', $invoice))->assertOk();
+        $this->actingAs($user)->get(route('invoices.pdf.download', $invoice))->assertOk();
+    }
+
+    /**
+     * Same regression, for a fully voided invoice (total credit note) —
+     * the original PDF and its CUFE must remain visible/downloadable;
+     * only "Crear nota crédito" must disappear (nothing left to credit).
+     */
+    public function test_voided_invoice_still_shows_pdf_and_traceability_but_not_new_credit_note(): void
+    {
+        $user = $this->facturador();
+        $this->createCreditNoteResolution($user);
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '2', 'PROTO_TOTAL_VOID');
+        $this->actingAs($user)->post(route('credit-notes.validate', $creditNote));
+        $this->actingAs($user)->post(route('credit-notes.issue', $creditNote));
+        $this->assertSame(InvoiceStatus::Voided, $invoice->refresh()->status);
+
+        $response = $this->actingAs($user)->get(route('invoices.show', $invoice));
+
+        $response->assertOk();
+        $response->assertSee('Ver documento');
+        $response->assertSee('Descargar PDF');
+        $response->assertSee('CUFE simulado');
+        $response->assertDontSee('Crear nota crédito');
+
+        $this->actingAs($user)->get(route('invoices.pdf.show', $invoice))->assertOk();
+    }
+
+    /**
+     * Regression test: the backend (CreditNoteDraftService) already
+     * allowed a second credit note against a partially credited
+     * invoice's remaining balance — but the "Crear nota crédito" button
+     * never appeared once status moved away from 'issued', so a
+     * facturador had no visible way to reach that already-working flow.
+     */
+    public function test_create_credit_note_button_appears_for_a_partially_credited_invoice(): void
+    {
+        $user = $this->facturador();
+        $this->createCreditNoteResolution($user);
+        $invoice = $this->issuedInvoiceFor($user);
+        $creditNote = $this->createCreditNote($user, $invoice, '1');
+        $this->actingAs($user)->post(route('credit-notes.validate', $creditNote));
+        $this->actingAs($user)->post(route('credit-notes.issue', $creditNote));
+        $this->assertSame(InvoiceStatus::PartiallyCredited, $invoice->refresh()->status);
+
+        $response = $this->actingAs($user)->get(route('invoices.show', $invoice));
+
+        $response->assertOk();
+        $response->assertSee('Crear nota crédito');
+        $response->assertSee(route('credit-notes.create', ['invoice_id' => $invoice->id]), false);
+    }
+
     public function test_cannot_credit_more_quantity_than_available(): void
     {
         $user = $this->facturador();

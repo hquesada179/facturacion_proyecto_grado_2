@@ -64,14 +64,14 @@ class CreditNoteController extends Controller
                 ->whereKey($request->integer('invoice_id'))
                 ->firstOrFail();
 
-            if (! in_array($invoice->status, [InvoiceStatus::Issued, InvoiceStatus::PartiallyCredited], true)) {
+            if (! $invoice->status->canReceiveCreditNote()) {
                 $invoice = null;
             }
         }
 
         $invoices = Invoice::query()
             ->with('customer')
-            ->whereIn('status', [InvoiceStatus::Issued->value, InvoiceStatus::PartiallyCredited->value])
+            ->whereIn('status', InvoiceStatus::creditableValues())
             ->latest('issued_at')
             ->limit(50)
             ->get();
