@@ -17,13 +17,13 @@ class GetBillingSummaryTool
 {
     public function __construct(private readonly DocumentReportService $documents) {}
 
-    public function handle(User $user, string $periodKey = ReportDateRange::DEFAULT): array
+    public function handle(User $user, ?ReportDateRange $range = null): array
     {
         if (Gate::forUser($user)->denies('view-reports')) {
             return ['tool' => 'billing_summary', 'allowed' => false];
         }
 
-        $range = ReportDateRange::fromFilters(['date_range' => $periodKey]);
+        $range ??= ReportDateRange::fromFilters(['date_range' => ReportDateRange::DEFAULT]);
         $summary = $this->documents->summary($user, [], $range);
 
         return [

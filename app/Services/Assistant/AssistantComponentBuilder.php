@@ -48,6 +48,7 @@ class AssistantComponentBuilder
                 'document_errors' => $this->mixedToListComponents($canViewTraceability, $result),
                 'pending_documents' => $this->mixedToListComponents($canViewTraceability, $result),
                 'customer_documents' => $this->customerDocuments($canViewTraceability, $result),
+                'ranking' => array_filter([$this->rankingSummary($result)]),
                 default => [],
             };
 
@@ -188,6 +189,27 @@ class AssistantComponentBuilder
             'items' => $events,
             'total_events' => $result['total_events'] ?? count($events),
             'showing' => count($events),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $result
+     */
+    private function rankingSummary(array $result): ?array
+    {
+        if (! ($result['allowed'] ?? false) || empty($result['items'])) {
+            return null;
+        }
+
+        $isProducts = $result['type'] === 'products';
+
+        return [
+            'type' => 'metric_summary',
+            'title' => ($isProducts ? 'Productos' : 'Clientes').' con más facturación — '.($result['period_label'] ?? ''),
+            'items' => array_map(fn (array $row): array => [
+                'label' => $isProducts ? ($row['description'] ?? $row['code'] ?? 'Producto') : ($row['customer'] ?? 'Cliente'),
+                'value' => ReportFormatter::money($isProducts ? ($row['invoiced_total'] ?? 0) : ($row['net_total'] ?? $row['invoiced_total'] ?? 0)),
+            ], array_slice($result['items'], 0, 5)),
         ];
     }
 

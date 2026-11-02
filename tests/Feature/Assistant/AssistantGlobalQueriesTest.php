@@ -566,7 +566,11 @@ class AssistantGlobalQueriesTest extends TestCase
         $customer = Customer::factory()->for($user->company)->create(['name' => 'Comercializadora Kata SAS', 'status' => 'active']);
         $this->issuedInvoiceForCustomer($user, $customer);
         $this->issuedInvoiceForCustomer($user, $customer);
-        $this->issuedInvoice($user); // a different customer, must not be counted
+        // Explicit, Faker-free name — a random company name could
+        // otherwise coincidentally contain "kata" and make the search
+        // ambiguous.
+        $otherCustomer = Customer::factory()->for($user->company)->create(['name' => 'Distribuidora Esmeralda SAS', 'status' => 'active']);
+        $this->issuedInvoiceForCustomer($user, $otherCustomer); // must not be counted
 
         $response = $this->ask($user, '¿Cuántas facturas tiene kata?')->assertOk();
 
@@ -621,7 +625,11 @@ class AssistantGlobalQueriesTest extends TestCase
         $invoice = $this->issuedInvoiceForCustomer($user, $customer);
         $this->creditNoteFor($user, $invoice);
 
-        $otherInvoice = $this->issuedInvoice($user); // different customer
+        // Explicit, Faker-free name: a randomly generated company name
+        // could otherwise coincidentally contain "kata" as a substring
+        // and turn this into an ambiguous (2-match) customer search.
+        $otherCustomer = Customer::factory()->for($user->company)->create(['name' => 'Distribuidora Esmeralda SAS', 'status' => 'active']);
+        $otherInvoice = $this->issuedInvoiceForCustomer($user, $otherCustomer);
         $this->creditNoteFor($user, $otherInvoice);
 
         $response = $this->ask($user, '¿Cuántas notas crédito tiene kata?')->assertOk();

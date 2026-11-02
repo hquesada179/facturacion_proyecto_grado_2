@@ -8,6 +8,7 @@ use App\Models\AssistantConversation;
 use App\Models\AssistantMessage;
 use App\Models\AssistantMetric;
 use App\Models\Invoice;
+use App\Models\ProductService;
 use App\Models\User;
 use App\Services\Assistant\Contracts\AiProviderInterface;
 use App\Services\Assistant\Providers\LocalFallbackProvider;
@@ -22,10 +23,12 @@ use App\Services\Assistant\Tools\GetDocumentCountsTool;
 use App\Services\Assistant\Tools\GetDocumentErrorsTool;
 use App\Services\Assistant\Tools\GetInvoiceDetailsTool;
 use App\Services\Assistant\Tools\GetPendingDocumentsTool;
+use App\Services\Assistant\Tools\GetRankingTool;
 use App\Services\Assistant\Tools\GetTraceabilityTool;
 use App\Services\Assistant\Tools\SearchCreditNotesTool;
 use App\Services\Reports\ReportDateRange;
 use App\Support\ReportFormatter;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -33,11 +36,11 @@ class AiAssistantService
 {
     /**
      * Invoice-status words recognised in a global, plural search such as
-     * "Muéstrame las facturas anuladas". Deliberately separate from the
-     * credit-note map below — the same word (e.g. "emitidas") means a
-     * different enum depending on which document type the sentence is
-     * actually about, and each map is only ever consulted from its own
-     * branch of the dispatcher.
+     * "Muéstrame las facturas anuladas" or "Muéstrame borradores". Kept
+     * separate from the credit-note map below — the same word (e.g.
+     * "emitidas") means a different enum depending on which document
+     * type the sentence is about, and each map is only ever consulted
+     * from its own branch of the dispatcher.
      *
      * @var array<string, InvoiceStatus>
      */
@@ -74,8 +77,8 @@ class AiAssistantService
 
     private const BILLING_KEYWORDS = [
         'facturado', 'facturación', 'facturacion', 'neto documental',
-        'neto después', 'neto despues', 'iva he generado', 'iva generado',
-        'cuánto iva', 'cuanto iva', 'ingresos del mes', 'ingresos',
+        'neto después', 'neto despues', 'iva generado', 'cuánto iva', 'cuanto iva',
+        'ingresos del mes', 'ingresos',
     ];
 
     private const COUNT_TRIGGER_WORDS = ['cuántas', 'cuantas', 'cuántos', 'cuantos', 'cuánto', 'cuanto'];
@@ -86,12 +89,53 @@ class AiAssistantService
         'documento', 'documentos',
     ];
 
+    /**
+     * Explicit, bounded triggers for "that invoice we were just talking
+     * about" — a demonstrative phrase ("esa factura") or a pronoun tied
+     * to the specific verb of the credit-note-origin question ("la
+     * anuló"). Deliberately NOT a generic pronoun detector: each entry is
+     * a concrete, distinctive phrase, never a bare "la"/"lo"/"esta" that
+     * would misfire on ordinary Spanish grammar.
+     *
+     * @var array<int, string>
+     */
+    private const INVOICE_REFERENCE_TRIGGERS = [
+        'esa factura', 'esta factura', 'dicha factura', 'ese documento', 'este documento', 'la misma factura',
+        'la anuló', 'lo anuló', 'quién la anuló', 'quien la anulo', 'qué la anuló', 'que la anulo',
+    ];
+
+    /**
+     * "¿Cuáles están anuladas?" right after "facturas de kata" — only
+     * ever used to decide whether to additionally scope a status search
+     * to the customer remembered from the previous turn; never used to
+     * resolve an entity on its own.
+     *
+     * @var array<int, string>
+     */
+    private const REFERENCE_WORDS = ['cuáles', 'cuales', 'esas', 'esos', 'de esas', 'de esos', 'la anterior', 'el anterior', 'las anteriores'];
+
+    private const SUPERLATIVE_MAX_WORDS = ['más caro', 'mas caro', 'más cara', 'mas cara', 'más costoso', 'mas costoso', 'el más caro', 'la más cara'];
+
+    private const SUPERLATIVE_MIN_WORDS = ['más barato', 'mas barato', 'más económico', 'mas economico', 'menos costoso', 'el más barato', 'la más barata'];
+
+    private const RANKING_CUSTOMER_WORDS = [
+        'qué cliente tiene más', 'que cliente tiene mas', 'cliente con más facturación', 'cliente con mas facturacion',
+        'cliente que más ha facturado', 'cliente que mas ha facturado',
+    ];
+
+    private const RANKING_PRODUCT_WORDS = [
+        'qué producto se ha facturado más', 'que producto se ha facturado mas', 'producto más facturado',
+        'producto mas facturado', 'producto que más se ha facturado', 'producto que mas se ha facturado',
+    ];
+
     public function __construct(
         private readonly AiProviderInterface $provider,
         private readonly LocalFallbackProvider $fallbackProvider,
         private readonly AssistantContextBuilder $contextBuilder,
         private readonly AssistantActionService $actions,
         private readonly AssistantComponentBuilder $components,
+        private readonly AssistantMessageNormalizer $normalizer,
+        private readonly AssistantDateRangeResolver $dateRangeResolver,
         private readonly FindInvoiceTool $findInvoice,
         private readonly GetInvoiceDetailsTool $invoiceDetails,
         private readonly ExplainValidationTool $explainValidation,
@@ -105,6 +149,7 @@ class AiAssistantService
         private readonly GetDocumentErrorsTool $documentErrors,
         private readonly GetPendingDocumentsTool $pendingDocuments,
         private readonly GetBillingSummaryTool $billingSummary,
+        private readonly GetRankingTool $ranking,
     ) {}
 
     /**
@@ -120,6 +165,7 @@ class AiAssistantService
         $resourceId = isset($payload['resource_id']) ? (int) $payload['resource_id'] : null;
         $context = $this->contextBuilder->build($user, $screen, $resourceType, $resourceId);
         $conversation = $this->conversationFor($user, $payload, $context, $message);
+        $memory = ConversationMemory::fromArray($conversation->conversation_memory);
 
         $this->storeMessage($conversation, 'user', $message, [
             'screen' => $screen,
@@ -127,7 +173,7 @@ class AiAssistantService
             'resource_id' => $resourceId,
         ]);
 
-        $toolResults = $this->toolResults($user, $message, $context);
+        $toolResults = $this->toolResults($user, $message, $context, $memory);
         $criticalActions = $this->criticalActions($user, $message, $context);
         $status = 'resolved';
         $errorMessage = null;
@@ -182,6 +228,7 @@ class AiAssistantService
         ]);
 
         $latencyMs = (int) round((microtime(true) - $started) * 1000);
+        $newMemory = $this->memoryFromToolResults($toolResults, $memory);
 
         $conversation->forceFill([
             'status' => $status === 'resolved' ? 'resolved' : 'open',
@@ -190,6 +237,7 @@ class AiAssistantService
             'screen_context' => $this->contextSummary($context),
             'completed_at' => now(),
             'messages' => $this->appendLegacyMessages($conversation, $message, $response->message),
+            'conversation_memory' => $newMemory->toArray(),
         ])->save();
 
         $this->storeMetric($user, $conversation, $assistantMessage, $screen, $status, $latencyMs, $toolResults, $errorMessage);
@@ -245,17 +293,76 @@ class AiAssistantService
     }
 
     /**
-     * Deterministic intent resolution. Priority, in order: (1) an explicit
-     * document number/customer reference the user typed; (2) the current
-     * screen's local context (invoice/credit_note/customer already
-     * loaded); (3) a global, company-wide search. Every branch below maps
-     * to one or more of the example queries in the IA 2.0-B brief — kept
-     * as small, independent `if`s rather than a generic rule engine, per
-     * the explicit "no excessively complex system" instruction.
+     * Thin wrapper over three confidence tiers, each strictly weaker than
+     * the last:
+     *
+     *  1. canonicalized message, as typed — if this resolves to a real
+     *     tool call, it is used as-is, uncorrected.
+     *  2. safe typo correction (distance <= 1, unique vocabulary match)
+     *     — only tried once tier 1 found nothing, and only its result is
+     *     used if that retry actually resolved to something.
+     *  3. low-confidence typo *suggestion* (distance == 2) — only reached
+     *     once tiers 1 and 2 have BOTH come back empty. Crucially, this
+     *     tier never dispatches a tool call with the guessed word: a
+     *     message this garbled must never come back looking like "I
+     *     understood you and found zero results" (that's a real,
+     *     dispatched query's answer, tier 1/2's job) when what actually
+     *     happened is "I'm not confident what word you meant" (this
+     *     tier's job) — so it returns a `clarification_needed` tool
+     *     result instead, same shape LocalFallbackProvider/OpenAiProvider
+     *     already render for a demonstrative reference with no memory.
+     *
+     * If none of the three tiers find anything, the (empty) tier-1
+     * result is returned unchanged — the existing, honest "I don't
+     * understand, here's what you can ask me" fallback.
      *
      * @return array<int, array<string, mixed>>
      */
-    private function toolResults(User $user, string $message, array $context): array
+    private function toolResults(User $user, string $message, array $context, ConversationMemory $memory): array
+    {
+        $canonical = $this->normalizer->canonicalize($message);
+        $results = $this->resolveToolResults($user, $canonical, $context, $memory);
+
+        if ($results !== []) {
+            return $results;
+        }
+
+        $corrected = $this->normalizer->correctVocabulary($canonical);
+
+        if ($corrected !== null) {
+            $retried = $this->resolveToolResults($user, $corrected, $context, $memory);
+
+            if ($retried !== []) {
+                return $retried;
+            }
+        }
+
+        $suggestion = $this->normalizer->suggestVocabularyCorrection($canonical);
+
+        if ($suggestion !== null) {
+            return [[
+                'tool' => 'clarification_needed',
+                'reason' => "No estoy del todo seguro de haber entendido una palabra de tu mensaje. ¿Te refieres a «{$suggestion}»? Intenta de nuevo con esa palabra para que pueda ayudarte con certeza.",
+            ]];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Deterministic intent resolution. Priority, in order: (1) an explicit
+     * document number/customer reference the user typed this turn; (2)
+     * the current screen's local context (invoice/credit_note/customer
+     * already loaded); (3) a conversational reference to the previous
+     * turn's entity/customer/results (ConversationMemory), only when the
+     * message contains an explicit referencing phrase; (4) a global,
+     * company-wide search. Kept as small, independent `if`s rather than
+     * a generic rule engine or NLU model — see the IA 2.0-C report for
+     * why a deterministic dispatcher was chosen over function-calling.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolveToolResults(User $user, string $message, array $context, ConversationMemory $memory): array
     {
         $lower = Str::lower($message);
         $invoiceId = data_get($context, 'invoice.id');
@@ -263,13 +370,27 @@ class AiAssistantService
         $customerId = data_get($context, 'customer.id');
         $invoiceNumber = $this->extractDocumentNumber($message, 'FV');
         $creditNoteNumber = $this->extractDocumentNumber($message, 'NC');
-        $customerDocumentsTerm = $this->extractCustomerDocumentsTerm($message);
+        $dateRange = $this->dateRangeResolver->resolve($lower);
+        // Any way the user named a customer explicitly THIS turn, whether
+        // "facturas de kata" or "¿cuántas facturas tiene kata?" — both
+        // phrasings are handled by the same combined-filter resolver.
+        $customerTerm = $this->extractCustomerDocumentsTerm($message)
+            ?? $this->extractAfter($message, ['tiene', 'tienen', 'tuvo', 'tuvieron']);
         $isCountQuestion = $this->containsWholeWord($lower, self::COUNT_TRIGGER_WORDS)
             && $this->containsWholeWord($lower, self::COUNT_SUBJECT_WORDS);
-        // "¿Cuántas facturas TIENE kata?" — an explicit customer reference
-        // inside a count question always wins over a company-wide count,
-        // same explicit-reference-first priority as everywhere else here.
-        $countCustomerTerm = $isCountQuestion ? $this->extractAfter($message, ['tiene', 'tienen']) : null;
+        $hasReferenceTrigger = Str::contains($lower, self::INVOICE_REFERENCE_TRIGGERS) || Str::contains($lower, self::REFERENCE_WORDS);
+        $hasSuperlativeTrigger = Str::contains($lower, self::SUPERLATIVE_MAX_WORDS) || Str::contains($lower, self::SUPERLATIVE_MIN_WORDS);
+
+        // An explicit FV-number always wins; otherwise, a demonstrative
+        // reference ("esa factura", "la anuló") falls back to the invoice
+        // remembered from the previous turn — never guessed when memory
+        // is empty or stale (see hasFreshEntity()).
+        $referencedNumber = $invoiceNumber;
+
+        if ($referencedNumber === null && Str::contains($lower, self::INVOICE_REFERENCE_TRIGGERS) && $memory->hasFreshEntity('invoice')) {
+            $referencedNumber = $memory->entityNumber;
+        }
+
         $results = [];
 
         // --- Local-context explanations (unchanged from earlier phases) ---
@@ -282,13 +403,13 @@ class AiAssistantService
             $results[] = $this->invoiceDetails->handle($user, (int) $invoiceId);
         }
 
-        // --- Traceability: explicit FV-number always wins over local context ---
+        // --- Traceability: explicit/remembered number wins over local context ---
 
-        if (($invoiceId || $invoiceNumber) && Str::contains($lower, ['trazabilidad', 'qué pasó', 'que paso', 'historial', 'resume la trazabilidad'])) {
+        if (($invoiceId || $referencedNumber) && Str::contains($lower, ['trazabilidad', 'qué pasó', 'que paso', 'historial', 'resume la trazabilidad'])) {
             $results[] = $this->traceability->handle(
                 $user,
-                $invoiceNumber ? null : (int) $invoiceId,
-                $invoiceNumber,
+                $referencedNumber ? null : (int) $invoiceId,
+                $referencedNumber,
             );
         }
 
@@ -296,34 +417,75 @@ class AiAssistantService
 
         if ($invoiceNumber !== null) {
             $results[] = $this->findInvoice->handle($user, $invoiceNumber);
-        } elseif (Str::contains($lower, 'factura') && $invoiceId && $customerDocumentsTerm === null) {
+        } elseif (Str::contains($lower, 'factura') && $invoiceId && $customerTerm === null) {
             $results[] = $this->invoiceDetails->handle($user, (int) $invoiceId);
-        } elseif ($customerDocumentsTerm === null && $countCustomerTerm === null && Str::contains($lower, 'facturas')) {
-            // Plural "facturas" specifically — a singular, demonstrative
-            // phrase like "esta factura está parcialmente acreditada" is a
-            // question about one already-known document (handled by the
-            // local-context branches above), never a global list request.
-            // A "¿cuántas tiene X?" count question is handled separately
-            // below, scoped to that customer — skip the unscoped list here.
-            $invoiceStatus = $this->detectStatus($lower, self::INVOICE_STATUS_WORDS);
-            $period = $this->detectPeriod($lower);
+        } elseif ($customerTerm === null
+            && ! Str::contains($lower, self::INVOICE_REFERENCE_TRIGGERS)
+            && ! Str::contains($lower, ['pendiente', 'pendientes'])
+        ) {
+            // A singular, demonstrative phrase like "esta factura está
+            // parcialmente acreditada" is a question about one
+            // already-known document (handled by the local-context
+            // branches above), never a global list request. "Borradores
+            // PENDIENTES" is its own, more specific branch below (which
+            // also covers credit notes) — skip the unscoped status
+            // search here so the two don't both answer the same message.
+            $invoiceStatus = $this->detectStatusConfident($message, $lower, self::INVOICE_STATUS_WORDS);
 
-            if ($invoiceStatus !== null || $period !== null) {
+            // A date phrase alone ("facturas este mes", no status word
+            // at all) legitimately means "every status, that period" —
+            // but if there's ALSO a word here that's a plausible-but-
+            // unsafe typo of a status word (e.g. "barradires", distance
+            // 2 from "borradores"), silently dropping it and returning
+            // every invoice that period would answer a different,
+            // broader question than the one actually asked while
+            // looking just as confident. Ask instead of guessing.
+            if ($invoiceStatus === null && $dateRange !== null) {
+                $ambiguousStatusWord = $this->ambiguousStatusWord($message, self::INVOICE_STATUS_WORDS);
+
+                if ($ambiguousStatusWord !== null) {
+                    return [[
+                        'tool' => 'clarification_needed',
+                        'reason' => "No estoy del todo seguro de haber entendido una palabra de tu mensaje. ¿Te refieres a los «{$ambiguousStatusWord}»? Intenta de nuevo con esa palabra para que pueda ayudarte con certeza.",
+                    ]];
+                }
+            }
+
+            if ($invoiceStatus !== null || $dateRange !== null) {
                 $filters = ['status' => $invoiceStatus];
 
-                if ($period !== null) {
-                    $range = ReportDateRange::fromFilters(['date_range' => $period]);
-                    $filters['date_from'] = $range->start->toDateTimeString();
-                    $filters['date_to'] = $range->end->toDateTimeString();
+                if ($dateRange !== null) {
+                    $filters['date_from'] = $dateRange->start->toDateTimeString();
+                    $filters['date_to'] = $dateRange->end->toDateTimeString();
                 }
 
-                $results[] = $this->findInvoice->handle($user, null, array_filter($filters), 10);
+                $memoryCustomerId = null;
+                $memoryCustomerName = null;
+
+                // "¿Cuáles están anuladas?" right after "facturas de
+                // kata" — no customer named this turn, but an explicit
+                // referencing word plus a fresh remembered customer
+                // means "of the same customer as before", not everyone.
+                if ($invoiceStatus !== null && Str::contains($lower, self::REFERENCE_WORDS) && $memory->hasFreshCustomer()) {
+                    $filters['customer_id'] = $memory->customerId;
+                    $memoryCustomerId = $memory->customerId;
+                    $memoryCustomerName = $memory->customerName;
+                }
+
+                $result = $this->findInvoice->handle($user, null, array_filter($filters), 10);
+
+                if ($memoryCustomerId !== null) {
+                    $result['_customer_id'] = $memoryCustomerId;
+                    $result['_customer_name'] = $memoryCustomerName;
+                }
+
+                $results[] = $result;
             }
         }
 
         // --- Customer / product free search ---
 
-        if (Str::contains($lower, ['cliente', 'clientes']) && $customerDocumentsTerm === null) {
+        if (Str::contains($lower, ['cliente', 'clientes']) && $customerTerm === null) {
             $term = $this->cleanResidualTerm($this->extractAfter($message, ['cliente', 'clientes']) ?? '');
             $results[] = $this->findCustomer->handle($user, $term);
         }
@@ -336,42 +498,44 @@ class AiAssistantService
             $results[] = $this->findProduct->handle($user, $term, $filters);
         }
 
+        if ($hasSuperlativeTrigger) {
+            $direction = Str::contains($lower, self::SUPERLATIVE_MAX_WORDS) ? 'desc' : 'asc';
+            $superlative = $this->resolveSuperlativeFromMemory($user, $memory, $direction);
+
+            if ($superlative !== null) {
+                $results[] = $superlative;
+            }
+        }
+
         // --- Credit notes: single lookup > by origin invoice > by customer > general ---
 
         if ($creditNoteId && Str::contains($lower, ['nota crédito', 'nota credito', 'acredit'])) {
             $results[] = $this->creditNoteDetails->handle($user, (int) $creditNoteId);
         } elseif ($creditNoteNumber !== null) {
             $results[] = $this->creditNoteDetails->handle($user, number: $creditNoteNumber);
-        } elseif ($invoiceNumber !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
-            $results[] = $this->searchCreditNotes->handle($user, ['invoice_number' => $invoiceNumber]);
-        } elseif ($customerDocumentsTerm !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
-            // Already covered by the customer_documents branch below,
-            // which returns both invoices and credit notes together.
-        } elseif ($countCustomerTerm !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
-            // "¿Cuántas notas crédito tiene kata?" — handled by the
-            // customer-scoped count branch below, not an unscoped search.
+        } elseif ($referencedNumber !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
+            $results[] = $this->searchCreditNotes->handle($user, ['invoice_number' => $referencedNumber]);
+        } elseif ($customerTerm !== null && Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
+            // Covered by the customer-scoped branch below, which returns
+            // the right document type depending on what was asked.
         } elseif (Str::contains($lower, self::CREDIT_NOTE_WORDS)) {
             $status = $this->detectStatus($lower, self::CREDIT_NOTE_STATUS_WORDS);
             $results[] = $this->searchCreditNotes->handle($user, array_filter(['status' => $status]));
         }
 
-        // --- "Facturas/notas crédito de <cliente>" (global) or the
-        // customer-detail quick action (local context by id) ---
+        // --- "Facturas/notas crédito/documentos de|tiene|tuvo <cliente>"
+        // (global, count or list, with optional status/date filters) or
+        // the customer-detail quick action (local context by id) ---
 
         if ($customerId && Str::contains($lower, ['documento', 'documentos', 'factura', 'facturas', ...self::CREDIT_NOTE_WORDS])) {
             $results[] = $this->customerInvoices->handle($user, customerId: (int) $customerId);
-        } elseif ($customerDocumentsTerm !== null) {
-            $results[] = $this->customerInvoices->handle($user, term: $customerDocumentsTerm);
+        } elseif ($customerTerm !== null) {
+            $results[] = $this->resolveCustomerScopedDocuments($user, $customerTerm, $lower, $dateRange);
         }
 
-        // --- Global counts / errors / pending / billing — never tied to a screen ---
+        // --- Global counts / errors / pending / billing / ranking — never tied to a screen ---
 
-        // Word-boundary match for the subject only: a plain substring check
-        // would make "facturado"/"facturación" (billing questions) falsely
-        // trigger a counts answer just because they contain "factura".
-        if ($countCustomerTerm !== null) {
-            $results[] = $this->countForCustomer($user, $countCustomerTerm, $lower);
-        } elseif ($isCountQuestion) {
+        if ($isCountQuestion && $customerTerm === null) {
             $results[] = $this->documentCounts->handle($user);
         }
 
@@ -384,14 +548,31 @@ class AiAssistantService
         }
 
         if (Str::contains($lower, self::BILLING_KEYWORDS)) {
-            $period = $this->detectPeriod($lower) ?? ReportDateRange::DEFAULT;
-            $results[] = $this->billingSummary->handle($user, $period);
+            $results[] = $this->billingSummary->handle($user, $dateRange);
         }
 
-        return collect($results)
+        if (Str::contains($lower, self::RANKING_CUSTOMER_WORDS)) {
+            $results[] = $this->ranking->handle($user, 'customers', $dateRange);
+        } elseif (Str::contains($lower, self::RANKING_PRODUCT_WORDS)) {
+            $results[] = $this->ranking->handle($user, 'products', $dateRange);
+        }
+
+        $results = collect($results)
             ->unique(fn (array $result): string => ($result['tool'] ?? 'unknown').':'.md5(json_encode($result)))
             ->values()
             ->all();
+
+        // Never invent an entity: if the message clearly referenced
+        // "that" invoice/result but nothing above could resolve it (no
+        // fresh memory), ask instead of guessing.
+        if ($results === [] && ($hasReferenceTrigger || $hasSuperlativeTrigger)) {
+            return [[
+                'tool' => 'clarification_needed',
+                'reason' => 'No tengo claro a qué te refieres. ¿Puedes darme el número de factura, el nombre del cliente o repetir la búsqueda?',
+            ]];
+        }
+
+        return $results;
     }
 
     /**
@@ -426,8 +607,8 @@ class AiAssistantService
             }
         }
 
-        // IA 2.0-B is read-only: creation/write intents are acknowledged
-        // but never prepared or executed — that lands in a later phase.
+        // IA 2.0-C is still read-only: creation/write intents are
+        // acknowledged but never prepared or executed.
         if (Str::contains($lower, ['crea una factura', 'crear una factura', 'crea un cliente', 'crea un producto', 'crea una nota crédito', 'crear una nota crédito'])) {
             return [[
                 'requires_confirmation' => false,
@@ -444,15 +625,16 @@ class AiAssistantService
     }
 
     /**
-     * "¿Cuántas facturas/notas crédito/documentos tiene <cliente>?" — reuses
-     * GetCustomerInvoicesTool::resolveCustomer() for the exact same
-     * ambiguity-safe name resolution used elsewhere (never guesses between
-     * two customers with the same name), then delegates the actual
-     * counting to the same search tools used for "muéstrame las facturas
-     * de X" so the number is always a real total_matches, never invented
-     * or recalculated separately.
+     * Shared resolver for every "<documento(s)> de/tiene/tuvo <cliente>"
+     * phrasing — count questions and plain list questions alike. Resolves
+     * the customer once via GetCustomerInvoicesTool::resolveCustomer()
+     * (never guesses between two customers with the same name), then
+     * combines whatever status/date filters were detected in the same
+     * message and delegates to the same search tools used everywhere
+     * else, so the number/list is always a real total_matches, never
+     * invented or recalculated separately.
      */
-    private function countForCustomer(User $user, string $term, string $lower): array
+    private function resolveCustomerScopedDocuments(User $user, string $term, string $lower, ?ReportDateRange $dateRange): array
     {
         $resolution = $this->customerInvoices->resolveCustomer($user, $term);
 
@@ -465,22 +647,73 @@ class AiAssistantService
             ];
         }
 
-        $customerId = $resolution['customer']->id;
+        $customer = $resolution['customer'];
+        $tag = ['_customer_id' => $customer->id, '_customer_name' => $customer->name];
         $wantsCreditNotes = Str::contains($lower, self::CREDIT_NOTE_WORDS);
         $wantsInvoices = Str::contains($lower, ['factura', 'facturas']);
 
         if ($wantsCreditNotes && ! $wantsInvoices) {
-            return $this->searchCreditNotes->handle($user, ['customer_id' => $customerId]);
+            $creditStatus = $this->detectStatus($lower, self::CREDIT_NOTE_STATUS_WORDS);
+
+            return $this->searchCreditNotes->handle($user, array_filter(['customer_id' => $customer->id, 'status' => $creditStatus])) + $tag;
         }
 
         if ($wantsInvoices && ! $wantsCreditNotes) {
             $status = $this->detectStatus($lower, self::INVOICE_STATUS_WORDS);
+            $filters = ['customer_id' => $customer->id, 'status' => $status];
 
-            return $this->findInvoice->handle($user, null, array_filter(['customer_id' => $customerId, 'status' => $status]), 10);
+            if ($dateRange !== null) {
+                $filters['date_from'] = $dateRange->start->toDateTimeString();
+                $filters['date_to'] = $dateRange->end->toDateTimeString();
+            }
+
+            return $this->findInvoice->handle($user, null, array_filter($filters), 10) + $tag;
         }
 
-        // Generic "documentos" (or both mentioned at once): combined count.
-        return $this->customerInvoices->handle($user, customerId: $customerId);
+        // Generic "documentos" (or both mentioned at once): combined view.
+        return $this->customerInvoices->handle($user, customerId: $customer->id);
+    }
+
+    /**
+     * "¿Cuál es el más caro/barato?" right after a product search — never
+     * re-uses cached data: re-fetches those exact ids, fresh, re-checking
+     * company_id and the view policy per item, same as any other tool.
+     */
+    private function resolveSuperlativeFromMemory(User $user, ConversationMemory $memory, string $direction): ?array
+    {
+        $ids = $memory->freshResultIds('product');
+
+        if ($ids === []) {
+            return null;
+        }
+
+        $products = ProductService::withoutGlobalScopes()
+            ->with('taxes')
+            ->where('company_id', $user->company_id)
+            ->whereIn('id', $ids)
+            ->get()
+            ->filter(fn (ProductService $product): bool => Gate::forUser($user)->allows('view', $product));
+
+        if ($products->isEmpty()) {
+            return null;
+        }
+
+        $top = $direction === 'desc'
+            ? $products->sortByDesc(fn (ProductService $product): float => (float) $product->price)->first()
+            : $products->sortBy(fn (ProductService $product): float => (float) $product->price)->first();
+
+        return [
+            'tool' => 'find_product',
+            'total_matches' => 1,
+            'matches' => [[
+                'id' => $top->id,
+                'sku' => $top->sku,
+                'name' => $top->name,
+                'price' => (float) $top->price,
+                'status' => $top->status->label(),
+                'taxes' => $top->taxes->map(fn ($tax): string => $tax->code.' '.$tax->rate.'%')->implode(', ') ?: 'Sin impuestos asociados',
+            ]],
+        ];
     }
 
     private function extractDocumentNumber(string $message, string $prefix): ?string
@@ -491,16 +724,16 @@ class AiAssistantService
     }
 
     /**
-     * "facturas de kata" / "notas crédito de kata" / "documentos de kata" —
-     * matched as one literal pattern (rather than a generic anchor) since
-     * the anchor itself is a two/three-word phrase, not a single keyword.
+     * "facturas de kata" / "facturas anuladas de kata" / "notas crédito
+     * emitidas de kata" — allows up to 3 words (a status adjective, a
+     * date phrase) between the document noun and "de", lazily, so the
+     * nearest "de" is always the one used. The captured term still runs
+     * through cleanResidualTerm() to strip a trailing date phrase.
      */
     private function extractCustomerDocumentsTerm(string $message): ?string
     {
-        if (preg_match('/\b(?:facturas?|notas?\s+cr[eé]dito|documentos?)\s+de\s+(.+)/iu', $message, $matches)) {
-            $term = $this->cleanResidualTerm(trim($matches[1], " \t\n\r\0\x0B.,;:!?¿¡"));
-
-            return $term;
+        if (preg_match('/\b(?:facturas?|notas?\s+cr[eé]dito|documentos?)\b(?:\s+\w+){0,3}?\s+de\s+(.+)/iu', $message, $matches)) {
+            return $this->cleanResidualTerm(trim($matches[1], " \t\n\r\0\x0B.,;:!?¿¡"));
         }
 
         return null;
@@ -533,15 +766,20 @@ class AiAssistantService
 
     /**
      * Strips recognised filter phrases (tax rate, "con", "activo"/
-     * "inactivo") out of a free-text term so a query like "productos con
-     * IVA 19%" doesn't also try to LIKE-match the literal words "con IVA
-     * 19%" against product names — it should become a pure filter search
-     * instead of a doomed-to-fail text search.
+     * "inactivo", a trailing date phrase) out of a free-text term so a
+     * query like "productos con IVA 19%" or "facturas anuladas de kata
+     * este mes" doesn't also try to LIKE-match those literal words
+     * against a customer/product name.
      */
     private function cleanResidualTerm(string $term): ?string
     {
         $term = preg_replace('/iva\s*\d+(?:[.,]\d+)?\s*%?/iu', '', $term) ?? $term;
         $term = preg_replace('/\b(con|activo|activos|inactivo|inactivos)\b/iu', '', $term) ?? $term;
+        $term = preg_replace(
+            '/\b(este mes|esta semana|últimos?\s*7\s*días|ultimos?\s*7\s*dias|últimos?\s*30\s*días|ultimos?\s*30\s*dias|mes pasado|este año|este ano|hoy|ayer)\b/iu',
+            '',
+            $term
+        ) ?? $term;
         $term = trim($term, " \t\n\r\0\x0B.,;:!?¿¡");
 
         return $term !== '' ? $term : null;
@@ -580,21 +818,42 @@ class AiAssistantService
         return null;
     }
 
-    private function detectPeriod(string $lower): ?string
+    /**
+     * Same as detectStatus(), plus one safe fallback: if no status word
+     * matched exactly, retry against a distance<=1 vocabulary correction
+     * of the whole message — e.g. "borradpres" still confidently means
+     * "borradores" even though this word was never dispatched with on
+     * its own (see AssistantMessageNormalizer::correctVocabulary()).
+     *
+     * @param  array<string, \UnitEnum&\BackedEnum>  $map
+     */
+    private function detectStatusConfident(string $message, string $lower, array $map): ?string
     {
-        if (Str::contains($lower, ['este mes', 'del mes', 'mensual'])) {
-            return 'this_month';
+        $exact = $this->detectStatus($lower, $map);
+
+        if ($exact !== null) {
+            return $exact;
         }
 
-        if (Str::contains($lower, ['esta semana', 'últimos 7 días', 'ultimos 7 dias', 'última semana', 'ultima semana'])) {
-            return 'last_7_days';
-        }
+        $corrected = $this->normalizer->correctVocabulary($message);
 
-        if (Str::contains($lower, ['hoy', 'el día de hoy', 'el dia de hoy'])) {
-            return 'today';
-        }
+        return $corrected !== null ? $this->detectStatus(Str::lower($corrected), $map) : null;
+    }
 
-        return null;
+    /**
+     * A distance==2 guess (AssistantMessageNormalizer::
+     * suggestVocabularyCorrection()) that happens to land on one of
+     * THIS status map's own words — used only to decide whether to ask
+     * for clarification instead of silently treating the word as if it
+     * was never there; the guessed word is never dispatched against.
+     *
+     * @param  array<string, \UnitEnum&\BackedEnum>  $map
+     */
+    private function ambiguousStatusWord(string $message, array $map): ?string
+    {
+        $suggestion = $this->normalizer->suggestVocabularyCorrection($message);
+
+        return ($suggestion !== null && array_key_exists($suggestion, $map)) ? $suggestion : null;
     }
 
     private function toolNames(array $toolResults): array
@@ -640,6 +899,127 @@ class AiAssistantService
         $messages[] = ['role' => 'assistant', 'content' => $assistantMessage, 'created_at' => now()->toDateTimeString()];
 
         return array_slice($messages, -20);
+    }
+
+    /**
+     * Builds the small structured snapshot the NEXT message will read to
+     * resolve references like "esa factura" or "cuáles". A turn that
+     * didn't touch any specific entity (e.g. a billing/count question)
+     * keeps the previous memory alive rather than wiping it — only a new,
+     * concrete, entity-bearing result ever replaces it.
+     */
+    private function memoryFromToolResults(array $toolResults, ConversationMemory $previous): ConversationMemory
+    {
+        foreach ($toolResults as $result) {
+            $built = $this->memoryFromSingleResult($result);
+
+            if ($built !== null) {
+                return $built;
+            }
+        }
+
+        return $previous;
+    }
+
+    private function memoryFromSingleResult(array $result): ?ConversationMemory
+    {
+        return match ($result['tool'] ?? null) {
+            'find_invoice' => $this->memoryFromInvoiceMatches($result),
+            'invoice_details' => isset($result['invoice']['id']) ? ConversationMemory::record(
+                entityType: 'invoice',
+                entityId: $result['invoice']['id'],
+                entityNumber: $result['invoice']['number'] ?? null,
+                queryType: 'invoice_details',
+            ) : null,
+            'traceability' => ($result['found'] ?? false) ? ConversationMemory::record(
+                entityType: 'invoice',
+                entityNumber: $result['invoice_number'] ?? null,
+                queryType: 'traceability',
+            ) : null,
+            'credit_note_details' => ($result['found'] ?? false) ? ConversationMemory::record(
+                entityType: 'credit_note',
+                entityId: $result['credit_note']['id'] ?? null,
+                entityNumber: $result['credit_note']['number'] ?? null,
+                queryType: 'credit_note_details',
+            ) : null,
+            'find_product' => $this->memoryFromProductMatches($result),
+            'find_customer' => $this->memoryFromCustomerMatches($result),
+            'customer_documents' => $this->memoryFromCustomerDocuments($result),
+            default => null,
+        };
+    }
+
+    private function memoryFromInvoiceMatches(array $result): ?ConversationMemory
+    {
+        $matches = $result['matches'] ?? [];
+
+        if ($matches === []) {
+            return null;
+        }
+
+        $resultIds = array_column($matches, 'id');
+        $customerId = $result['_customer_id'] ?? null;
+        $customerName = $result['_customer_name'] ?? null;
+
+        return ConversationMemory::record(
+            entityType: 'invoice',
+            entityId: count($matches) === 1 ? $matches[0]['id'] : null,
+            entityNumber: count($matches) === 1 ? $matches[0]['number'] : null,
+            customerId: $customerId,
+            customerName: $customerName,
+            queryType: 'invoice_search',
+            resultIds: $resultIds,
+        );
+    }
+
+    private function memoryFromProductMatches(array $result): ?ConversationMemory
+    {
+        $matches = $result['matches'] ?? [];
+
+        if ($matches === []) {
+            return null;
+        }
+
+        return ConversationMemory::record(
+            entityType: 'product',
+            entityId: count($matches) === 1 ? $matches[0]['id'] : null,
+            queryType: 'product_search',
+            resultIds: array_column($matches, 'id'),
+        );
+    }
+
+    private function memoryFromCustomerMatches(array $result): ?ConversationMemory
+    {
+        $matches = $result['matches'] ?? [];
+
+        if (count($matches) !== 1) {
+            return null;
+        }
+
+        return ConversationMemory::record(
+            entityType: 'customer',
+            customerId: $matches[0]['id'],
+            customerName: $matches[0]['name'],
+            queryType: 'customer_search',
+        );
+    }
+
+    private function memoryFromCustomerDocuments(array $result): ?ConversationMemory
+    {
+        if (! ($result['found'] ?? false)) {
+            return null;
+        }
+
+        $invoiceIds = array_column($result['invoices'] ?? [], 'id');
+        $creditNoteIds = array_column($result['credit_notes'] ?? [], 'id');
+
+        return ConversationMemory::record(
+            entityType: 'customer',
+            customerId: $result['customer']['id'] ?? null,
+            customerName: $result['customer']['name'] ?? null,
+            queryType: 'customer_documents',
+            resultIds: $invoiceIds !== [] ? $invoiceIds : $creditNoteIds,
+        );
     }
 
     private function storeMetric(

@@ -489,9 +489,12 @@ class AssistantPanel {
         this.resourceId = root.dataset.resourceId || null;
         this.conversationId = null;
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        this.expanded = false;
+        this.minimized = false;
 
         this.bindQuickActions();
         this.bindForm();
+        this.bindHeaderControls();
     }
 
     bindQuickActions() {
@@ -505,8 +508,46 @@ class AssistantPanel {
                     return;
                 }
 
+                if (type === 'focus') {
+                    // Pre-fills the input (e.g. "Busca el cliente ") and
+                    // lets the user type the actual name — there is no
+                    // fixed message to send for a bare "search" action.
+                    this.inputEl.value = value;
+                    this.inputEl.focus();
+                    this.inputEl.setSelectionRange(value.length, value.length);
+
+                    return;
+                }
+
                 this.sendMessage(value);
             });
+        });
+    }
+
+    bindHeaderControls() {
+        const expandButton = this.root.querySelector('[data-assistant-expand-toggle]');
+        const minimizeButton = this.root.querySelector('[data-assistant-minimize-toggle]');
+        const body = this.root.querySelector('[data-assistant-body]');
+        const expandedClasses = ['fixed', 'inset-4', 'md:inset-x-10', 'md:inset-y-10', 'z-50', 'shadow-2xl', 'max-w-3xl', 'mx-auto', 'w-auto'];
+
+        expandButton?.addEventListener('click', () => {
+            this.expanded = !this.expanded;
+            expandedClasses.forEach((className) => this.root.classList.toggle(className, this.expanded));
+
+            const icon = expandButton.querySelector('.material-symbols-outlined');
+            icon.textContent = this.expanded ? 'close_fullscreen' : 'open_in_full';
+            expandButton.setAttribute('aria-label', this.expanded ? 'Contraer asistente' : 'Expandir asistente');
+            expandButton.setAttribute('title', expandButton.getAttribute('aria-label'));
+        });
+
+        minimizeButton?.addEventListener('click', () => {
+            this.minimized = !this.minimized;
+            body?.classList.toggle('hidden', this.minimized);
+
+            const icon = minimizeButton.querySelector('.material-symbols-outlined');
+            icon.textContent = this.minimized ? 'add' : 'remove';
+            minimizeButton.setAttribute('aria-label', this.minimized ? 'Reabrir asistente' : 'Minimizar asistente');
+            minimizeButton.setAttribute('title', minimizeButton.getAttribute('aria-label'));
         });
     }
 

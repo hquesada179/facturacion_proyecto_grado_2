@@ -12,6 +12,13 @@ class LocalFallbackProvider implements AiProviderInterface
     {
         $prefix = 'El proveedor de IA externo no está configurado. Puedo seguir ayudándote con información estructurada del sistema.';
 
+        // Never invent an entity: this only ever appears alone, when the
+        // dispatcher found a referencing phrase ("esa factura", "cuáles")
+        // but no fresh, resolvable memory to back it.
+        if ($tool = $this->firstTool($toolResults, 'clarification_needed')) {
+            return new AssistantResponse($tool['reason'] ?? '¿Puedes darme más detalles?');
+        }
+
         if ($tool = $this->firstTool($toolResults, 'explain_validation')) {
             return new AssistantResponse($prefix."\n\n".$this->validationMessage($tool));
         }
@@ -67,6 +74,10 @@ class LocalFallbackProvider implements AiProviderInterface
 
         if ($tool = $this->firstTool($toolResults, 'pending_documents')) {
             return new AssistantResponse($prefix."\n\n".$this->documentListMessage($tool, 'No encontré documentos pendientes.', 'Documentos pendientes'));
+        }
+
+        if ($tool = $this->firstTool($toolResults, 'ranking')) {
+            return new AssistantResponse($prefix."\n\n".$this->rankingMessage($tool));
         }
 
         return new AssistantResponse(
@@ -356,5 +367,26 @@ class LocalFallbackProvider implements AiProviderInterface
         $noun = $total === 1 ? 'documento' : 'documentos';
 
         return "{$title}: {$total} {$noun}.";
+    }
+
+    private function rankingMessage(array $tool): string
+    {
+        if (! ($tool['allowed'] ?? false)) {
+            return 'Tu rol no tiene permiso para consultar este ranking.';
+        }
+
+        $items = $tool['items'] ?? [];
+
+        if (empty($items)) {
+            return 'No encontré suficiente información para calcular ese ranking en '.($tool['period_label'] ?? 'el periodo consultado').'.';
+        }
+
+        $isProducts = $tool['type'] === 'products';
+        $top = $items[0];
+        $label = $isProducts ? ($top['description'] ?? $top['code'] ?? 'Producto') : ($top['customer'] ?? 'Cliente');
+        $total = ReportFormatter::money($isProducts ? ($top['invoiced_total'] ?? 0) : ($top['net_total'] ?? $top['invoiced_total'] ?? 0));
+        $noun = $isProducts ? 'producto' : 'cliente';
+
+        return "En {$tool['period_label']}, el {$noun} con más facturación es {$label} ({$total}).";
     }
 }
