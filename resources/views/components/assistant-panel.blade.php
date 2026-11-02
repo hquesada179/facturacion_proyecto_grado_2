@@ -80,7 +80,7 @@
     data-confirm-url="{{ route('assistant.confirm') }}"
     data-cancel-url="{{ route('assistant.cancel') }}"
     data-feedback-url-template="{{ route('assistant.feedback', ['assistantMessage' => '__ID__']) }}"
-    class="surface-card p-lg {{ $mode === 'full' ? 'h-full min-h-[640px]' : 'min-h-[520px]' }} flex flex-col relative overflow-hidden"
+    class="surface-card assistant-panel-accent p-lg {{ $mode === 'full' ? 'h-full min-h-[640px]' : 'min-h-[520px]' }} flex flex-col relative overflow-hidden"
 >
     <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none" data-assistant-decoration></div>
 
@@ -148,19 +148,19 @@
             Pensando...
         </div>
 
-        <form class="relative pt-md border-t border-surface-variant" data-assistant-form>
+        <form class="relative pt-md border-t border-outline-variant/40" data-assistant-form>
             <label class="sr-only" for="{{ $panelId }}-input">Pregunta al asistente</label>
             <div class="relative w-full">
                 <input
                     id="{{ $panelId }}-input"
-                    class="w-full pl-4 pr-10 py-2 bg-surface border border-outline-variant rounded-full font-body-sm text-body-sm focus:border-primary focus:ring focus:ring-primary/10 transition-all"
+                    class="w-full pl-4 pr-12 py-2 bg-surface border border-outline-variant rounded-full font-body-sm text-body-sm focus:border-primary focus:ring focus:ring-primary/10 transition-all"
                     placeholder="Pregúntale a la IA..."
                     type="text"
                     autocomplete="off"
                     data-assistant-input
                 >
-                <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary p-1 rounded-full hover:bg-surface-container-highest transition-colors" type="submit" aria-label="Enviar">
-                    <span class="material-symbols-outlined text-xl">send</span>
+                <button class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-full hover:bg-primary-container transition-colors" type="submit" aria-label="Enviar">
+                    <span class="material-symbols-outlined text-lg">send</span>
                 </button>
             </div>
         </form>

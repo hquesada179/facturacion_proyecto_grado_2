@@ -1,6 +1,7 @@
 import { initAssistantPanels } from './assistant.js';
 import { initNotificationCenter } from './notifications.js';
 import { initThemeToggle } from './theme.js';
+import { initSidebarCollapse } from './sidebar.js';
 import { initLandingNav, initLandingReveals, initLandingTilt } from './landing.js';
 
 // Progressive enhancement flag for the public landing's scroll-reveal
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAssistantPanels();
     initNotificationCenter();
     initThemeToggle();
+    initSidebarCollapse();
     initLandingReveals();
     initLandingNav();
     initLandingTilt();

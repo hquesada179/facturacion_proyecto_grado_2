@@ -899,7 +899,7 @@ class AssistantPanel {
 
     appendUserMessage(text) {
         const bubble = document.createElement('div');
-        bubble.className = 'ml-auto max-w-[85%] bg-primary text-on-primary rounded-lg px-md py-sm';
+        bubble.className = 'ml-auto max-w-[85%] bg-primary text-on-primary rounded-lg rounded-br-sm px-md py-sm';
         bubble.textContent = text;
         this.messagesEl.appendChild(bubble);
         this.scrollToBottom();
@@ -907,7 +907,7 @@ class AssistantPanel {
 
     appendAssistantMessage(data) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'max-w-[90%] bg-surface rounded-lg px-md py-sm border border-outline-variant/40';
+        wrapper.className = 'max-w-[90%] bg-surface-container-lowest rounded-lg rounded-bl-sm px-md py-sm border border-outline-variant/40';
 
         const content = renderAssistantMarkdown(data.message);
         content.classList.add('text-on-surface');

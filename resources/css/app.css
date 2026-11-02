@@ -49,20 +49,32 @@
     --text-label-sm--line-height: 16px;
     --text-label-sm--font-weight: 500;
 
-    --color-surface: #f8f9ff;
-    --color-surface-dim: #cbdbf5;
-    --color-surface-bright: #f8f9ff;
+    /* UI/UX 3.0 — warm/off-white light-theme surface ramp, matching the
+       approved Claude mockup's "papel cálido" canvas instead of the
+       previous cool blue-tinted one. Same lightness steps as before
+       (so contrast against --color-on-surface is unaffected), hue
+       shifted from blue toward warm neutral. --color-surface-container
+       -lowest stays pure white on purpose — that's what .surface-card
+       (every card/table/panel) renders on top of, so cards keep reading
+       as crisp white against a slightly warm page background, exactly
+       like the mockup's paper-card-on-paper relationship. Dark theme is
+       untouched: it redefines every one of these same token names
+       separately under :root[data-theme='dark'] below, so none of this
+       ever reaches dark mode. */
+    --color-surface: #faf9f5;
+    --color-surface-dim: #e4dfd1;
+    --color-surface-bright: #faf9f5;
     --color-surface-container-lowest: #ffffff;
-    --color-surface-container-low: #eff4ff;
-    --color-surface-container: #e5eeff;
-    --color-surface-container-high: #dce9ff;
-    --color-surface-container-highest: #d3e4fe;
+    --color-surface-container-low: #f3f1ea;
+    --color-surface-container: #ede9de;
+    --color-surface-container-high: #e5e0d2;
+    --color-surface-container-highest: #dcd5c4;
     --color-on-surface: #0b1c30;
     --color-on-surface-variant: #444651;
     --color-inverse-surface: #213145;
     --color-inverse-on-surface: #eaf1ff;
     --color-outline: #757682;
-    --color-outline-variant: #c5c5d3;
+    --color-outline-variant: #d8d3c6;
     --color-surface-tint: #4059aa;
     --color-primary: #00236f;
     --color-on-primary: #ffffff;
@@ -93,9 +105,9 @@
     --color-tertiary-fixed-dim: #ffb691;
     --color-on-tertiary-fixed: #341100;
     --color-on-tertiary-fixed-variant: #773205;
-    --color-background: #f8f9ff;
+    --color-background: #faf9f5;
     --color-on-background: #0b1c30;
-    --color-surface-variant: #d3e4fe;
+    --color-surface-variant: #dcd5c4;
 
     /* Fiscora brand gold — sampled from the approved logo artwork.
        Reserved for small institutional accents (login, brand marks),
@@ -229,14 +241,53 @@
         transform: translateY(-2px);
     }
 
+    /* First KPI card of the dashboard grid only (see kpi-card.blade.php's
+       `featured` prop, default false — Reports' own kpi-card usages never
+       pass it, so their cards are unaffected). Thin navy accent, gold in
+       dark mode, mirroring the same "slightly distinguished, never a
+       giant hero" treatment approved in the Dashboard V2 mockup. */
+    .kpi-card-featured {
+        border-top: 2.5px solid var(--color-primary);
+    }
+
+    :root[data-theme='dark'] .kpi-card-featured {
+        border-top-color: var(--color-brand-gold);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) .kpi-card-featured {
+            border-top-color: var(--color-brand-gold);
+        }
+    }
+
     /* Sidebar — the only place in the app with a dark (inverse) surface.
        Built entirely from the existing inverse-* tokens already defined
        above for this exact purpose, never a new hue. */
+    /* UI/UX 3.0 — deep navy-to-near-black gradient instead of a flat
+       fill, matching the richer sidebar from the approved Claude mockup
+       (same #040c1f navy-black already used by the login brand panel —
+       a near-black that stays in the navy family, not a neutral
+       charcoal, so the hue never shifts). Serious/corporate: one hue,
+       no bright gradient, no second color introduced. */
     .sidebar-surface {
-        background-color: var(--color-primary);
+        background: linear-gradient(175deg, var(--color-primary) 0%, #042163 55%, #040c1f 100%);
+        position: relative;
+    }
+
+    /* UI/UX 3.0 — the same discreet gold hairline the approved login/
+       dashboard brand panel uses, applied to the real sidebar so the
+       authenticated app reads as the same product. Decorative only —
+       never affects layout/height. */
+    .sidebar-surface::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-brand-gold), color-mix(in srgb, var(--color-brand-gold) 25%, transparent) 70%, transparent);
     }
 
     .sidebar-link {
+        position: relative;
         color: color-mix(in srgb, var(--color-inverse-on-surface) 72%, transparent);
         transition: background-color 0.15s ease, color 0.15s ease;
     }
@@ -247,9 +298,20 @@
     }
 
     .sidebar-link-active {
-        background-color: color-mix(in srgb, var(--color-inverse-primary) 18%, transparent);
+        background-color: color-mix(in srgb, white 10%, transparent);
         color: var(--color-inverse-on-surface);
         font-weight: 600;
+    }
+
+    .sidebar-link-active::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 8px;
+        bottom: 8px;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--color-brand-gold);
     }
 
     .material-symbols-outlined {
@@ -294,6 +356,22 @@
         background: linear-gradient(135deg, #00236f 0%, #4648d4 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+
+    /* UI/UX 3.0 — same thin navy-to-gold accent used by the sidebar/login
+       brand panel, applied to the assistant panel's own card so it reads
+       as integrated into the unified visual system rather than a plain
+       surface-card pasted on top of the page. Decorative only, sits on
+       top of the existing data-assistant-decoration blur (z-index default
+       stacking order already puts a later sibling above it). */
+    .assistant-panel-accent::after {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-brand-gold));
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        pointer-events: none;
     }
 
     /* Small, consistent hover/press feedback for icon-only buttons
@@ -395,6 +473,46 @@
 
 [data-assistant-panel][data-minimized='true'] [data-assistant-decoration] {
     display: none;
+}
+
+/* ============================================================
+   SIDEBAR COLLAPSE (UI/UX 3.1) — deliberately left OUTSIDE any @layer,
+   same reasoning as the "Assistant minimize fix" above: these rules
+   must beat the sidebar's own `w-72 md:w-64` and the content column's
+   `md:ml-64`, which are Tailwind utilities living in `@layer utilities`
+   — a rule inside `@layer components` can never win that fight
+   regardless of selector specificity, because cascade layers resolve
+   by layer first. Desktop/tablet only (min-width: 768px); mobile's
+   off-canvas drawer ([data-sidebar-open], defined above inside
+   @layer components) is a completely separate mechanism and is never
+   touched by [data-sidebar-collapsed] — resizing down to mobile with
+   the sidebar collapsed still shows the full drawer with labels. */
+@media (min-width: 768px) {
+    .sidebar-drawer {
+        transition: width 260ms ease;
+    }
+
+    .main-column {
+        transition: margin-left 260ms ease;
+    }
+
+    html[data-sidebar-collapsed] .sidebar-drawer {
+        width: 5.5rem;
+    }
+
+    html[data-sidebar-collapsed] .main-column {
+        margin-left: 5.5rem;
+    }
+
+    html[data-sidebar-collapsed] [data-sidebar-label] {
+        display: none;
+    }
+
+    html[data-sidebar-collapsed] .sidebar-link,
+    html[data-sidebar-collapsed] [data-sidebar-cta],
+    html[data-sidebar-collapsed] [data-sidebar-user-link] {
+        justify-content: center;
+    }
 }
 
 /* ============================================================

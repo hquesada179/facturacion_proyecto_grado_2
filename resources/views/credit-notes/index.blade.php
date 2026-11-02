@@ -10,25 +10,27 @@
         </x-slot:actions>
     </x-page-header>
 
-    <form method="GET" action="{{ route('credit-notes.index') }}" class="mb-lg grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-sm">
-        <label>
-            <span class="sr-only">Buscar</span>
-            <input name="search" value="{{ $search }}" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md" placeholder="Buscar por nota, factura, cliente o motivo">
-        </label>
-        <label>
-            <span class="sr-only">Estado</span>
-            <select name="status" class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm font-body-md text-body-md">
-                <option value="">Todos los estados</option>
-                @foreach (\App\Enums\CreditNoteStatus::cases() as $case)
-                    <option value="{{ $case->value }}" @selected($status === $case->value)>{{ $case->label() }}</option>
-                @endforeach
-            </select>
-        </label>
-        <button class="px-lg py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md flex items-center justify-center gap-sm" type="submit">
-            <span class="material-symbols-outlined text-[18px]">search</span>
-            Filtrar
-        </button>
-    </form>
+    <div class="surface-card p-md mb-lg">
+        <form method="GET" action="{{ route('credit-notes.index') }}" class="grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-sm">
+            <label>
+                <span class="sr-only">Buscar</span>
+                <input name="search" value="{{ $search }}" class="w-full rounded-lg border border-outline-variant bg-surface px-md py-sm font-body-sm text-body-sm focus:border-primary focus:ring focus:ring-primary/10" placeholder="Buscar por nota, factura, cliente o motivo">
+            </label>
+            <label>
+                <span class="sr-only">Estado</span>
+                <select name="status" class="w-full rounded-lg border border-outline-variant bg-surface px-md py-sm font-body-sm text-body-sm">
+                    <option value="">Todos los estados</option>
+                    @foreach (\App\Enums\CreditNoteStatus::cases() as $case)
+                        <option value="{{ $case->value }}" @selected($status === $case->value)>{{ $case->label() }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <button class="px-lg py-sm rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md flex items-center justify-center gap-sm shadow-hover" type="submit">
+                <span class="material-symbols-outlined text-[18px]">search</span>
+                Filtrar
+            </button>
+        </form>
+    </div>
 
     <x-ui.data-table :table="[
         'title' => 'Notas crédito registradas',

@@ -3,6 +3,7 @@
     'value',
     'icon' => 'insights',
     'tone' => 'primary',
+    'featured' => false,
 ])
 
 @php
@@ -14,12 +15,12 @@
     ][$tone] ?? ['bg' => 'bg-primary/10', 'text' => 'text-primary'];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'surface-card surface-card-interactive p-lg flex flex-col gap-md min-h-32']) }}>
+<div {{ $attributes->merge(['class' => 'surface-card surface-card-interactive '.($featured ? 'kpi-card-featured ' : '').'p-md flex flex-col gap-sm min-h-28']) }}>
     <div class="flex items-center gap-sm">
-        <div class="w-10 h-10 rounded-lg {{ $toneClasses['bg'] }} flex items-center justify-center {{ $toneClasses['text'] }} shrink-0">
-            <span class="material-symbols-outlined text-[22px]">{{ $icon }}</span>
+        <div class="w-8 h-8 rounded-lg {{ $toneClasses['bg'] }} flex items-center justify-center {{ $toneClasses['text'] }} shrink-0">
+            <span class="material-symbols-outlined text-[16px]">{{ $icon }}</span>
         </div>
-        <p class="font-label-sm text-label-sm text-on-surface-variant">{{ $label }}</p>
+        <p class="font-label-sm text-label-sm text-on-surface-variant leading-tight">{{ $label }}</p>
     </div>
-    <p class="font-headline-md text-headline-md text-on-surface leading-none">{{ $value }}</p>
+    <p class="font-headline-md text-headline-md text-on-surface leading-none tabular-nums">{{ $value }}</p>
 </div>

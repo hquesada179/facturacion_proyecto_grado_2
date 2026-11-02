@@ -1,4 +1,4 @@
-<div class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 mb-lg">
+<div class="surface-card mb-lg">
     <div class="flex flex-wrap p-sm gap-sm">
         @foreach (\App\Support\PrototypeScreens::settingsTabs() as $tab)
             @php($isActive = request()->routeIs($tab['route']) || request()->routeIs($tab['route'].'.*'))

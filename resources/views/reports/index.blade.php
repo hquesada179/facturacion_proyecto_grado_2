@@ -37,7 +37,7 @@
         </div>
     @endif
 
-    <form method="GET" action="{{ route($activeSection === 'errors' ? 'reports.errors' : 'reports.index') }}" class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40 mb-lg">
+    <form method="GET" action="{{ route($activeSection === 'errors' ? 'reports.errors' : 'reports.index') }}" class="surface-card p-lg mb-lg">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-md">
             <label>
                 <span class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Rango</span>
@@ -116,7 +116,7 @@
         </div>
     </section>
 
-    <section class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40 mb-lg">
+    <section class="surface-card p-lg mb-lg">
         <div class="mb-md">
             <h3 class="font-title-lg text-title-lg text-on-surface">Documentos por día</h3>
             <p class="font-body-sm text-body-sm text-on-surface-variant">Conteo de documentos creados dentro del rango filtrado.</p>
@@ -125,7 +125,7 @@
             <div class="h-64 flex items-end gap-sm border-l border-b border-outline-variant/50 px-md py-md overflow-x-auto">
                 @foreach ($documentReport['series'] as $bar)
                     <div class="min-w-10 flex-1 flex flex-col items-center justify-end gap-xs">
-                        <span class="font-label-sm text-label-sm text-on-surface-variant">{{ $bar['count'] }}</span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant tabular-nums">{{ $bar['count'] }}</span>
                         <div class="w-full rounded-t-lg bg-primary min-h-2" style="height: {{ $bar['height'] }}%"></div>
                         <span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">{{ $bar['label'] }}</span>
                     </div>
@@ -166,29 +166,29 @@
             @endforeach
         </div>
 
-        <div class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40">
-            <div class="p-lg border-b border-surface-variant">
+        <div class="surface-card overflow-hidden">
+            <div class="p-lg border-b border-outline-variant/40">
                 <h4 class="font-title-lg text-title-lg text-on-surface">Reglas o campos con más fallos</h4>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-surface-container-lowest border-b border-surface-variant">
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Código</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Regla</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Campo</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Severidad</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Eventos</th>
+                        <tr class="bg-surface-container-low border-b border-outline-variant/40">
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Código</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Regla</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Campo</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Severidad</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Eventos</th>
                         </tr>
                     </thead>
                     <tbody class="font-body-sm text-body-sm">
                         @forelse ($errorReport['topFailures'] as $failure)
-                            <tr class="border-b border-surface-variant last:border-b-0">
-                                <td class="px-lg py-md text-on-surface whitespace-nowrap">{{ $failure['code'] }}</td>
-                                <td class="px-lg py-md text-on-surface-variant">{{ $failure['rule'] }}</td>
-                                <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $failure['field'] }}</td>
-                                <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $failure['severity'] }}</td>
-                                <td class="px-lg py-md text-on-surface text-right">{{ $integer($failure['count']) }}</td>
+                            <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
+                                <td class="px-md py-md text-on-surface align-middle whitespace-nowrap">{{ $failure['code'] }}</td>
+                                <td class="px-md py-md text-on-surface-variant align-middle">{{ $failure['rule'] }}</td>
+                                <td class="px-md py-md text-on-surface-variant align-middle whitespace-nowrap">{{ $failure['field'] }}</td>
+                                <td class="px-md py-md text-on-surface-variant align-middle whitespace-nowrap">{{ $failure['severity'] }}</td>
+                                <td class="px-md py-md text-on-surface text-right align-middle tabular-nums">{{ $integer($failure['count']) }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -204,25 +204,25 @@
     </section>
 
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-lg mb-lg">
-        <section class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40">
-            <div class="p-lg border-b border-surface-variant">
+        <section class="surface-card overflow-hidden">
+            <div class="p-lg border-b border-outline-variant/40">
                 <h3 class="font-title-lg text-title-lg text-on-surface">Reporte por estado</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-surface-container-lowest border-b border-surface-variant">
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Tipo</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Estado</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Documentos</th>
+                        <tr class="bg-surface-container-low border-b border-outline-variant/40">
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Tipo</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-center align-middle">Estado</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Documentos</th>
                         </tr>
                     </thead>
                     <tbody class="font-body-sm text-body-sm">
                         @forelse ($documentReport['byStatus'] as $row)
-                            <tr class="border-b border-surface-variant last:border-b-0">
-                                <td class="px-lg py-md text-on-surface">{{ $row['document_type'] }}</td>
-                                <td class="px-lg py-md text-on-surface-variant"><x-ui.badge :status="$row['status']" /></td>
-                                <td class="px-lg py-md text-on-surface text-right">{{ $integer($row['documents']) }}</td>
+                            <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
+                                <td class="px-md py-md text-on-surface align-middle">{{ $row['document_type'] }}</td>
+                                <td class="px-md py-md text-center align-middle"><x-ui.badge :status="$row['status']" /></td>
+                                <td class="px-md py-md text-on-surface text-right align-middle tabular-nums">{{ $integer($row['documents']) }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="3" class="px-lg py-xl text-center text-on-surface-variant">No hay estados para el filtro aplicado.</td></tr>
@@ -232,27 +232,27 @@
             </div>
         </section>
 
-        <section class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40">
-            <div class="p-lg border-b border-surface-variant">
+        <section class="surface-card overflow-hidden">
+            <div class="p-lg border-b border-outline-variant/40">
                 <h3 class="font-title-lg text-title-lg text-on-surface">Reporte por clientes</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-surface-container-lowest border-b border-surface-variant">
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Cliente</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Facturas</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">NC</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Neto</th>
+                        <tr class="bg-surface-container-low border-b border-outline-variant/40">
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Cliente</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Facturas</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">NC</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Neto</th>
                         </tr>
                     </thead>
                     <tbody class="font-body-sm text-body-sm">
                         @forelse ($documentReport['byClients'] as $row)
-                            <tr class="border-b border-surface-variant last:border-b-0">
-                                <td class="px-lg py-md text-on-surface">{{ $row['customer'] }}</td>
-                                <td class="px-lg py-md text-on-surface-variant text-right">{{ $integer($row['invoices']) }}</td>
-                                <td class="px-lg py-md text-on-surface-variant text-right">{{ $integer($row['credit_notes']) }}</td>
-                                <td class="px-lg py-md text-on-surface text-right font-mono">{{ $money($row['net_total']) }}</td>
+                            <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
+                                <td class="px-md py-md text-on-surface align-middle whitespace-normal break-words">{{ $row['customer'] }}</td>
+                                <td class="px-md py-md text-on-surface-variant text-right align-middle tabular-nums">{{ $integer($row['invoices']) }}</td>
+                                <td class="px-md py-md text-on-surface-variant text-right align-middle tabular-nums">{{ $integer($row['credit_notes']) }}</td>
+                                <td class="px-md py-md text-on-surface text-right align-middle font-mono tabular-nums">{{ $money($row['net_total']) }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="4" class="px-lg py-xl text-center text-on-surface-variant">No hay clientes para el filtro aplicado.</td></tr>
@@ -264,27 +264,27 @@
     </div>
 
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-lg mb-lg">
-        <section class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40">
-            <div class="p-lg border-b border-surface-variant">
+        <section class="surface-card overflow-hidden">
+            <div class="p-lg border-b border-outline-variant/40">
                 <h3 class="font-title-lg text-title-lg text-on-surface">Productos y servicios</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-surface-container-lowest border-b border-surface-variant">
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Código</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Descripción</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Facturado</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Acreditado</th>
+                        <tr class="bg-surface-container-low border-b border-outline-variant/40">
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Código</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Descripción</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Facturado</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Acreditado</th>
                         </tr>
                     </thead>
                     <tbody class="font-body-sm text-body-sm">
                         @forelse ($documentReport['byProducts'] as $row)
-                            <tr class="border-b border-surface-variant last:border-b-0">
-                                <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $row['code'] }}</td>
-                                <td class="px-lg py-md text-on-surface">{{ $row['description'] }}</td>
-                                <td class="px-lg py-md text-on-surface text-right font-mono">{{ $money($row['invoiced_total']) }}</td>
-                                <td class="px-lg py-md text-on-surface-variant text-right font-mono">{{ $money($row['credited_total']) }}</td>
+                            <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
+                                <td class="px-md py-md text-on-surface-variant align-middle whitespace-nowrap">{{ $row['code'] }}</td>
+                                <td class="px-md py-md text-on-surface align-middle whitespace-normal break-words">{{ $row['description'] }}</td>
+                                <td class="px-md py-md text-on-surface text-right align-middle font-mono tabular-nums">{{ $money($row['invoiced_total']) }}</td>
+                                <td class="px-md py-md text-on-surface-variant text-right align-middle font-mono tabular-nums">{{ $money($row['credited_total']) }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="4" class="px-lg py-xl text-center text-on-surface-variant">No hay productos o servicios en el rango.</td></tr>
@@ -294,19 +294,19 @@
             </div>
         </section>
 
-        <section class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40">
-            <div class="p-lg border-b border-surface-variant">
+        <section class="surface-card overflow-hidden">
+            <div class="p-lg border-b border-outline-variant/40">
                 <h3 class="font-title-lg text-title-lg text-on-surface">Reporte por usuarios</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-surface-container-lowest border-b border-surface-variant">
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Usuario</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Facturas</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Emitidas</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">NC</th>
-                            <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Total</th>
+                        <tr class="bg-surface-container-low border-b border-outline-variant/40">
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Usuario</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Facturas</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Emitidas</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">NC</th>
+                            <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle">Total</th>
                         </tr>
                     </thead>
                     <tbody class="font-body-sm text-body-sm">
@@ -314,12 +314,12 @@
                             <tr><td colspan="5" class="px-lg py-xl text-center text-on-surface-variant">Tu rol no muestra desglose por usuario.</td></tr>
                         @else
                             @forelse ($documentReport['byUsers'] as $row)
-                                <tr class="border-b border-surface-variant last:border-b-0">
-                                    <td class="px-lg py-md text-on-surface">{{ $row['user'] }}</td>
-                                    <td class="px-lg py-md text-on-surface-variant text-right">{{ $integer($row['invoices']) }}</td>
-                                    <td class="px-lg py-md text-on-surface-variant text-right">{{ $integer($row['emitted']) }}</td>
-                                    <td class="px-lg py-md text-on-surface-variant text-right">{{ $integer($row['credit_notes']) }}</td>
-                                    <td class="px-lg py-md text-on-surface text-right font-mono">{{ $money($row['total']) }}</td>
+                                <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
+                                    <td class="px-md py-md text-on-surface align-middle">{{ $row['user'] }}</td>
+                                    <td class="px-md py-md text-on-surface-variant text-right align-middle tabular-nums">{{ $integer($row['invoices']) }}</td>
+                                    <td class="px-md py-md text-on-surface-variant text-right align-middle tabular-nums">{{ $integer($row['emitted']) }}</td>
+                                    <td class="px-md py-md text-on-surface-variant text-right align-middle tabular-nums">{{ $integer($row['credit_notes']) }}</td>
+                                    <td class="px-md py-md text-on-surface text-right align-middle font-mono tabular-nums">{{ $money($row['total']) }}</td>
                                 </tr>
                             @empty
                                 <tr><td colspan="5" class="px-lg py-xl text-center text-on-surface-variant">No hay usuarios con documentos en el rango.</td></tr>
@@ -331,40 +331,40 @@
         </section>
     </div>
 
-    <section class="bg-surface-container-lowest rounded-xl shadow-soft overflow-hidden border border-outline-variant/40">
-        <div class="p-lg border-b border-surface-variant flex flex-col md:flex-row md:items-center md:justify-between gap-sm">
+    <section class="surface-card overflow-hidden">
+        <div class="p-lg border-b border-outline-variant/40 flex flex-col md:flex-row md:items-center md:justify-between gap-sm">
             <div>
                 <h3 class="font-title-lg text-title-lg text-on-surface">Documentos filtrados</h3>
                 <p class="font-body-sm text-body-sm text-on-surface-variant">Primeros 25 documentos que cumplen los filtros actuales.</p>
             </div>
-            <a href="{{ route('reports.export', $currentQuery) }}" class="text-primary font-label-md text-label-md hover:underline">Exportar CSV completo</a>
+            <a href="{{ route('reports.export', $currentQuery) }}" class="text-primary font-label-md text-label-md hover:underline shrink-0">Exportar CSV completo</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-surface-container-lowest border-b border-surface-variant">
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Tipo</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Número</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Cliente</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Usuario</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Estado</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-right">Total</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium">Fecha</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-center">Acción</th>
+                    <tr class="bg-surface-container-low border-b border-outline-variant/40">
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle whitespace-nowrap">Tipo</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle whitespace-nowrap">Número</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle">Cliente</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle whitespace-nowrap">Usuario</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-center align-middle whitespace-nowrap">Estado</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-right align-middle whitespace-nowrap">Total</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium align-middle whitespace-nowrap">Fecha</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-center align-middle whitespace-nowrap">Acción</th>
                     </tr>
                 </thead>
                 <tbody class="font-body-sm text-body-sm">
                     @forelse ($documentReport['documents'] as $document)
-                        <tr class="border-b border-surface-variant last:border-b-0">
-                            <td class="px-lg py-md text-on-surface whitespace-nowrap">{{ $document['type'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['number'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['customer'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['user'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap"><x-ui.badge :status="$document['status']" /></td>
-                            <td class="px-lg py-md text-on-surface text-right font-mono whitespace-nowrap">{{ $document['formatted_total'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['date'] }}</td>
-                            <td class="px-lg py-md text-center">
-                                <a href="{{ $document['href'] }}" class="text-on-surface-variant hover:text-primary p-xs rounded-lg" aria-label="Ver documento" title="Ver documento">
+                        <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
+                            <td class="px-md py-md text-on-surface align-middle whitespace-nowrap">{{ $document['type'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant align-middle whitespace-nowrap">{{ $document['number'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant align-middle whitespace-normal break-words">{{ $document['customer'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant align-middle whitespace-nowrap">{{ $document['user'] }}</td>
+                            <td class="px-md py-md text-center align-middle whitespace-nowrap"><x-ui.badge :status="$document['status']" /></td>
+                            <td class="px-md py-md text-on-surface text-right align-middle font-mono tabular-nums whitespace-nowrap">{{ $document['formatted_total'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant align-middle whitespace-nowrap">{{ $document['date'] }}</td>
+                            <td class="px-md py-md text-center align-middle whitespace-nowrap">
+                                <a href="{{ $document['href'] }}" class="icon-btn inline-flex text-on-surface-variant hover:text-primary hover:bg-surface-container-low p-xs rounded-lg" aria-label="Ver documento" title="Ver documento">
                                     <span class="material-symbols-outlined text-xl">visibility</span>
                                 </a>
                             </td>

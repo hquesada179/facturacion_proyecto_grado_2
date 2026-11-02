@@ -9,7 +9,7 @@
             @method('PUT')
         @endif
 
-        <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg">
+        <section class="surface-card p-lg">
             <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Datos simulados de la resolución</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
                 <label>

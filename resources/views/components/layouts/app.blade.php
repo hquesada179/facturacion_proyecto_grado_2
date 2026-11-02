@@ -34,6 +34,25 @@
             }
         })();
     </script>
+    <script>
+        // UI/UX 3.1 — same reasoning as the theme script above: applied
+        // before any CSS/JS loads so a reload never flashes the sidebar
+        // expanded for a frame before collapsing. Mirrors
+        // resources/js/sidebar.js's own storage key exactly. Desktop/
+        // tablet only — mobile always uses the off-canvas drawer
+        // ([data-sidebar-open]), a completely separate mechanism this
+        // never touches.
+        (function () {
+            try {
+                if (window.localStorage.getItem('fiscora.sidebar.collapsed') === 'true') {
+                    document.documentElement.setAttribute('data-sidebar-collapsed', '');
+                }
+            } catch (error) {
+                // Private browsing / storage disabled — sidebar simply
+                // starts expanded, same as the documented fallback.
+            }
+        })();
+    </script>
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('branding/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('branding/favicon-16x16.png') }}">
     <link rel="icon" href="{{ asset('branding/favicon.ico') }}" sizes="any">
@@ -48,7 +67,7 @@
     <div class="min-h-screen">
         <x-sidebar :active="$active" />
 
-        <div class="min-h-screen md:ml-64 flex flex-col">
+        <div class="main-column min-h-screen md:ml-64 flex flex-col">
             <x-topbar />
 
             <main class="flex-1 w-full mx-auto p-margin-mobile md:p-margin-desktop {{ $wide ? 'max-w-[1440px]' : 'max-w-[1280px]' }}">
@@ -80,7 +99,7 @@
                             {{ $slot }}
                         </section>
 
-                        <aside class="w-full xl:w-80 shrink-0">
+                        <aside class="w-full xl:w-96 shrink-0">
                             <x-assistant-panel
                                 :screen="$screen ?? $active"
                                 :resource-type="$resourceType"

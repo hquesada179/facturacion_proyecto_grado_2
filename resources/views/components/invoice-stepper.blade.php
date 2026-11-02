@@ -2,7 +2,7 @@
 
 @php($steps = \App\Support\PrototypeScreens::invoiceSteps($invoice))
 
-<div class="bg-surface-container-lowest rounded-xl p-md shadow-soft border border-outline-variant/40 mb-lg">
+<div class="surface-card p-md mb-lg">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-sm">
         @foreach ($steps as $step)
             @php($isActive = $current === $step['number'])
