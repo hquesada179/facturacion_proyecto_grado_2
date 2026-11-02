@@ -45,18 +45,16 @@
     </x-page-header>
 
     @if (\App\Services\Invoices\InvoiceStateMachine::isEditable($invoice->status))
-        <div class="mb-lg bg-[#fdf6b2] border border-[#723b13]/20 text-[#723b13] rounded-lg p-md font-body-sm text-body-sm flex items-center justify-between gap-sm">
-            <span>Esta factura sigue en borrador y aún puede editarse.</span>
-            <a href="{{ route('invoices.draft.validation', $invoice) }}" class="font-label-md text-label-md underline">Continuar editando</a>
-        </div>
+        <x-ui.alert tone="warning" class="mb-lg">
+            <div class="flex items-center justify-between gap-sm">
+                <span>Esta factura sigue en borrador y aún puede editarse.</span>
+                <a href="{{ route('invoices.draft.validation', $invoice) }}" class="font-label-md text-label-md underline hover:no-underline shrink-0">Continuar editando</a>
+            </div>
+        </x-ui.alert>
     @endif
 
     @if ($invoice->status->wasIssued())
-        <div class="mb-lg bg-[#def7ec] border border-[#03543f]/20 text-[#03543f] rounded-lg p-md font-body-sm text-body-sm">
-            <p class="font-label-md text-label-md flex items-center gap-sm mb-xs">
-                <span class="material-symbols-outlined text-[18px]">science</span>
-                Validación simulada — Documento de prueba, sin validez tributaria.
-            </p>
+        <x-ui.alert tone="success" icon="science" title="Validación simulada — Documento de prueba, sin validez tributaria." class="mb-lg">
             <p>CUFE simulado: <span class="font-mono break-all">{{ $invoice->simulated_cufe }}</span></p>
             @if ($invoice->pdf_generated_at)
                 <p>PDF histórico generado: {{ $invoice->pdf_generated_at->format('Y-m-d H:i') }} · Hash SHA-256 <span class="font-mono break-all">{{ $invoice->pdf_hash }}</span></p>
@@ -64,11 +62,11 @@
             @if ($invoice->delivery_status)
                 <p>Entrega simulada: {{ str_replace('_', ' ', $invoice->delivery_status) }}@if($invoice->delivery_simulated_at) · {{ $invoice->delivery_simulated_at->format('Y-m-d H:i') }}@endif</p>
             @endif
-        </div>
+        </x-ui.alert>
     @elseif (in_array($invoice->status->value, ['simulated_rejected', 'technical_error'], true))
-        <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/20 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
+        <x-ui.alert tone="error" class="mb-lg">
             {{ $invoice->dian_simulation_message }}
-        </div>
+        </x-ui.alert>
     @endif
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">

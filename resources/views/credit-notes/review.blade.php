@@ -12,18 +12,17 @@
     </x-page-header>
 
     @if ($validationErrors)
-        <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/20 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
-            <p class="font-label-md text-label-md mb-xs">Hay validaciones pendientes:</p>
+        <x-ui.alert tone="error" title="Hay validaciones pendientes" class="mb-lg">
             <ul class="list-disc list-inside">
                 @foreach ($validationErrors as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
+        </x-ui.alert>
     @else
-        <div class="mb-lg bg-[#def7ec] border border-[#03543f]/20 text-[#03543f] rounded-lg p-md font-body-sm text-body-sm">
+        <x-ui.alert tone="success" class="mb-lg">
             La nota crédito está lista para validación o emisión simulada. Documento de prueba – sin validez tributaria.
-        </div>
+        </x-ui.alert>
     @endif
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">

@@ -27,12 +27,12 @@
         </x-slot:actions>
     </x-page-header>
 
-    <div class="mb-lg bg-[#fdf6b2] border border-[#723b13]/20 text-[#723b13] rounded-lg p-md font-body-sm text-body-sm">
+    <x-ui.alert tone="neutral" icon="science" class="mb-lg">
         Documento de prueba – sin validez tributaria. Nota crédito generada en flujo académico simulado.
         @if ($creditNote->simulated_cufe)
             <br>CUFE/identificador simulado: <span class="font-mono break-all">{{ $creditNote->simulated_cufe }}</span>
         @endif
-    </div>
+    </x-ui.alert>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40"><p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Factura origen</p><p class="font-title-lg text-title-lg">{{ $creditNote->invoice->number }}</p></div>

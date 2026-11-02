@@ -21,10 +21,9 @@
             </form>
         </section>
     @else
-        <div class="mb-lg bg-[#fdf6b2] border border-[#723b13]/20 text-[#723b13] rounded-lg p-md font-body-sm text-body-sm flex items-center gap-sm">
-            <span class="material-symbols-outlined text-[18px]">science</span>
+        <x-ui.alert tone="neutral" icon="science" class="mb-lg">
             Documento de prueba – sin validez tributaria. Conceptos internos marcados como prototipo.
-        </div>
+        </x-ui.alert>
 
         <form method="POST" action="{{ route('credit-notes.store') }}" class="space-y-lg">
             @csrf

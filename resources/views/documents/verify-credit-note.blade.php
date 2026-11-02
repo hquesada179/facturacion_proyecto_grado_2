@@ -19,9 +19,9 @@
                 Verificación de documento de prueba
             </h1>
 
-            <div class="mb-lg bg-[#fdf6b2] border border-[#723b13]/20 text-[#723b13] rounded-lg p-md font-body-sm text-body-sm">
+            <x-ui.alert tone="neutral" icon="science" class="mb-lg">
                 Documento de prueba – sin validez tributaria. Validación DIAN simulada. Nota crédito.
-            </div>
+            </x-ui.alert>
 
             <dl class="grid grid-cols-1 sm:grid-cols-2 gap-md font-body-sm text-body-sm">
                 <div>

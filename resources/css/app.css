@@ -103,6 +103,23 @@
     --color-brand-gold: #c79a46;
     --color-brand-charcoal: #1c1d21;
 
+    /* Status system (alerts, validation banners, result cards) — the
+       soft background + saturated foreground pair already used ad hoc
+       as raw hex (bg-[#fde8e8] text-[#9b1c1c], etc.) across a dozen
+       Blade views, now named once so every alert/badge/validation
+       surface draws from the same five tones instead of repeating
+       arbitrary values. --color-primary-fixed/--color-on-primary-fixed
+       (already defined above) are reused as-is for "info" — no need to
+       duplicate those two. */
+    --color-success-soft: #def7ec;
+    --color-success-soft-foreground: #03543f;
+    --color-warning-soft: #fdf6b2;
+    --color-warning-soft-foreground: #723b13;
+    --color-error-soft: #fde8e8;
+    --color-error-soft-foreground: #9b1c1c;
+    --color-neutral-soft: #eff4ff;
+    --color-neutral-soft-foreground: #444651;
+
     --spacing-base: 4px;
     --spacing-xs: 4px;
     --spacing-sm: 8px;

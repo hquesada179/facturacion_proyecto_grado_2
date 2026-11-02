@@ -35,25 +35,25 @@
 
             <main class="flex-1 w-full mx-auto p-margin-mobile md:p-margin-desktop {{ $wide ? 'max-w-[1440px]' : 'max-w-[1280px]' }}">
                 @if (session('status'))
-                    <div class="mb-lg bg-primary-fixed border border-primary-fixed-dim text-on-primary-fixed rounded-lg p-md font-body-sm text-body-sm">
+                    <x-ui.alert tone="success" class="mb-lg">
                         {{ session('status') }}
-                    </div>
+                    </x-ui.alert>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/30 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
+                    <x-ui.alert tone="error" class="mb-lg">
                         {{ session('error') }}
-                    </div>
+                    </x-ui.alert>
                 @endif
 
                 @if ($errors->any())
-                    <div class="mb-lg bg-[#fde8e8] border border-[#9b1c1c]/30 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm">
+                    <x-ui.alert tone="error" title="Revisa los siguientes datos" class="mb-lg">
                         <ul class="list-disc list-inside space-y-xs">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
-                    </div>
+                    </x-ui.alert>
                 @endif
 
                 @if ($assistant)
