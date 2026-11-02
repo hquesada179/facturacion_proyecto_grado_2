@@ -66,8 +66,11 @@ Route::middleware('auth')->group(function (): void {
         ->middleware(['can:use-assistant', 'throttle:assistant'])
         ->name('assistant.message');
     Route::post('/asistente/confirmar', [AssistantController::class, 'confirm'])
-        ->middleware(['can:use-assistant', 'throttle:assistant'])
+        ->middleware(['can:use-assistant', 'throttle:assistant', 'throttle:assistant-write'])
         ->name('assistant.confirm');
+    Route::post('/asistente/cancelar', [AssistantController::class, 'cancel'])
+        ->middleware(['can:use-assistant', 'throttle:assistant', 'throttle:assistant-write'])
+        ->name('assistant.cancel');
     Route::post('/asistente/mensajes/{assistantMessage}/feedback', [AssistantController::class, 'feedback'])
         ->middleware(['can:use-assistant', 'throttle:assistant'])
         ->name('assistant.feedback');

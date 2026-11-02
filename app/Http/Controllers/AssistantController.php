@@ -45,6 +45,17 @@ class AssistantController extends Controller
         return response()->json($assistant->confirm($request->user(), $validated['token']));
     }
 
+    public function cancel(Request $request, AiAssistantService $assistant): JsonResponse
+    {
+        Gate::authorize('use-assistant');
+
+        $validated = $request->validate([
+            'token' => ['required', 'string', 'min:32', 'max:120'],
+        ]);
+
+        return response()->json($assistant->cancel($request->user(), $validated['token']));
+    }
+
     public function feedback(Request $request, AssistantMessage $assistantMessage): JsonResponse
     {
         Gate::authorize('use-assistant');

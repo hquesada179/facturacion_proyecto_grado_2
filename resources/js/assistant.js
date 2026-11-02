@@ -270,7 +270,7 @@ function buildAssistantInvoiceCard(item) {
     }
 
     card.appendChild(assistantCardActions([
-        { label: 'Ver factura', href: item.url },
+        { label: item.status === 'draft' ? 'Continuar factura' : 'Ver factura', href: item.url },
         { label: 'PDF', href: item.pdf_url, newTab: true },
         { label: 'Trazabilidad', href: item.traceability_url },
     ]));
@@ -439,6 +439,80 @@ function renderAssistantTraceabilitySummary(component) {
     return card;
 }
 
+/**
+ * IA 2.0-D — "preparé esta acción" preview, deliberately styled unlike
+ * any query-result card (primary-tinted border/background) and always
+ * carrying the "Aún no se ha realizado ningún cambio." notice plus its
+ * own Confirmar/Cancelar buttons. The token travels only as this card's
+ * own `data-token` attribute — AssistantPanel reads it from there to
+ * call assistant.confirm/assistant.cancel; this function itself stays a
+ * pure, side-effect-free renderer (see assistant-components.test.js),
+ * same as every other card builder in this file.
+ */
+function buildAssistantActionProposalCard(component) {
+    const card = assistantCardShell();
+    card.classList.add('border-primary', 'bg-primary/5');
+    card.dataset.token = component.token ?? '';
+
+    card.appendChild(assistantCardLine(component.title ?? 'Propuesta de acción', 'font-title-sm text-title-sm text-on-surface mb-xs'));
+
+    if (component.summary) {
+        card.appendChild(assistantCardLine(component.summary, 'font-body-sm text-body-sm text-on-surface mb-xs'));
+    }
+
+    (Array.isArray(component.fields) ? component.fields : []).forEach((field) => {
+        card.appendChild(assistantCardLine(`${field.label}: ${field.value}`, 'font-body-sm text-body-sm text-on-surface-variant'));
+    });
+
+    const lines = Array.isArray(component.lines) ? component.lines : [];
+
+    if (lines.length) {
+        const list = document.createElement('ul');
+        list.className = 'list-disc list-inside space-y-xs font-body-sm text-body-sm text-on-surface-variant mt-xs';
+
+        lines.forEach((line) => {
+            const li = document.createElement('li');
+            li.textContent = `${line.label ?? ''} ${line.detail ?? ''} — ${line.amount ?? ''}`.trim();
+            list.appendChild(li);
+        });
+
+        card.appendChild(list);
+    }
+
+    (Array.isArray(component.totals) ? component.totals : []).forEach((total) => {
+        card.appendChild(assistantCardLine(`${total.label}: ${total.value}`, 'font-label-md text-label-md text-on-surface mt-xs'));
+    });
+
+    (Array.isArray(component.warnings) ? component.warnings : []).forEach((warning) => {
+        card.appendChild(assistantCardLine(warning, 'font-body-sm text-body-sm text-[#9b1c1c] mt-xs'));
+    });
+
+    card.appendChild(assistantCardLine(
+        component.note || 'Aún no se ha realizado ningún cambio.',
+        'font-label-sm text-label-sm text-on-surface-variant italic mt-sm',
+    ));
+
+    const actions = document.createElement('div');
+    actions.className = 'mt-sm flex flex-wrap gap-xs';
+
+    const confirmButton = document.createElement('button');
+    confirmButton.type = 'button';
+    confirmButton.textContent = 'Confirmar';
+    confirmButton.className = 'px-md py-xs rounded-lg bg-primary text-on-primary font-label-sm text-label-sm';
+    confirmButton.setAttribute('data-assistant-proposal-confirm', '');
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.textContent = 'Cancelar';
+    cancelButton.className = 'px-md py-xs rounded-lg border border-outline-variant text-on-surface font-label-sm text-label-sm';
+    cancelButton.setAttribute('data-assistant-proposal-cancel', '');
+
+    actions.append(confirmButton, cancelButton);
+    card.appendChild(actions);
+
+    return card;
+}
+
 function renderAssistantComponent(component) {
     switch (component?.type) {
         case 'invoice_list':
@@ -453,6 +527,8 @@ function renderAssistantComponent(component) {
             return renderAssistantMetricSummary(component);
         case 'traceability_summary':
             return renderAssistantTraceabilitySummary(component);
+        case 'action_proposal':
+            return buildAssistantActionProposalCard(component);
         default:
             return null;
     }
@@ -483,6 +559,7 @@ class AssistantPanel {
 
         this.messageUrl = root.dataset.messageUrl;
         this.confirmUrl = root.dataset.confirmUrl;
+        this.cancelUrl = root.dataset.cancelUrl;
         this.feedbackUrlTemplate = root.dataset.feedbackUrlTemplate;
         this.screen = root.dataset.screen || 'unknown';
         this.resourceType = root.dataset.resourceType || null;
@@ -630,6 +707,106 @@ class AssistantPanel {
         }
     }
 
+    /**
+     * Wires the Confirmar/Cancelar buttons of every `action_proposal`
+     * card just rendered into `root`. Kept separate from the pure
+     * renderer (buildAssistantActionProposalCard) deliberately — the
+     * card-building function stays side-effect-free and independently
+     * testable; this is the only place that reads the token back off
+     * the DOM and calls the real confirm/cancel endpoints.
+     */
+    bindActionProposalButtons(root) {
+        root.querySelectorAll('[data-assistant-proposal-confirm]').forEach((button) => {
+            const card = button.closest('[data-token]');
+
+            if (card) {
+                button.addEventListener('click', () => this.confirmActionProposal(card.dataset.token, card));
+            }
+        });
+
+        root.querySelectorAll('[data-assistant-proposal-cancel]').forEach((button) => {
+            const card = button.closest('[data-token]');
+
+            if (card) {
+                button.addEventListener('click', () => this.cancelActionProposal(card.dataset.token, card));
+            }
+        });
+    }
+
+    /**
+     * Both buttons are disabled for the whole round-trip (not just the
+     * one clicked) so a second click — on either button — can never
+     * fire a second request for the same proposal while the first is
+     * still in flight.
+     */
+    async confirmActionProposal(token, card) {
+        if (! token) {
+            return;
+        }
+
+        const confirmButton = card.querySelector('[data-assistant-proposal-confirm]');
+        const cancelButton = card.querySelector('[data-assistant-proposal-cancel]');
+        confirmButton.disabled = true;
+        cancelButton.disabled = true;
+        confirmButton.textContent = 'Confirmando...';
+
+        try {
+            const response = await fetch(this.confirmUrl, {
+                method: 'POST',
+                headers: this.headers(),
+                body: JSON.stringify({ token }),
+            });
+
+            const data = await response.json();
+
+            if (! response.ok) {
+                throw new Error(data.message || 'No se pudo confirmar la acción.');
+            }
+
+            card.remove();
+            this.appendAssistantMessage(data);
+        } catch (error) {
+            confirmButton.disabled = false;
+            cancelButton.disabled = false;
+            confirmButton.textContent = 'Confirmar';
+            this.appendSystemNote(error.message || 'No se pudo confirmar la acción. Prepara la propuesta de nuevo.', true);
+        }
+    }
+
+    async cancelActionProposal(token, card) {
+        if (! token) {
+            return;
+        }
+
+        const confirmButton = card.querySelector('[data-assistant-proposal-confirm]');
+        const cancelButton = card.querySelector('[data-assistant-proposal-cancel]');
+        confirmButton.disabled = true;
+        cancelButton.disabled = true;
+        cancelButton.textContent = 'Cancelando...';
+
+        try {
+            const response = await fetch(this.cancelUrl, {
+                method: 'POST',
+                headers: this.headers(),
+                body: JSON.stringify({ token }),
+            });
+
+            const data = await response.json();
+
+            if (! response.ok) {
+                throw new Error(data.message || 'No se pudo cancelar la acción.');
+            }
+
+            card.remove();
+            this.appendSystemNote(data.message || 'Propuesta cancelada. Aún no se ha realizado ningún cambio.');
+        } catch (error) {
+            confirmButton.disabled = false;
+            cancelButton.disabled = false;
+            cancelButton.textContent = 'Cancelar';
+            this.appendSystemNote(error.message || 'No se pudo cancelar la acción.', true);
+        }
+    }
+
     async sendFeedback(messageId, feedback, container) {
         const url = this.feedbackUrlTemplate.replace('__ID__', messageId);
 
@@ -669,7 +846,9 @@ class AssistantPanel {
         const components = Array.isArray(data.components) ? data.components : [];
 
         if (components.length) {
-            wrapper.appendChild(renderAssistantComponents(components));
+            const componentsNode = renderAssistantComponents(components);
+            wrapper.appendChild(componentsNode);
+            this.bindActionProposalButtons(componentsNode);
         }
 
         if (Array.isArray(data.suggestions) && data.suggestions.length) {

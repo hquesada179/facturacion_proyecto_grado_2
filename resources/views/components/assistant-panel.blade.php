@@ -78,6 +78,7 @@
     data-resource-id="{{ $resourceId ?? '' }}"
     data-message-url="{{ route('assistant.message') }}"
     data-confirm-url="{{ route('assistant.confirm') }}"
+    data-cancel-url="{{ route('assistant.cancel') }}"
     data-feedback-url-template="{{ route('assistant.feedback', ['assistantMessage' => '__ID__']) }}"
     class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-surface-variant {{ $mode === 'full' ? 'h-full min-h-[640px]' : 'min-h-[520px]' }} flex flex-col relative overflow-hidden"
 >

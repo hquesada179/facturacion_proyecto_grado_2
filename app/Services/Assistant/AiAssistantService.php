@@ -24,6 +24,7 @@ use App\Services\Assistant\Tools\GetDocumentErrorsTool;
 use App\Services\Assistant\Tools\GetInvoiceDetailsTool;
 use App\Services\Assistant\Tools\GetPendingDocumentsTool;
 use App\Services\Assistant\Tools\GetRankingTool;
+use App\Services\Assistant\Actions\AssistantActionOrchestrator;
 use App\Services\Assistant\Tools\GetTraceabilityTool;
 use App\Services\Assistant\Tools\SearchCreditNotesTool;
 use App\Services\Reports\ReportDateRange;
@@ -150,6 +151,7 @@ class AiAssistantService
         private readonly GetPendingDocumentsTool $pendingDocuments,
         private readonly GetBillingSummaryTool $billingSummary,
         private readonly GetRankingTool $ranking,
+        private readonly AssistantActionOrchestrator $actionOrchestrator,
     ) {}
 
     /**
@@ -166,6 +168,7 @@ class AiAssistantService
         $context = $this->contextBuilder->build($user, $screen, $resourceType, $resourceId);
         $conversation = $this->conversationFor($user, $payload, $context, $message);
         $memory = ConversationMemory::fromArray($conversation->conversation_memory);
+        $pendingAction = $conversation->pending_action ?? [];
 
         $this->storeMessage($conversation, 'user', $message, [
             'screen' => $screen,
@@ -173,50 +176,109 @@ class AiAssistantService
             'resource_id' => $resourceId,
         ]);
 
-        $toolResults = $this->toolResults($user, $message, $context, $memory);
-        $criticalActions = $this->criticalActions($user, $message, $context);
         $status = 'resolved';
         $errorMessage = null;
+        $toolResults = [];
+        $criticalActions = [];
+        $lower = Str::lower($message);
 
-        try {
-            $response = $this->provider->generate($context, $message, $toolResults);
-        } catch (Throwable $throwable) {
-            $status = 'error';
-            $errorMessage = $throwable->getMessage();
-            $response = new AssistantResponse(
-                'El asistente no está disponible temporalmente. Las funciones de facturación continúan funcionando normalmente.',
-                metadata: ['provider_error' => true],
-            );
+        // IA 2.0-D action proposals are resolved entirely deterministically
+        // — see AssistantActionOrchestrator — and never reach the AI
+        // provider: the model never gets to phrase, let alone influence,
+        // the text describing a pending write action.
+        //
+        // Priority order (bug #2 fix — a pending action must never
+        // "hijack" an unrelated later message):
+        //   1. confirmar/cancelar a LIVE proposal (chat-text shortcut);
+        //   2. a brand-new, explicit action trigger ("Prepara un cliente...");
+        //   3. "mejor N" against a live proposal;
+        //   4. the REAL read-only dispatcher, tried BEFORE falling back to
+        //      "this must be a continuation" — a message the dispatcher
+        //      genuinely recognizes (a count, "busca FV-...", "¿cuánto
+        //      IVA...?", ...) is always a normal read turn, period;
+        //   5. only once that comes back empty: a missing-field answer for
+        //      a still-incomplete pending action, or an explicit resume
+        //      phrase ("continuemos con la factura") for a built-but-
+        //      unconfirmed one;
+        //   6. otherwise, the normal fallback/clarification flow.
+        $actionTurn = $this->actionOrchestrator->resolveChatShortcut($user, $lower, $pendingAction);
+
+        if ($actionTurn === null) {
+            $explicitAction = $this->actionOrchestrator->detectIntent($lower);
+
+            if ($explicitAction !== null) {
+                $actionTurn = $this->actionOrchestrator->handleExplicitIntent($user, $message, $conversation, $pendingAction, $explicitAction);
+            } else {
+                $actionTurn = $this->actionOrchestrator->resolveQuantityTweak($user, $lower, $conversation, $pendingAction);
+            }
         }
 
-        if ($this->provider instanceof LocalFallbackProvider && empty($toolResults)) {
-            $response = $this->fallbackProvider->generate($context, $message, $toolResults);
+        if ($actionTurn === null) {
+            $toolResults = $this->toolResults($user, $message, $context, $memory);
+            $criticalActions = $this->criticalActions($user, $message, $context);
+            $readTurnMatched = $toolResults !== [] || $criticalActions !== [];
+
+            if (! $readTurnMatched && $pendingAction !== []) {
+                $actionTurn = $this->actionOrchestrator->continuePending($user, $message, $conversation, $pendingAction)
+                    ?? $this->actionOrchestrator->resumeLiveProposal($user, $lower, $pendingAction);
+            }
         }
 
-        // Structured components are always derived straight from the tool
-        // results that were actually fetched under this user's own
-        // authorization — never from the AI provider's text, so a failed
-        // or unconfigured provider never changes what gets rendered here.
-        $components = $this->components->build($user, $toolResults);
+        if ($actionTurn !== null) {
+            $response = $actionTurn['response'];
+            $newPendingAction = $actionTurn['pending_action'];
+            $newMemory = $memory;
+            $toolResults = [];
+        } else {
+            try {
+                $response = $this->provider->generate($context, $message, $toolResults);
+            } catch (Throwable $throwable) {
+                $status = 'error';
+                $errorMessage = $throwable->getMessage();
+                $response = new AssistantResponse(
+                    'El asistente no está disponible temporalmente. Las funciones de facturación continúan funcionando normalmente.',
+                    metadata: ['provider_error' => true],
+                );
+            }
 
-        if ($criticalActions !== []) {
-            $response = new AssistantResponse(
-                message: $response->message."\n\nPreparé la acción como crítica. Requiere confirmación humana explícita antes de ejecutarse.",
-                suggestions: $response->suggestions,
-                actions: $criticalActions,
-                metadata: $response->metadata,
-                requiresConfirmation: true,
-                components: $components,
-            );
-        } elseif ($components !== []) {
-            $response = new AssistantResponse(
-                message: $response->message,
-                suggestions: $response->suggestions,
-                actions: $response->actions,
-                metadata: $response->metadata,
-                requiresConfirmation: $response->requiresConfirmation,
-                components: $components,
-            );
+            if ($this->provider instanceof LocalFallbackProvider && empty($toolResults)) {
+                $response = $this->fallbackProvider->generate($context, $message, $toolResults);
+            }
+
+            // Structured components are always derived straight from the
+            // tool results that were actually fetched under this user's
+            // own authorization — never from the AI provider's text, so a
+            // failed or unconfigured provider never changes what gets
+            // rendered here.
+            $components = $this->components->build($user, $toolResults);
+
+            if ($criticalActions !== []) {
+                $response = new AssistantResponse(
+                    message: $response->message."\n\nPreparé la acción como crítica. Requiere confirmación humana explícita antes de ejecutarse.",
+                    suggestions: $response->suggestions,
+                    actions: $criticalActions,
+                    metadata: $response->metadata,
+                    requiresConfirmation: true,
+                    components: $components,
+                );
+            } elseif ($components !== []) {
+                $response = new AssistantResponse(
+                    message: $response->message,
+                    suggestions: $response->suggestions,
+                    actions: $response->actions,
+                    metadata: $response->metadata,
+                    requiresConfirmation: $response->requiresConfirmation,
+                    components: $components,
+                );
+            }
+
+            $newMemory = $this->memoryFromToolResults($toolResults, $memory);
+            // Interruption policy, option A: a normal read-only turn
+            // PAUSES any still-incomplete/still-pending action rather than
+            // cancelling it — it stays available (subject to its own TTL
+            // and the usual user/company/conversation checks) until the
+            // user explicitly resumes, confirms, or cancels it.
+            $newPendingAction = $pendingAction === [] ? null : $pendingAction;
         }
 
         $assistantMessage = $this->storeMessage($conversation, 'assistant', $response->message, [
@@ -228,7 +290,6 @@ class AiAssistantService
         ]);
 
         $latencyMs = (int) round((microtime(true) - $started) * 1000);
-        $newMemory = $this->memoryFromToolResults($toolResults, $memory);
 
         $conversation->forceFill([
             'status' => $status === 'resolved' ? 'resolved' : 'open',
@@ -238,6 +299,7 @@ class AiAssistantService
             'completed_at' => now(),
             'messages' => $this->appendLegacyMessages($conversation, $message, $response->message),
             'conversation_memory' => $newMemory->toArray(),
+            'pending_action' => $newPendingAction,
         ])->save();
 
         $this->storeMetric($user, $conversation, $assistantMessage, $screen, $status, $latencyMs, $toolResults, $errorMessage);
@@ -248,6 +310,11 @@ class AiAssistantService
     public function confirm(User $user, string $token): array
     {
         return $this->actions->confirm($user, $token)->toArray();
+    }
+
+    public function cancel(User $user, string $token): array
+    {
+        return $this->actions->cancel($user, $token)->toArray();
     }
 
     private function conversationFor(User $user, array $payload, array $context, string $message): AssistantConversation
@@ -582,7 +649,11 @@ class AiAssistantService
     {
         $lower = Str::lower($message);
 
-        if (! Str::contains($lower, ['emitir', 'anular', 'eliminar', 'desactivar', 'cambiar cliente', 'modificar importe', 'modificar total', 'crea una factura', 'crear una factura', 'crea un cliente', 'crea un producto'])) {
+        if (! Str::contains($lower, [
+            'emitir', 'anular', 'eliminar', 'desactivar', 'cambiar cliente', 'modificar importe', 'modificar total',
+            'modificar resolución', 'modificar resolucion', 'modificar impuesto', 'crear usuario', 'cambiar rol',
+            'cambiar seguridad', 'enviar correo', 'enviar un correo',
+        ])) {
             return [];
         }
 
@@ -607,16 +678,13 @@ class AiAssistantService
             }
         }
 
-        // IA 2.0-C is still read-only: creation/write intents are
-        // acknowledged but never prepared or executed.
-        if (Str::contains($lower, ['crea una factura', 'crear una factura', 'crea un cliente', 'crea un producto', 'crea una nota crédito', 'crear una nota crédito'])) {
-            return [[
-                'requires_confirmation' => false,
-                'action' => 'write_action_not_available_yet',
-                'summary' => 'Puedo ayudarte a localizar al cliente, los productos o los documentos relacionados, pero la creación asistida se habilitará en una fase posterior.',
-            ]];
-        }
-
+        // Creating an invoice draft/customer/product/credit-note draft is
+        // now a real IA 2.0-D action proposal (see
+        // AssistantActionOrchestrator), handled before this method is
+        // even reached — only genuinely destructive/elevating intents
+        // (emitir, anular, eliminar, modificar seguridad/impuestos/
+        // numeración, crear usuarios...) ever land here, and none of
+        // those are available from the assistant in any phase so far.
         return [[
             'requires_confirmation' => true,
             'action' => 'critical_action_not_available',

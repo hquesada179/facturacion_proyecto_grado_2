@@ -27,6 +27,7 @@ function buildPanel({ mode = 'sidebar' } = {}) {
             data-resource-id=""
             data-message-url="/assistant/message"
             data-confirm-url="/assistant/confirm"
+            data-cancel-url="/assistant/cancel"
             data-feedback-url-template="/assistant/messages/__ID__/feedback"
         >
             <div>
@@ -302,5 +303,105 @@ describe('AssistantPanel — conversation flow and scroll', () => {
 
         const secondCallBody = JSON.parse(global.fetch.mock.calls[0][1].body);
         expect(secondCallBody.conversation_id).toBe(42);
+    });
+});
+
+describe('AssistantPanel — IA 2.0-D action_proposal preview/confirm/cancel', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    const proposalComponent = {
+        type: 'action_proposal',
+        action: 'create_invoice_draft',
+        title: 'Borrador de factura',
+        summary: 'Factura para Kata por $100.000.',
+        token: 'proposal-token-1',
+        fields: [],
+        lines: [{ label: 'Camisa', detail: '×2', amount: '$100.000' }],
+        totals: [{ label: 'Total', value: '$100.000' }],
+        warnings: [],
+        note: 'Aún no se ha realizado ningún cambio.',
+    };
+
+    async function sendMessageWithProposal() {
+        const built = buildPanel();
+        mockFetchOnce({ conversation_id: 1, message: 'Preparé esta acción.', components: [proposalComponent], requires_confirmation: true });
+
+        built.input.value = 'Prepárame una factura para Kata con 2 camisas.';
+        built.form.dispatchEvent(new Event('submit', { cancelable: true }));
+        await vi.waitFor(() => expect(built.messagesEl.textContent).toContain('Preparé esta acción.'));
+
+        return built;
+    }
+
+    it('renders the proposal card with its Confirmar/Cancelar buttons', async () => {
+        const { messagesEl } = await sendMessageWithProposal();
+
+        expect(messagesEl.querySelectorAll('[data-assistant-proposal-confirm]')).toHaveLength(1);
+        expect(messagesEl.querySelectorAll('[data-assistant-proposal-cancel]')).toHaveLength(1);
+        expect(messagesEl.textContent).toContain('Aún no se ha realizado ningún cambio.');
+    });
+
+    it('Confirmar disables both buttons immediately and replaces the card with the result on success', async () => {
+        const { messagesEl } = await sendMessageWithProposal();
+        const confirmButton = messagesEl.querySelector('[data-assistant-proposal-confirm]');
+        const cancelButton = messagesEl.querySelector('[data-assistant-proposal-cancel]');
+
+        mockFetchOnce({ message: 'Borrador creado correctamente.', components: [] });
+        confirmButton.click();
+
+        expect(confirmButton.disabled).toBe(true);
+        expect(cancelButton.disabled).toBe(true);
+        expect(confirmButton.textContent).toBe('Confirmando...');
+
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('Borrador creado correctamente.'));
+        expect(messagesEl.querySelectorAll('[data-assistant-proposal-confirm]')).toHaveLength(0);
+    });
+
+    it('Confirmar re-enables both buttons and shows an error when the server rejects it (e.g. expired)', async () => {
+        const { messagesEl } = await sendMessageWithProposal();
+        const confirmButton = messagesEl.querySelector('[data-assistant-proposal-confirm]');
+        const cancelButton = messagesEl.querySelector('[data-assistant-proposal-cancel]');
+
+        mockFetchOnce({ message: 'Esta propuesta expiró. Debo recalcularla antes de continuar.' }, { ok: false, status: 422 });
+        confirmButton.click();
+
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('expiró'));
+        expect(confirmButton.disabled).toBe(false);
+        expect(cancelButton.disabled).toBe(false);
+        expect(confirmButton.textContent).toBe('Confirmar');
+        // The card itself must still be there — an expired proposal is
+        // not silently discarded, the user can see what was rejected.
+        expect(messagesEl.querySelectorAll('[data-assistant-proposal-confirm]')).toHaveLength(1);
+    });
+
+    it('Cancelar disables both buttons, calls the cancel endpoint, and removes the card on success', async () => {
+        const { messagesEl } = await sendMessageWithProposal();
+        const confirmButton = messagesEl.querySelector('[data-assistant-proposal-confirm]');
+        const cancelButton = messagesEl.querySelector('[data-assistant-proposal-cancel]');
+
+        mockFetchOnce({ message: 'Propuesta cancelada. Aún no se ha realizado ningún cambio.' });
+        cancelButton.click();
+
+        expect(confirmButton.disabled).toBe(true);
+        expect(cancelButton.disabled).toBe(true);
+
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('Propuesta cancelada'));
+        expect(messagesEl.querySelectorAll('[data-assistant-proposal-cancel]')).toHaveLength(0);
+        expect(global.fetch).toHaveBeenCalledWith('/assistant/cancel', expect.objectContaining({ method: 'POST' }));
+    });
+
+    it('a rejected cancel re-enables both buttons instead of silently discarding the proposal', async () => {
+        const { messagesEl } = await sendMessageWithProposal();
+        const confirmButton = messagesEl.querySelector('[data-assistant-proposal-confirm]');
+        const cancelButton = messagesEl.querySelector('[data-assistant-proposal-cancel]');
+
+        mockFetchOnce({ message: 'La confirmación no es válida o ya fue utilizada.' }, { ok: false, status: 422 });
+        cancelButton.click();
+
+        await vi.waitFor(() => expect(cancelButton.disabled).toBe(false));
+        expect(confirmButton.disabled).toBe(false);
+        expect(messagesEl.querySelectorAll('[data-assistant-proposal-confirm]')).toHaveLength(1);
     });
 });

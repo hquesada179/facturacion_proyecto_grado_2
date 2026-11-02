@@ -24,6 +24,7 @@ class AssistantConversation extends Model
         'completed_at',
         'messages',
         'conversation_memory',
+        'pending_action',
     ];
 
     protected function casts(): array
@@ -32,6 +33,7 @@ class AssistantConversation extends Model
             'messages' => 'array',
             'screen_context' => 'array',
             'conversation_memory' => 'array',
+            'pending_action' => 'array',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

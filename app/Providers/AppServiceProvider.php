@@ -110,6 +110,16 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(20)->by((string) ($request->user()?->id ?? $request->ip()));
         });
 
+        // IA 2.0-D: confirming/cancelling an action proposal is a
+        // write-adjacent operation (it's what actually creates a record)
+        // — rate-limited separately and more tightly than plain chat
+        // messages, so a confirmation-spam script can't be used to brute
+        // force or hammer the write path even while under the chat
+        // limiter's higher ceiling.
+        RateLimiter::for('assistant-write', function (Request $request): Limit {
+            return Limit::perMinute(10)->by((string) ($request->user()?->id ?? $request->ip()));
+        });
+
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(CreditNote::class, CreditNotePolicy::class);
         Gate::policy(NumberingResolution::class, NumberingResolutionPolicy::class);

@@ -170,3 +170,66 @@ describe('renderAssistantComponents', () => {
         expect(() => renderAssistantComponents([{ type: 'something_unexpected' }])).not.toThrow();
     });
 });
+
+describe('renderAssistantComponents — action_proposal (IA 2.0-D)', () => {
+    const proposal = {
+        type: 'action_proposal',
+        action: 'create_invoice_draft',
+        title: 'Borrador de factura',
+        summary: 'Factura para Kata por $238.000.',
+        token: 'abc123',
+        fields: [{ label: 'Cliente', value: 'Kata' }],
+        lines: [{ label: 'Camisa', detail: '×2', amount: '$238.000' }],
+        totals: [{ label: 'Total', value: '$238.000' }],
+        warnings: ['Esto es solo un ejemplo.'],
+        note: 'Aún no se ha realizado ningún cambio.',
+    };
+
+    it('renders the title, summary, lines, totals and the "no change yet" notice', () => {
+        const container = renderAssistantComponents([proposal]);
+
+        expect(container.textContent).toContain('Borrador de factura');
+        expect(container.textContent).toContain('Factura para Kata por $238.000.');
+        expect(container.textContent).toContain('Camisa');
+        expect(container.textContent).toContain('×2');
+        expect(container.textContent).toContain('Total: $238.000');
+        expect(container.textContent).toContain('Esto es solo un ejemplo.');
+        expect(container.textContent).toContain('Aún no se ha realizado ningún cambio.');
+    });
+
+    it('carries the token as a data attribute, never inside visible text', () => {
+        const container = renderAssistantComponents([proposal]);
+        const card = container.querySelector('[data-token]');
+
+        expect(card.dataset.token).toBe('abc123');
+        expect(container.textContent).not.toContain('abc123');
+    });
+
+    it('renders exactly one Confirmar and one Cancelar button', () => {
+        const container = renderAssistantComponents([proposal]);
+
+        expect(container.querySelectorAll('[data-assistant-proposal-confirm]')).toHaveLength(1);
+        expect(container.querySelectorAll('[data-assistant-proposal-cancel]')).toHaveLength(1);
+        expect(container.querySelector('[data-assistant-proposal-confirm]').textContent).toBe('Confirmar');
+        expect(container.querySelector('[data-assistant-proposal-cancel]').textContent).toBe('Cancelar');
+    });
+
+    it('still shows the "no change yet" notice even when no fields/lines/totals/warnings are present', () => {
+        const container = renderAssistantComponents([{
+            type: 'action_proposal',
+            action: 'create_customer',
+            title: 'Preparar cliente',
+            summary: 'Cliente Juan (CC 12345)',
+            token: 'xyz',
+        }]);
+
+        expect(container.textContent).toContain('Aún no se ha realizado ningún cambio.');
+    });
+
+    it('is visually distinct from a plain query-result card (primary-tinted border)', () => {
+        const container = renderAssistantComponents([proposal]);
+        const card = container.querySelector('[data-token]');
+
+        expect(card.className).toContain('border-primary');
+    });
+});
