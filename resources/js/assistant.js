@@ -566,8 +566,14 @@ class AssistantPanel {
         this.resourceId = root.dataset.resourceId || null;
         this.conversationId = null;
         this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-        this.expanded = false;
-        this.minimized = false;
+        // UI/UX fix — normal/expanded/minimized are mutually exclusive, not
+        // two independent booleans. Before this, expanding then minimizing
+        // (or vice versa) combined both sets of classes at once (a
+        // fixed, full-viewport box with its body hidden), which is exactly
+        // the "looks like it just moved" bug: minimizing never actually
+        // shrank the panel's own footprint, only its contents.
+        this.state = 'normal';
+        this.isSending = false;
 
         this.bindQuickActions();
         this.bindForm();
@@ -601,30 +607,80 @@ class AssistantPanel {
         });
     }
 
+    /**
+     * Three mutually exclusive visual states, never two independent flags:
+     * 'normal' (sidebar card / full-page card), 'expanded' (fixed,
+     * full-viewport overlay — sidebar mode only) and 'minimized' (header-
+     * only compact capsule). Switching to either of the other two always
+     * clears whichever one was active — see the constructor comment for
+     * why that matters. Nothing here touches `this.conversationId`,
+     * `this.messagesEl`'s children, or any pending proposal card already
+     * in the DOM: this method only ever flips CSS classes/attributes.
+     */
     bindHeaderControls() {
         const expandButton = this.root.querySelector('[data-assistant-expand-toggle]');
         const minimizeButton = this.root.querySelector('[data-assistant-minimize-toggle]');
         const body = this.root.querySelector('[data-assistant-body]');
-        const expandedClasses = ['fixed', 'inset-4', 'md:inset-x-10', 'md:inset-y-10', 'z-50', 'shadow-2xl', 'max-w-3xl', 'mx-auto', 'w-auto'];
+        const expandedClasses = ['fixed', 'inset-4', 'md:inset-x-10', 'md:inset-y-10', 'z-[60]', 'shadow-2xl', 'max-w-3xl', 'mx-auto', 'w-auto'];
+
+        const applyState = () => {
+            const isExpanded = this.state === 'expanded';
+            const isMinimized = this.state === 'minimized';
+
+            expandedClasses.forEach((className) => this.root.classList.toggle(className, isExpanded));
+            this.root.dataset.minimized = String(isMinimized);
+            body?.classList.toggle('hidden', isMinimized);
+
+            // Root cause of "minimized still looks huge" (verified in a
+            // real browser): on /asistente the panel is a CSS Grid item
+            // (resources/views/assistant/index.blade.php's
+            // `grid grid-cols-1 lg:grid-cols-[360px_1fr] ... min-h-[calc(100vh-12rem)]`
+            // container has no `align-items`, so Grid's default
+            // `stretch` applies). Under `align-self: stretch`, a
+            // `height:auto` child resolves ITS auto height AS "fill the
+            // stretched grid area" — so the min-height/height inline
+            // overrides below never shrank anything, because stretch
+            // isn't about height's value, it's a separate sizing
+            // algorithm. `align-self: start` is what actually opts this
+            // one item out of being stretched by its grid/flex parent,
+            // whichever layout mode it happens to sit in.
+            if (isMinimized) {
+                this.root.style.minHeight = '0px';
+                this.root.style.height = 'auto';
+                this.root.style.alignSelf = 'start';
+            } else {
+                this.root.style.minHeight = '';
+                this.root.style.height = '';
+                this.root.style.alignSelf = '';
+            }
+
+            if (expandButton) {
+                const expandIcon = expandButton.querySelector('.material-symbols-outlined');
+                expandIcon.textContent = isExpanded ? 'close_fullscreen' : 'open_in_full';
+                expandButton.setAttribute('aria-label', isExpanded ? 'Contraer asistente' : 'Expandir asistente');
+                expandButton.setAttribute('title', expandButton.getAttribute('aria-label'));
+                // No point offering "expand" on a capsule with no body to
+                // expand — minimizeButton itself becomes the one control
+                // that restores it.
+                expandButton.classList.toggle('hidden', isMinimized);
+            }
+
+            if (minimizeButton) {
+                const minimizeIcon = minimizeButton.querySelector('.material-symbols-outlined');
+                minimizeIcon.textContent = isMinimized ? 'add' : 'remove';
+                minimizeButton.setAttribute('aria-label', isMinimized ? 'Restaurar asistente' : 'Minimizar asistente');
+                minimizeButton.setAttribute('title', minimizeButton.getAttribute('aria-label'));
+            }
+        };
 
         expandButton?.addEventListener('click', () => {
-            this.expanded = !this.expanded;
-            expandedClasses.forEach((className) => this.root.classList.toggle(className, this.expanded));
-
-            const icon = expandButton.querySelector('.material-symbols-outlined');
-            icon.textContent = this.expanded ? 'close_fullscreen' : 'open_in_full';
-            expandButton.setAttribute('aria-label', this.expanded ? 'Contraer asistente' : 'Expandir asistente');
-            expandButton.setAttribute('title', expandButton.getAttribute('aria-label'));
+            this.state = this.state === 'expanded' ? 'normal' : 'expanded';
+            applyState();
         });
 
         minimizeButton?.addEventListener('click', () => {
-            this.minimized = !this.minimized;
-            body?.classList.toggle('hidden', this.minimized);
-
-            const icon = minimizeButton.querySelector('.material-symbols-outlined');
-            icon.textContent = this.minimized ? 'add' : 'remove';
-            minimizeButton.setAttribute('aria-label', this.minimized ? 'Reabrir asistente' : 'Minimizar asistente');
-            minimizeButton.setAttribute('title', minimizeButton.getAttribute('aria-label'));
+            this.state = this.state === 'minimized' ? 'normal' : 'minimized';
+            applyState();
         });
     }
 
@@ -643,7 +699,20 @@ class AssistantPanel {
         });
     }
 
+    /**
+     * Guards the one gap the quick-action investigation actually found:
+     * nothing previously stopped a rapid double-click (or a quick action
+     * clicked while the form's own submit was still in flight) from firing
+     * two independent requests for what the user experienced as one tap.
+     * Scoped to `this` (one flag per panel instance), so two panel
+     * instances on the same page never block each other.
+     */
     async sendMessage(message) {
+        if (this.isSending) {
+            return;
+        }
+
+        this.isSending = true;
         this.appendUserMessage(message);
         this.setLoading(true);
 
@@ -678,6 +747,7 @@ class AssistantPanel {
             this.appendSystemNote('El asistente no está disponible temporalmente. Las funciones de facturación continúan funcionando normalmente.', true);
         } finally {
             this.setLoading(false);
+            this.isSending = false;
         }
     }
 

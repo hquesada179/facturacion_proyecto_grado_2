@@ -11,10 +11,6 @@
     </div>
 
     <div class="flex items-center gap-md">
-        <a href="{{ route('assistant.index') }}" class="icon-btn ai-gradient text-on-primary px-md py-sm rounded-lg flex items-center gap-xs font-label-md text-label-md shadow-hover">
-            <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
-            Asistente IA
-        </a>
         <x-notification-center :items="$notificationItems" :user-id="auth()->id()" />
         <button
             type="button"

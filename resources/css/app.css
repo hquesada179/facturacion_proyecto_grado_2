@@ -366,3 +366,34 @@
         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
     }
 }
+
+/* Assistant minimize fix — deliberately left OUTSIDE any @layer as a
+   backup for assistant.js's own inline-style version of the same three
+   declarations (inline styles are the actual mechanism; this rule only
+   matters if something ever clears them without going through
+   bindHeaderControls). Tailwind v4 puts every utility class (including
+   the panel's own min-h-[520px]/min-h-[640px]/h-full) inside
+   `@layer utilities`; a rule written inside `@layer components` can
+   never win that fight regardless of class order, because CSS cascade
+   layers resolve by layer first and only fall back to source order
+   within the same layer — an unlayered rule outranks every layered one.
+
+   `align-self: start` is the part that actually mattered: on /asistente
+   the panel is a CSS Grid item inside a container with no `align-items`
+   (assistant/index.blade.php's grid defaults to Grid's own
+   `align-items: stretch`), so a plain `height:auto`/`min-height:0` panel
+   still gets stretched to fill the grid row — stretch resolves "auto"
+   height AS "fill the area", it isn't about the height value at all.
+   `align-self` is the one property that opts a single item out of its
+   parent's stretch, in both grid and flex contexts, without touching any
+   layout wrapper. */
+[data-assistant-panel][data-minimized='true'] {
+    height: auto;
+    min-height: 0;
+    align-self: start;
+}
+
+[data-assistant-panel][data-minimized='true'] [data-assistant-decoration] {
+    display: none;
+}
+

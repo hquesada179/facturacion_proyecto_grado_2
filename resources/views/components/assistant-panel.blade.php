@@ -82,7 +82,7 @@
     data-feedback-url-template="{{ route('assistant.feedback', ['assistantMessage' => '__ID__']) }}"
     class="surface-card p-lg {{ $mode === 'full' ? 'h-full min-h-[640px]' : 'min-h-[520px]' }} flex flex-col relative overflow-hidden"
 >
-    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full"></div>
+    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none" data-assistant-decoration></div>
 
     <div class="relative flex items-center gap-sm mb-md">
         <span class="material-symbols-outlined ai-gradient-text text-3xl">auto_awesome</span>

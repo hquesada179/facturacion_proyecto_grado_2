@@ -73,6 +73,68 @@ function buildPanel({ mode = 'sidebar' } = {}) {
     };
 }
 
+/**
+ * Two independent panel instances on the same page at once (e.g. a
+ * contextual sidebar panel that happened to coexist with another one) —
+ * used to prove each `AssistantPanel` only ever touches its own root via
+ * `this.root.querySelector(...)`, never the first match in the whole
+ * document.
+ */
+function buildTwoPanels() {
+    document.head.innerHTML = '<meta name="csrf-token" content="test-csrf-token">';
+
+    const panelHtml = (id, messageUrl) => `
+        <div
+            id="${id}"
+            data-assistant-panel
+            data-screen="dashboard"
+            data-resource-type=""
+            data-resource-id=""
+            data-message-url="${messageUrl}"
+            data-confirm-url="/assistant/confirm"
+            data-cancel-url="/assistant/cancel"
+            data-feedback-url-template="/assistant/messages/__ID__/feedback"
+        >
+            <div>
+                <button type="button" data-assistant-expand-toggle aria-label="Expandir asistente" title="Expandir asistente">
+                    <span class="material-symbols-outlined">open_in_full</span>
+                </button>
+                <button type="button" data-assistant-minimize-toggle aria-label="Minimizar asistente" title="Minimizar asistente">
+                    <span class="material-symbols-outlined">remove</span>
+                </button>
+            </div>
+
+            <div data-assistant-body>
+                <div data-assistant-quick-actions>
+                    <button type="button" data-assistant-quick-action data-type="message" data-value="mensaje de ${id}">Acción</button>
+                    <button type="button" data-assistant-quick-action data-type="focus" data-value="busca en ${id} ">Buscar</button>
+                </div>
+
+                <div data-assistant-messages></div>
+                <div class="hidden" data-assistant-loading></div>
+
+                <form data-assistant-form>
+                    <input type="text" data-assistant-input>
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.body.innerHTML = panelHtml('panel-a', '/assistant/message-a') + panelHtml('panel-b', '/assistant/message-b');
+
+    initAssistantPanels();
+
+    const within = (id) => ({
+        root: document.getElementById(id),
+        quickActions: document.getElementById(id).querySelectorAll('[data-assistant-quick-action]'),
+        messagesEl: document.getElementById(id).querySelector('[data-assistant-messages]'),
+        input: document.getElementById(id).querySelector('[data-assistant-input]'),
+    });
+
+    return { a: within('panel-a'), b: within('panel-b') };
+}
+
 function mockFetchOnce(responseBody, { ok = true, status = 200 } = {}) {
     global.fetch = vi.fn().mockResolvedValue({
         ok,
@@ -111,23 +173,79 @@ describe('AssistantPanel — expand/minimize', () => {
         expect(document.querySelector('[data-assistant-expand-toggle]')).toBeNull();
     });
 
-    it('minimize toggle hides and reopens the body, toggling icon and aria-label', () => {
-        const { minimizeButton, body } = buildPanel();
+    it('minimize toggle hides and reopens the body, toggling icon, aria-label and the panel own collapsed state', () => {
+        const { panel, minimizeButton, expandButton, body } = buildPanel();
         const icon = minimizeButton.querySelector('.material-symbols-outlined');
 
         expect(body.classList.contains('hidden')).toBe(false);
+        expect(panel.dataset.minimized).toBeUndefined();
 
         minimizeButton.click();
 
         expect(body.classList.contains('hidden')).toBe(true);
         expect(icon.textContent).toBe('add');
-        expect(minimizeButton.getAttribute('aria-label')).toBe('Reabrir asistente');
+        expect(minimizeButton.getAttribute('aria-label')).toBe('Restaurar asistente');
+        // BUG FIX — minimizing must collapse the panel's own footprint
+        // (see app.css's unlayered `[data-minimized='true']` rule), not
+        // just hide its contents while the big min-h-[...] card stays the
+        // same size. This attribute is what that CSS rule keys off.
+        expect(panel.dataset.minimized).toBe('true');
+        // No point showing "expand to full view" on a capsule with no
+        // body to expand.
+        expect(expandButton.classList.contains('hidden')).toBe(true);
+        // Belt-and-suspenders: an inline style that wins regardless of how
+        // a given browser resolves Tailwind's cascade layers vs this
+        // unlayered CSS rule.
+        expect(panel.style.minHeight).toBe('0px');
+        expect(panel.style.height).toBe('auto');
+        // This is the one that actually mattered (confirmed in a real
+        // browser): on /asistente the panel is a grid item whose
+        // container has no `align-items`, so Grid's default `stretch`
+        // still fills the row even with height:auto/min-height:0 — stretch
+        // isn't about the height value, it's a separate sizing algorithm
+        // that only `align-self` opts a single item out of.
+        expect(panel.style.alignSelf).toBe('start');
 
         minimizeButton.click();
 
         expect(body.classList.contains('hidden')).toBe(false);
         expect(icon.textContent).toBe('remove');
         expect(minimizeButton.getAttribute('aria-label')).toBe('Minimizar asistente');
+        expect(panel.dataset.minimized).toBe('false');
+        expect(expandButton.classList.contains('hidden')).toBe(false);
+        expect(panel.style.minHeight).toBe('');
+        expect(panel.style.height).toBe('');
+        expect(panel.style.alignSelf).toBe('');
+    });
+
+    it('expanding while minimized restores the body instead of combining both states', () => {
+        const { panel, minimizeButton, expandButton, body } = buildPanel();
+
+        minimizeButton.click();
+        expect(panel.dataset.minimized).toBe('true');
+
+        expandButton.classList.remove('hidden'); // simulate a stray click path even though it's visually hidden
+        expandButton.click();
+
+        expect(panel.classList.contains('fixed')).toBe(true);
+        // The two states are mutually exclusive — expanding must clear
+        // "minimized", never stack a fixed full-viewport overlay with a
+        // collapsed body on top of it (that combination is exactly the
+        // "looks like it just moved" bug from before this fix).
+        expect(panel.dataset.minimized).toBe('false');
+        expect(body.classList.contains('hidden')).toBe(false);
+    });
+
+    it('minimizing while expanded drops the fixed overlay instead of leaving an empty full-screen box', () => {
+        const { panel, minimizeButton, expandButton } = buildPanel();
+
+        expandButton.click();
+        expect(panel.classList.contains('fixed')).toBe(true);
+
+        minimizeButton.click();
+
+        expect(panel.classList.contains('fixed')).toBe(false);
+        expect(panel.dataset.minimized).toBe('true');
     });
 
     it('minimizing does not clear previously received messages', async () => {
@@ -403,5 +521,149 @@ describe('AssistantPanel — IA 2.0-D action_proposal preview/confirm/cancel', (
         await vi.waitFor(() => expect(cancelButton.disabled).toBe(false));
         expect(confirmButton.disabled).toBe(false);
         expect(messagesEl.querySelectorAll('[data-assistant-proposal-confirm]')).toHaveLength(1);
+    });
+});
+
+/**
+ * Bug-fix coverage: minimize/expand are a single tri-state, quick actions
+ * use the exact same sendMessage() pipeline in every mode, a second
+ * request can never fire for what the user experienced as one tap, and
+ * two panel instances on the same page never cross-wire their inputs or
+ * requests. See the phase report for the investigation that ruled out a
+ * wiring/duplication bug and found the real one (minimize never actually
+ * shrank the panel; there was no in-flight guard).
+ */
+describe('AssistantPanel — quick actions in every mode, no double-submit, instance isolation', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('a quick action sent from the expanded (full-view) state uses the exact same pipeline as normal mode', async () => {
+        const { quickActions, expandButton, messagesEl, loadingEl } = buildPanel();
+        mockFetchOnce({ conversation_id: 9, message: 'Claro, te explico.', components: [] });
+
+        expandButton.click();
+        expect(document.querySelector('[data-assistant-panel]').classList.contains('fixed')).toBe(true);
+
+        quickActions[0].click();
+
+        expect(messagesEl.textContent).toContain('¿Cuántas facturas tengo hoy?');
+        expect(loadingEl.classList.contains('flex')).toBe(true);
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('Claro, te explico.'));
+        expect(global.fetch).toHaveBeenCalledWith('/assistant/message', expect.objectContaining({ method: 'POST' }));
+    });
+
+    it('expanding after a conversation already started keeps the exact same messages visible', async () => {
+        const { form, input, expandButton, messagesEl } = buildPanel();
+        mockFetchOnce({ conversation_id: 3, message: 'Tienes 2 borradores.', components: [] });
+
+        input.value = 'mis borradores';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('Tienes 2 borradores.'));
+
+        expandButton.click();
+
+        expect(messagesEl.textContent).toContain('mis borradores');
+        expect(messagesEl.textContent).toContain('Tienes 2 borradores.');
+    });
+
+    it('a pending action_proposal card survives a minimize/restore cycle and its Confirmar button still works', async () => {
+        const { minimizeButton, messagesEl, form, input } = buildPanel();
+        const proposal = {
+            type: 'action_proposal',
+            action: 'create_customer',
+            title: 'Cliente nuevo',
+            summary: 'Crear Kata Pérez.',
+            token: 'proposal-token-minimize',
+            fields: [],
+            lines: [],
+            totals: [],
+            warnings: [],
+            note: 'Aún no se ha realizado ningún cambio.',
+        };
+        mockFetchOnce({ conversation_id: 5, message: 'Preparé esta acción.', components: [proposal], requires_confirmation: true });
+
+        input.value = 'Crea el cliente Kata Pérez';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('Preparé esta acción.'));
+
+        minimizeButton.click();
+        minimizeButton.click();
+
+        const confirmButton = messagesEl.querySelector('[data-assistant-proposal-confirm]');
+        expect(confirmButton).not.toBeNull();
+        expect(confirmButton.closest('[data-token]').dataset.token).toBe('proposal-token-minimize');
+
+        mockFetchOnce({ message: 'Cliente creado correctamente.', components: [] });
+        confirmButton.click();
+
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('Cliente creado correctamente.'));
+        expect(global.fetch).toHaveBeenCalledWith('/assistant/confirm', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ token: 'proposal-token-minimize' }),
+        }));
+    });
+
+    it('a rapid double-click on the same quick action sends exactly one request', async () => {
+        const { quickActions, messagesEl } = buildPanel();
+        mockFetchOnce({ conversation_id: 1, message: 'ok', components: [] });
+
+        quickActions[0].click();
+        quickActions[0].click();
+
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('ok'));
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('submitting the form again while a previous message is still in flight does not send a second request', () => {
+        const { form, input } = buildPanel();
+        let resolveFetch;
+        global.fetch = vi.fn().mockReturnValue(new Promise((resolve) => { resolveFetch = resolve; }));
+
+        input.value = 'primera';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        input.value = 'segunda';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        resolveFetch({ ok: true, status: 200, json: () => Promise.resolve({ message: 'ok', components: [] }) });
+    });
+
+    it('after a failed request the guard releases, so the very next message still sends normally', async () => {
+        const { form, input, messagesEl } = buildPanel();
+        global.fetch = vi.fn().mockRejectedValueOnce(new Error('network down'));
+
+        input.value = 'primera';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('no está disponible temporalmente'));
+
+        mockFetchOnce({ conversation_id: 1, message: 'segunda respuesta', components: [] });
+        input.value = 'segunda';
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+
+        await vi.waitFor(() => expect(messagesEl.textContent).toContain('segunda respuesta'));
+    });
+
+    it('two panel instances on the same page never share requests: clicking one never fires on behalf of the other', async () => {
+        const { a, b } = buildTwoPanels();
+        mockFetchOnce({ conversation_id: 1, message: 'respuesta a', components: [] });
+
+        a.quickActions[0].click();
+
+        await vi.waitFor(() => expect(a.messagesEl.textContent).toContain('respuesta a'));
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith('/assistant/message-a', expect.anything());
+        expect(b.messagesEl.textContent).toBe('');
+    });
+
+    it('two panel instances never cross-wire their inputs: a "focus" quick action only fills its own panel', () => {
+        const { a, b } = buildTwoPanels();
+        global.fetch = vi.fn();
+
+        a.quickActions[1].click();
+
+        expect(a.input.value).toBe('busca en panel-a ');
+        expect(b.input.value).toBe('');
+        expect(document.activeElement).toBe(a.input);
     });
 });
