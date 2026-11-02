@@ -7,6 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="application-name" content="{{ config('app.name') }}">
     <title>{{ $title ? $title.' | '.config('app.name') : config('app.name') }}</title>
+    <script>
+        // Reuses the exact same mechanism as layouts/app.blade.php — same
+        // storage key, same system-preference fallback — so the auth
+        // screens respect whatever theme the user already chose instead
+        // of always forcing light mode. No second dark-mode system.
+        (function () {
+            try {
+                var stored = window.localStorage.getItem('fiscora:theme');
+                var theme = stored === 'light' || stored === 'dark'
+                    ? stored
+                    : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.dataset.theme = theme;
+            } catch (error) {
+                document.documentElement.dataset.theme = 'light';
+            }
+        })();
+    </script>
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('branding/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('branding/favicon-16x16.png') }}">
     <link rel="icon" href="{{ asset('branding/favicon.ico') }}" sizes="any">
