@@ -535,6 +535,36 @@
     --landing-gold-soft: #e3cd98;
     --landing-ease: cubic-bezier(.22, .9, .3, 1);
 
+    /* Theme isolation — the comment above already promised ".landing...
+       never responds to the app's light/dark toggle", but nothing had
+       actually pinned the shared --color-* tokens it draws on (text-
+       on-surface, text-on-surface-variant, text-outline, the success/
+       warning soft pills reused from x-landing.dashboard-mockup). If a
+       visitor turned dark mode on inside the authenticated app and then
+       landed back on `/`, :root[data-theme='dark'] (set by the exact
+       same inline script layouts/auth.blade.php shares with
+       layouts/app.blade.php) silently repainted every one of those
+       tokens to their dark values — e.g. --color-on-surface flips to a
+       near-white #e9edf7, so a heading sitting on this section's white
+       card became nearly invisible. Re-declaring the light values here,
+       on `.landing` itself, wins over whatever `:root` says (ordinary
+       CSS inheritance: the closest ancestor rule that sets a custom
+       property always wins over one further up the tree) — no `!important`,
+       no dark-mode removal, nothing else about the token system changes.
+       localStorage['fiscora:theme'] is still read and still still drives
+       the authenticated app exactly as before; `.landing` just never
+       looks at the result. --color-primary/--color-brand-gold/
+       --color-on-primary are NOT listed below because the dark-theme
+       block already leaves those three untouched (see its own comment) —
+       pinning them here would be redundant, not safer. */
+    --color-on-surface: #0b1c30;
+    --color-on-surface-variant: #444651;
+    --color-outline: #757682;
+    --color-success-soft: #def7ec;
+    --color-success-soft-foreground: #03543f;
+    --color-warning-soft: #fdf6b2;
+    --color-warning-soft-foreground: #723b13;
+
     font-family: var(--font-sans);
 }
 
