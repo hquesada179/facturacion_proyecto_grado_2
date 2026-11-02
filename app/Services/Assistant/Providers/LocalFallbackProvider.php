@@ -121,13 +121,20 @@ class LocalFallbackProvider implements AiProviderInterface
         $warnings = (int) ($tool['warning_count'] ?? 0);
 
         if ($blocking === 0 && $warnings === 0) {
-            return 'Según el ValidationEngine del sistema, la factura no tiene bloqueos ni advertencias.';
+            $lines = ['Según el ValidationEngine del sistema, la factura no tiene bloqueos ni advertencias.'];
+        } else {
+            $lines = ["Según el ValidationEngine del sistema, la factura tiene {$blocking} bloqueo(s) y {$warnings} advertencia(s)."];
+
+            foreach (($tool['results'] ?? []) as $result) {
+                $lines[] = '- '.$result['code'].': '.$result['message'].' Campo: '.$result['field'].'. Sugerencia: '.$result['suggestion'];
+            }
         }
 
-        $lines = ["Según el ValidationEngine del sistema, la factura tiene {$blocking} bloqueo(s) y {$warnings} advertencia(s)."];
-
-        foreach (($tool['results'] ?? []) as $result) {
-            $lines[] = '- '.$result['code'].': '.$result['message'].' Campo: '.$result['field'].'. Sugerencia: '.$result['suggestion'];
+        // Missing numbering blocks emission even with zero ValidationEngine
+        // blockers — it's checked separately, at emission time — so the
+        // assistant only ever mentions it when it's actually true.
+        if (! ($tool['has_active_numbering_resolution'] ?? true)) {
+            $lines[] = 'No hay una resolución de numeración vigente. Ve a Configuración → Facturación / Numeración y crea una resolución simulada activa antes de emitir.';
         }
 
         return implode("\n", $lines);

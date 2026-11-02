@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Invoices;
 
+use App\Enums\DocumentType;
 use App\Enums\InvoiceStatus;
 use App\Exceptions\InvoiceHasBlockingIssuesException;
 use App\Http\Controllers\Controller;
@@ -11,6 +12,7 @@ use App\Services\Invoices\InvoiceStateMachine;
 use App\Services\Invoices\InvoiceTraceLogger;
 use App\Services\Invoices\IssueInvoiceService;
 use App\Services\Invoices\Validation\ValidationEngine;
+use App\Services\Numbering\NumberingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -21,6 +23,7 @@ class InvoiceDraftValidationController extends Controller
         private readonly ValidationEngine $engine,
         private readonly InvoiceTraceLogger $logger,
         private readonly IssueInvoiceService $issueService,
+        private readonly NumberingService $numbering,
     ) {}
 
     /** Read-only: never mutates state, just shows where the draft stands. */
@@ -35,6 +38,11 @@ class InvoiceDraftValidationController extends Controller
             'invoice' => $invoice,
             'calculation' => $context->calculation,
             'validation' => $results,
+            // Detected proactively — the same real authority
+            // (IssueInvoiceService::finishIssuing()) still has the final
+            // say; this only lets the screen warn before the user even
+            // clicks "Emitir", instead of only after a failed attempt.
+            'hasActiveInvoiceResolution' => $this->numbering->activeResolutionFor($invoice->company, DocumentType::Invoice) !== null,
         ]);
     }
 

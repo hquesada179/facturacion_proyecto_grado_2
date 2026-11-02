@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceEvent;
+use App\Models\NumberingResolution;
 use App\Models\ProductService;
 use App\Models\User;
 use App\Services\Onboarding\OnboardingService;
@@ -101,6 +102,100 @@ class OnboardingTest extends TestCase
         $company->refresh();
         $this->assertSame('USD', $company->currency);
         $this->assertSame('data', $company->onboarding_step);
+    }
+
+    public function test_billing_step_shows_a_warning_and_cta_when_no_numbering_resolution_exists(): void
+    {
+        $company = Company::factory()->create();
+        $user = $this->adminFor($company);
+        app(OnboardingService::class)->start($company);
+        app(OnboardingService::class)->advanceStep($company, 'billing');
+
+        $response = $this->actingAs($user)->get(route('onboarding.show'));
+
+        $response->assertOk();
+        $response->assertSee('Numeración de facturas');
+        $response->assertSee('Configurar numeración de prueba');
+    }
+
+    public function test_billing_step_can_create_an_initial_numbering_resolution(): void
+    {
+        $company = Company::factory()->create();
+        $user = $this->adminFor($company);
+        app(OnboardingService::class)->start($company);
+        app(OnboardingService::class)->advanceStep($company, 'billing');
+
+        $response = $this->actingAs($user)->post(route('onboarding.numbering.store'), [
+            'prefix' => 'FV',
+            'range_from' => 1,
+            'range_to' => 1000,
+            'valid_from' => now()->toDateString(),
+            'valid_until' => now()->addYear()->toDateString(),
+            'is_active' => '1',
+        ]);
+
+        $response->assertRedirect(route('onboarding.show', ['step' => 'billing']));
+
+        $resolution = NumberingResolution::withoutGlobalScopes()->where('company_id', $company->id)->first();
+        $this->assertNotNull($resolution);
+        $this->assertSame('FV', $resolution->prefix);
+        $this->assertSame(1, $resolution->range_from);
+        $this->assertSame(1000, $resolution->range_to);
+        $this->assertSame(1, $resolution->current_consecutive);
+        $this->assertTrue($resolution->is_active);
+        $this->assertSame(\App\Enums\DocumentType::Invoice, $resolution->document_type);
+
+        // Does not get stuck as a draft anywhere else — never
+        // left as a different onboarding_step, the Billing step's own
+        // "Continuar" is completely unaffected by this action.
+        $this->assertSame('billing', $company->refresh()->onboarding_step);
+
+        // Recognized immediately — the Billing screen now shows the
+        // read-only summary, not the create form again.
+        $this->actingAs($user)->get(route('onboarding.show'))
+            ->assertOk()
+            ->assertSee('Ya tienes una resolución de numeración vigente')
+            ->assertDontSee('Configurar numeración de prueba');
+    }
+
+    public function test_billing_step_never_duplicates_a_numbering_resolution(): void
+    {
+        $company = Company::factory()->create();
+        $user = $this->adminFor($company);
+        app(OnboardingService::class)->start($company);
+        app(OnboardingService::class)->advanceStep($company, 'billing');
+
+        $payload = [
+            'prefix' => 'FV',
+            'range_from' => 1,
+            'range_to' => 1000,
+            'valid_from' => now()->toDateString(),
+            'valid_until' => now()->addYear()->toDateString(),
+            'is_active' => '1',
+        ];
+
+        $this->actingAs($user)->post(route('onboarding.numbering.store'), $payload);
+        $this->actingAs($user)->post(route('onboarding.numbering.store'), $payload);
+
+        $this->assertSame(1, NumberingResolution::withoutGlobalScopes()->where('company_id', $company->id)->count());
+    }
+
+    public function test_onboarding_recognizes_an_already_existing_numbering_resolution(): void
+    {
+        $company = Company::factory()->create();
+        $user = $this->adminFor($company);
+        app(OnboardingService::class)->start($company);
+        app(OnboardingService::class)->advanceStep($company, 'billing');
+
+        NumberingResolution::factory()->for($company)->create([
+            'prefix' => 'FV', 'range_from' => 1, 'range_to' => 500, 'current_consecutive' => 1,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('onboarding.show'));
+
+        $response->assertOk();
+        $response->assertSee('Ya tienes una resolución de numeración vigente');
+        $response->assertDontSee('Configurar numeración de prueba');
     }
 
     public function test_demo_customer_is_created_once_and_associated_to_the_company(): void
@@ -285,6 +380,29 @@ class OnboardingTest extends TestCase
         $checklist = app(OnboardingService::class)->checklistFor($user->refresh());
         $this->assertSame(5, $checklist['doneCount']);
         $this->assertSame(100, $checklist['percent']);
+    }
+
+    public function test_checklist_never_counts_a_draft_invoice_as_the_first_invoice_created(): void
+    {
+        $company = Company::factory()->create([
+            'legal_name' => 'Empresa Real SAS',
+            'nit' => '900999888',
+        ]);
+        $user = $this->adminFor($company);
+        $this->actingAs($user);
+
+        Customer::factory()->for($company)->create();
+        ProductService::factory()->for($company)->create();
+
+        // Draft only — never issued.
+        Invoice::create(['user_id' => $user->id]);
+
+        $checklist = app(OnboardingService::class)->checklistFor($user->refresh());
+        $invoiceItem = collect($checklist['items'])->firstWhere('key', 'invoice');
+
+        $this->assertSame('Crear primera factura', $invoiceItem['label']);
+        $this->assertFalse($invoiceItem['done'], 'Un borrador nunca debe marcar "Crear primera factura" como hecho.');
+        $this->assertSame(3, $checklist['doneCount']); // company + customer + product only
     }
 
     public function test_onboarding_progress_and_data_never_cross_companies(): void

@@ -6,6 +6,7 @@ use App\Models\AssistantConversation;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\NumberingResolution;
 use App\Models\ProductService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -163,5 +164,39 @@ class AssistantSecurityAndContextTest extends TestCase
         ])->assertOk();
 
         $this->assertStringContainsString('no tiene bloqueos', $response->json('message'));
+    }
+
+    public function test_explain_errors_tells_the_user_about_the_missing_numbering_resolution(): void
+    {
+        $user = $this->facturador();
+        $invoice = $this->readyDraft($user); // no customer/item issues — and no numbering resolution either
+
+        $response = $this->actingAs($user)->postJson(route('assistant.message'), [
+            'message' => '¿Por qué no puedo emitir esta factura?',
+            'screen' => 'invoice.validation',
+            'resource_type' => 'invoice',
+            'resource_id' => $invoice->id,
+        ])->assertOk();
+
+        $this->assertStringContainsString('No hay una resolución de numeración vigente', $response->json('message'));
+        $this->assertStringContainsString('Configuración', $response->json('message'));
+    }
+
+    public function test_explain_errors_says_nothing_about_numbering_once_a_resolution_is_active(): void
+    {
+        $user = $this->facturador();
+        NumberingResolution::factory()->for($user->company)->create([
+            'prefix' => 'FV', 'range_from' => 1, 'range_to' => 100, 'current_consecutive' => 1,
+        ]);
+        $invoice = $this->readyDraft($user);
+
+        $response = $this->actingAs($user)->postJson(route('assistant.message'), [
+            'message' => '¿Por qué no puedo emitir esta factura?',
+            'screen' => 'invoice.validation',
+            'resource_type' => 'invoice',
+            'resource_id' => $invoice->id,
+        ])->assertOk();
+
+        $this->assertStringNotContainsString('resolución de numeración', $response->json('message'));
     }
 }

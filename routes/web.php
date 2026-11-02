@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/start', [OnboardingController::class, 'start'])->name('start');
         Route::put('/company', [OnboardingController::class, 'updateCompany'])->name('company.update');
         Route::put('/billing', [OnboardingController::class, 'updateBilling'])->name('billing.update');
+        Route::post('/numbering', [OnboardingController::class, 'storeNumbering'])->name('numbering.store');
         Route::post('/customer', [OnboardingController::class, 'storeCustomer'])->name('customer.store');
         Route::post('/customer/demo', [OnboardingController::class, 'demoCustomer'])->name('customer.demo');
         Route::post('/product', [OnboardingController::class, 'storeProduct'])->name('product.store');

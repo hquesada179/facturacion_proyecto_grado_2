@@ -2,10 +2,12 @@
 
 namespace App\Services\Assistant\Tools;
 
+use App\Enums\DocumentType;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Invoices\InvoiceDraftContextBuilder;
 use App\Services\Invoices\Validation\ValidationEngine;
+use App\Services\Numbering\NumberingService;
 use Illuminate\Support\Facades\Gate;
 
 class ExplainValidationTool
@@ -13,6 +15,7 @@ class ExplainValidationTool
     public function __construct(
         private readonly InvoiceDraftContextBuilder $contextBuilder,
         private readonly ValidationEngine $engine,
+        private readonly NumberingService $numbering,
     ) {}
 
     public function handle(User $user, int $invoiceId): array
@@ -43,6 +46,11 @@ class ExplainValidationTool
                 'message' => $result->mensaje,
                 'suggestion' => $result->sugerencia,
             ])->values()->all(),
+            // Not a ValidationEngine rule — it's a separate condition
+            // checked only at actual emission time (see
+            // IssueInvoiceService::finishIssuing()) — so the assistant
+            // needs it reported explicitly to be able to explain it.
+            'has_active_numbering_resolution' => $this->numbering->activeResolutionFor($invoice->company, DocumentType::Invoice) !== null,
         ];
     }
 }

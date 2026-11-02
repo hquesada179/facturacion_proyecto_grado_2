@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\DocumentType;
 use App\Http\Requests\Customers\StoreCustomerRequest;
+use App\Http\Requests\Onboarding\OnboardingNumberingRequest;
 use App\Http\Requests\Products\StoreProductServiceRequest;
 use App\Http\Requests\Settings\UpdateCompanyRequest;
 use App\Models\Customer;
 use App\Models\ProductService;
 use App\Models\Tax;
 use App\Services\Customers\CustomerService;
+use App\Services\Numbering\NumberingService;
 use App\Services\Onboarding\OnboardingService;
 use App\Services\Products\ProductCatalogService;
 use App\Services\Tax\NitDvCalculator;
@@ -34,6 +37,7 @@ class OnboardingController extends Controller
         private readonly OnboardingService $onboarding,
         private readonly CustomerService $customers,
         private readonly ProductCatalogService $products,
+        private readonly NumberingService $numbering,
     ) {}
 
     public function show(Request $request): View
@@ -48,7 +52,10 @@ class OnboardingController extends Controller
         $step = $this->onboarding->resolveDisplayStep($company, $request->query('step'));
 
         return match ($step) {
-            'billing' => view('onboarding.billing', ['company' => $company]),
+            'billing' => view('onboarding.billing', [
+                'company' => $company,
+                'numberingResolution' => $this->numbering->activeResolutionFor($company, DocumentType::Invoice),
+            ]),
             'data' => view('onboarding.data', [
                 'company' => $company,
                 'hasCustomer' => Customer::withoutGlobalScopes()->where('company_id', $company->id)->exists(),
@@ -109,6 +116,25 @@ class OnboardingController extends Controller
         $this->onboarding->advanceStep($company, 'data');
 
         return redirect()->route('onboarding.show');
+    }
+
+    /**
+     * Optional, additive to the Billing step: lets a brand-new company
+     * create its first simulated invoice numbering resolution inline,
+     * instead of only discovering it's missing later at emission time.
+     * Does not gate advancing past this step — updateBilling() above is
+     * completely unchanged — this is purely a convenience shortcut to
+     * the same creation path Configuración → Facturación/Numeración
+     * already uses.
+     */
+    public function storeNumbering(OnboardingNumberingRequest $request): RedirectResponse
+    {
+        $company = $request->user()->company;
+        $this->authorize('update', $company);
+
+        $this->onboarding->ensureInitialNumberingResolution($company, $request->validated());
+
+        return redirect()->route('onboarding.show', ['step' => 'billing']);
     }
 
     public function demoCustomer(Request $request): RedirectResponse

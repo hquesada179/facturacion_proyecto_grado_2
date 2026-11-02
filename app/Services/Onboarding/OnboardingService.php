@@ -2,13 +2,17 @@
 
 namespace App\Services\Onboarding;
 
+use App\Enums\DocumentType;
+use App\Enums\InvoiceStatus;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\InvoiceEvent;
+use App\Models\NumberingResolution;
 use App\Models\ProductService;
 use App\Models\Tax;
 use App\Models\User;
 use App\Services\Customers\CustomerService;
+use App\Services\Numbering\NumberingService;
 use App\Services\Products\ProductCatalogService;
 
 /**
@@ -38,6 +42,7 @@ class OnboardingService
     public function __construct(
         private readonly CustomerService $customers,
         private readonly ProductCatalogService $products,
+        private readonly NumberingService $numbering,
     ) {}
 
     public const STEPS = ['company', 'billing', 'data', 'done'];
@@ -156,6 +161,38 @@ class OnboardingService
     }
 
     /**
+     * Idempotent, same pattern as ensureDemoCustomer()/ensureDemoProduct():
+     * a company can only ever have one *active* resolution per document
+     * type in practice (that's what blocks invoice issuance), so if one
+     * already exists it's returned as-is — the onboarding Billing step
+     * must never create a second, competing resolution.
+     */
+    public function ensureInitialNumberingResolution(Company $company, array $data): NumberingResolution
+    {
+        $existing = $this->numbering->activeResolutionFor($company, DocumentType::Invoice);
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        return $company->numberingResolutions()->create([
+            'document_type' => DocumentType::Invoice,
+            'authorization_number_simulated' => sprintf('SIM-%s-%06d', strtoupper((string) $data['prefix']), (int) $data['range_from']),
+            'prefix' => $data['prefix'],
+            'range_from' => $data['range_from'],
+            'range_to' => $data['range_to'],
+            'current_consecutive' => $data['range_from'],
+            'valid_from' => $data['valid_from'],
+            'valid_until' => $data['valid_until'],
+            // Same literal placeholder DatabaseSeeder's own demo
+            // resolution uses — one shared convention for "this is a
+            // simulated technical key", not a second one invented here.
+            'simulated_technical_key' => 'DOCUMENTO-DE-PRUEBA-SIN-VALIDEZ-TRIBUTARIA',
+            'is_active' => $data['is_active'] ?? true,
+        ]);
+    }
+
+    /**
      * Real data only — no stored "cliente_creado"/"producto_creado"
      * booleans, per the task's own instruction. Each condition is a
      * single exists() check, so this stays O(1) queries regardless of
@@ -177,8 +214,14 @@ class OnboardingService
             ->where('company_id', $company->id)
             ->exists();
 
+        // Issued only — a draft (or any non-issued status) never counts
+        // as "created". Issuing an invoice already structurally requires
+        // a real customer, product and an active numbering resolution
+        // (see IssueInvoiceService), so this one condition is equivalent
+        // to — not weaker than — checking all of those separately.
         $hasInvoice = $company !== null && \App\Models\Invoice::withoutGlobalScopes()
             ->where('company_id', $company->id)
+            ->where('status', InvoiceStatus::Issued)
             ->exists();
 
         $hasTraceability = $company !== null && InvoiceEvent::query()

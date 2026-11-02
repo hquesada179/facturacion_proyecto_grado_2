@@ -80,7 +80,34 @@
         </div>
     </section>
 
-    @if ($invoice->dian_simulation_result)
+    @if ($invoice->status->value === 'locally_validated' && ! $hasActiveInvoiceResolution)
+        {{--
+            Replaces the generic "Último intento de emisión" dump for
+            this specific, actionable cause — shown proactively (before
+            the user even clicks "Emitir"), not only after a failed
+            attempt. The backend (IssueInvoiceService::finishIssuing())
+            remains the real authority: this is UI-only, nothing here
+            lets emission bypass that check.
+        --}}
+        <x-ui.alert tone="warning" title="Configura la numeración de facturas antes de emitir" class="mb-lg" data-tour-target="invoice-numbering-missing">
+            Fiscora necesita una resolución de numeración vigente para asignar el número de esta factura. Configúrala una sola vez y luego podrás continuar con la emisión simulada. Recuerda que Fiscora es un prototipo académico: la resolución es simulada y no tiene validez tributaria real ante la DIAN.
+            <x-slot:footer>
+                <div class="flex flex-wrap gap-sm">
+                    @can('manage-numbering')
+                        <a href="{{ route('settings.billing.numbering.create') }}" class="px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover inline-flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[16px]">tag</span>
+                            Configurar numeración
+                        </a>
+                    @else
+                        <span class="font-body-sm text-body-sm">Pide a un administrador de tu empresa que la configure.</span>
+                    @endcan
+                    <a href="{{ route('invoices.draft.summary', $invoice) }}" class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary font-label-md text-label-md inline-flex items-center">
+                        Volver al resumen
+                    </a>
+                </div>
+            </x-slot:footer>
+        </x-ui.alert>
+    @elseif ($invoice->dian_simulation_result)
         <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
             <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Último intento de emisión (simulado)</h3>
             <p class="font-body-sm text-body-sm text-on-surface-variant">{{ $invoice->dian_simulation_message }}</p>
@@ -101,13 +128,24 @@
         @if ($validation->hasBlocking())
             <span class="px-lg py-sm rounded-lg bg-surface-variant text-on-surface-variant font-label-md text-label-md text-center">Corrige los bloqueos para continuar</span>
         @elseif ($invoice->status->value === 'locally_validated')
-            <form method="POST" action="{{ route('invoices.draft.issue', $invoice) }}" onsubmit="return confirm('¿Emitir esta factura (simulado)? No podrás editarla después.');">
-                @csrf
-                <button type="submit" class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-[18px]">send</span>
-                    Emitir factura (simulado)
-                </button>
-            </form>
+            @if ($hasActiveInvoiceResolution)
+                <form method="POST" action="{{ route('invoices.draft.issue', $invoice) }}" onsubmit="return confirm('¿Emitir esta factura (simulado)? No podrás editarla después.');">
+                    @csrf
+                    <button type="submit" class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">send</span>
+                        Emitir factura (simulado)
+                    </button>
+                </form>
+            @else
+                @can('manage-numbering')
+                    <a href="{{ route('settings.billing.numbering.create') }}" class="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-hover flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">tag</span>
+                        Configurar numeración
+                    </a>
+                @else
+                    <span class="px-lg py-sm rounded-lg bg-surface-variant text-on-surface-variant font-label-md text-label-md text-center">Falta configurar la numeración</span>
+                @endcan
+            @endif
         @else
             <form method="POST" action="{{ route('invoices.draft.validate', $invoice) }}" @if($validation->warningCount() > 0) onsubmit="return confirm('Hay advertencias pendientes. ¿Deseas continuar de todas formas?');" @endif>
                 @csrf
