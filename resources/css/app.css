@@ -397,3 +397,201 @@
     display: none;
 }
 
+/* ============================================================
+   PUBLIC LANDING — scoped entirely to resources/views/welcome.blade.php
+   and resources/views/components/landing/*. Nothing here is referenced
+   by the authenticated app (sidebar/topbar/assistant/dashboard), so it
+   never risks that styling. Approved design: a deliberately fixed
+   editorial world (deep navy bands alternating with warm paper, gold
+   hairline accents) — not meant to repaint under Fiscora's light/dark
+   toggle, the same way a login screen's own brand panel doesn't either.
+   The warm paper/navy tones below are intentionally NOT the app's cool
+   blue-tinted --color-surface tokens: that contrast (warm paper vs. cool
+   deep navy) is the point of the approved design. --color-primary and
+   --color-brand-gold ARE the real, existing Fiscora tokens — reused
+   as-is, never redefined. */
+.landing {
+    --landing-primary-deep: #040c1f;
+    --landing-paper: #f6f4ee;
+    --landing-paper-dim: #ece8dc;
+    --landing-gold-soft: #e3cd98;
+    --landing-ease: cubic-bezier(.22, .9, .3, 1);
+
+    font-family: var(--font-sans);
+}
+
+/* Scroll-reveal — progressive enhancement. Scoped under `.js` (set by
+   app.js the instant the module runs) so a section is only ever
+   hidden-then-revealed when JS actually ran; without it (blocked,
+   failed to load) every `[data-reveal]` element is simply visible from
+   the first paint, never stuck at opacity:0. transform+opacity only —
+   never height/top/left/width, so this can't trigger layout thrashing. */
+.js .landing [data-reveal] {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 700ms var(--landing-ease), transform 700ms var(--landing-ease);
+}
+
+.js .landing [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger for card/step groups — same mechanism, each child just waits
+   an extra `--i * 90ms` before transitioning, set inline per item
+   (`style="--i:2"`) from the Blade @foreach index. */
+.js .landing [data-reveal-group] > [data-reveal] {
+    transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .landing .landing-float,
+    .landing .landing-blob {
+        animation: none !important;
+    }
+}
+
+/* Navbar: transparent over the hero, solidifies on scroll. Toggled by
+   landing.js adding/removing `.is-scrolled` — opacity/background only. */
+.landing-nav {
+    transition: background-color 350ms var(--landing-ease), border-color 350ms var(--landing-ease), box-shadow 350ms var(--landing-ease);
+    border-bottom: 1px solid transparent;
+}
+
+.landing-nav.is-scrolled {
+    background-color: color-mix(in srgb, var(--landing-paper) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom-color: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--color-on-surface) 4%, transparent);
+}
+
+.landing-nav.is-scrolled .landing-nav-word,
+.landing-nav.is-scrolled .landing-nav-link {
+    color: var(--color-on-surface);
+}
+
+.landing-nav.is-scrolled .landing-nav-ghost {
+    color: var(--color-on-surface);
+    border-color: color-mix(in srgb, var(--color-on-surface) 24%, transparent);
+}
+
+.landing-nav.is-scrolled .landing-nav-ghost:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.landing-nav-link {
+    position: relative;
+    color: color-mix(in srgb, white 72%, transparent);
+    transition: color 350ms var(--landing-ease);
+}
+
+.landing-nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: -4px;
+    height: 1px;
+    background: var(--color-brand-gold);
+    transition: right 300ms var(--landing-ease);
+}
+
+.landing-nav-link:hover::after {
+    right: 0;
+}
+
+/* Hero ambient blobs — slow drift, transform-only, paused under
+   reduced-motion above. */
+.landing-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: .5;
+    pointer-events: none;
+}
+
+@keyframes landing-drift-a {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-30px, 40px); }
+}
+
+@keyframes landing-drift-b {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(40px, -30px); }
+}
+
+/* Floating mockup cards — gentle ambient bob, transform-only. */
+.landing-float {
+    animation: landing-bob 6s ease-in-out infinite;
+}
+
+@keyframes landing-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Dashboard mockup tilt — base transform set here so it looks correct
+   with zero JS; landing.js only ever adjusts the same `transform`
+   property on mousemove (desktop + hover-capable only, see the JS
+   guard), never anything layout-affecting. */
+.landing-tilt {
+    transform: rotateY(-7deg) rotateX(2deg);
+    transition: transform 400ms var(--landing-ease);
+}
+
+/* Cards: hover-lift, transform+shadow only. */
+.landing-card {
+    transition: transform 350ms var(--landing-ease), box-shadow 350ms var(--landing-ease), border-color 350ms var(--landing-ease);
+}
+
+.landing-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Buttons/links: short, transform-only on press/hover. */
+.landing-btn {
+    transition: transform 250ms var(--landing-ease), box-shadow 250ms var(--landing-ease), background-color 250ms var(--landing-ease), color 250ms var(--landing-ease), border-color 250ms var(--landing-ease);
+}
+
+.landing-btn:hover {
+    transform: translateY(-1px);
+}
+
+.landing-btn-arrow {
+    display: inline-block;
+    transition: transform 250ms var(--landing-ease);
+}
+
+.landing-btn:hover .landing-btn-arrow {
+    transform: translateX(3px);
+}
+
+/* FAQ — native <details>/<summary> (robust: no JS required to open or
+   close, nothing to break if JS fails). Only the chevron rotates; the
+   panel's show/hide is the browser's own display:none toggle, never an
+   animated height, so it can't thrash layout. */
+.landing-faq summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.landing-faq summary::-webkit-details-marker {
+    display: none;
+}
+
+.landing-faq .landing-faq-chevron {
+    transition: transform 300ms var(--landing-ease);
+}
+
+.landing-faq details[open] .landing-faq-chevron {
+    transform: rotate(180deg);
+}
+

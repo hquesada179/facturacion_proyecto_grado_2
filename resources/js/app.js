@@ -1,11 +1,20 @@
 import { initAssistantPanels } from './assistant.js';
 import { initNotificationCenter } from './notifications.js';
 import { initThemeToggle } from './theme.js';
+import { initLandingNav, initLandingReveals, initLandingTilt } from './landing.js';
+
+// Progressive enhancement flag for the public landing's scroll-reveal
+// (see app.css's `.js [data-reveal]` rule) — set as early as this module
+// runs, so content is never hidden if JS fails to load at all.
+document.documentElement.classList.add('js');
 
 document.addEventListener('DOMContentLoaded', () => {
     initAssistantPanels();
     initNotificationCenter();
     initThemeToggle();
+    initLandingReveals();
+    initLandingNav();
+    initLandingTilt();
 
     // UI/UX 2.0-A: mobile sidebar drawer — purely presentational, toggles
     // a single attribute that resources/css/app.css reads to slide the

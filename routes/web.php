@@ -27,6 +27,16 @@ use App\Models\CreditNote;
 use App\Support\PrototypeScreens;
 use Illuminate\Support\Facades\Route;
 
+// Public marketing landing. Previously `/` was a dead alias for the
+// dashboard inside the `auth` group (nothing in the app ever referenced
+// route('home') — every internal link already points at route('dashboard')
+// directly), so repurposing it here doesn't change any authenticated
+// navigation. An already-logged-in visitor is bounced straight to the
+// real dashboard instead of seeing marketing copy.
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : view('welcome');
+})->name('home');
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -46,8 +56,6 @@ Route::get('/verificar-documento/{token}', [DocumentVerificationController::clas
     ->name('documents.verify');
 
 Route::middleware('auth')->group(function (): void {
-    Route::get('/', DashboardController::class)
-        ->name('home');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/reportes', [ReportsController::class, 'index'])
