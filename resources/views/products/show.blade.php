@@ -15,7 +15,7 @@
                 <form method="POST" action="{{ route('products.destroy', $product) }}" onsubmit="return confirm('¿Eliminar este producto de forma permanente?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="px-md py-sm rounded-lg border border-outline-variant text-[#9b1c1c] hover:bg-[#fde8e8] font-label-md text-label-md">
+                    <button type="submit" class="px-md py-sm rounded-lg border border-outline-variant text-error-soft-foreground hover:bg-error-soft font-label-md text-label-md">
                         Eliminar
                     </button>
                 </form>

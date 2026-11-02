@@ -1,7 +1,11 @@
 import { initAssistantPanels } from './assistant.js';
+import { initNotificationCenter } from './notifications.js';
+import { initThemeToggle } from './theme.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initAssistantPanels();
+    initNotificationCenter();
+    initThemeToggle();
 
     // UI/UX 2.0-A: mobile sidebar drawer — purely presentational, toggles
     // a single attribute that resources/css/app.css reads to slide the

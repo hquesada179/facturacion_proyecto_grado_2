@@ -185,7 +185,7 @@
                                 <form method="POST" action="{{ route('invoices.draft.items.destroy', [$invoice, $item]) }}" onsubmit="return confirm('¿Eliminar esta línea?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-on-surface-variant hover:text-[#9b1c1c] p-xs rounded-lg" aria-label="Eliminar">
+                                    <button type="submit" class="text-on-surface-variant hover:text-error-soft-foreground p-xs rounded-lg" aria-label="Eliminar">
                                         <span class="material-symbols-outlined text-xl">delete</span>
                                     </button>
                                 </form>

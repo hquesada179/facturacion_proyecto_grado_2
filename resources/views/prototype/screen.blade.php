@@ -201,7 +201,7 @@
         </form>
     @elseif ($page['template'] === 'final')
         <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-xl text-center">
-            <div class="w-16 h-16 rounded-full bg-[#def7ec] text-[#03543f] flex items-center justify-center mx-auto mb-md">
+            <div class="w-16 h-16 rounded-full bg-success-soft text-success-soft-foreground flex items-center justify-center mx-auto mb-md">
                 <span class="material-symbols-outlined text-[36px]" data-fill="true">check_circle</span>
             </div>
             <h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Factura finalizada con éxito</h3>

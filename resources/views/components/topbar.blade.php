@@ -1,3 +1,7 @@
+@php
+    $notificationItems = app(\App\Services\Notifications\NotificationCenterService::class)->forUser(auth()->user());
+@endphp
+
 <header class="hidden md:flex justify-between items-center w-full px-lg py-md h-16 bg-surface/95 backdrop-blur z-30 sticky top-0 border-b border-outline-variant/30 shadow-[0_1px_2px_rgba(11,28,48,0.03)]">
     <div class="flex-1 flex items-center">
         <div class="relative w-96">
@@ -11,8 +15,15 @@
             <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
             Asistente IA
         </a>
-        <button class="icon-btn p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all" type="button" aria-label="Notificaciones">
-            <span class="material-symbols-outlined">notifications</span>
+        <x-notification-center :items="$notificationItems" :user-id="auth()->id()" />
+        <button
+            type="button"
+            class="icon-btn p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"
+            data-theme-toggle
+            aria-pressed="false"
+            aria-label="Cambiar a modo oscuro"
+        >
+            <span class="material-symbols-outlined" data-theme-icon>dark_mode</span>
         </button>
         <button class="icon-btn p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all" type="button" aria-label="Ayuda">
             <span class="material-symbols-outlined">help_outline</span>
@@ -33,6 +44,16 @@
         <img src="{{ asset('branding/fiscora-icon.png') }}" alt="Fiscora" class="h-7 w-7 object-contain">
         <span class="font-title-lg text-title-lg truncate">Fiscora</span>
     </a>
+    <x-notification-center :items="$notificationItems" :user-id="auth()->id()" />
+    <button
+        type="button"
+        class="icon-btn p-xs rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container shrink-0"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Cambiar a modo oscuro"
+    >
+        <span class="material-symbols-outlined" data-theme-icon>dark_mode</span>
+    </button>
     <a href="{{ route('assistant.index') }}" class="icon-btn p-sm rounded-full ai-gradient text-on-primary shrink-0" aria-label="Asistente IA">
         <span class="material-symbols-outlined">auto_awesome</span>
     </a>

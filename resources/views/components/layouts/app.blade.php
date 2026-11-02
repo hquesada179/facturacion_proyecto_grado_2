@@ -16,6 +16,24 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="application-name" content="{{ config('app.name') }}">
     <title>{{ $title ? $title.' | '.config('app.name') : config('app.name') }}</title>
+    <script>
+        // UI/UX 2.0-C — applied before any CSS/JS loads so the page never
+        // flashes the wrong theme on reload. Mirrors resources/js/theme.js
+        // exactly (same storage key, same system-preference fallback); kept
+        // inline and dependency-free on purpose — anything deferred would
+        // paint at least one frame too late.
+        (function () {
+            try {
+                var stored = window.localStorage.getItem('fiscora:theme');
+                var theme = stored === 'light' || stored === 'dark'
+                    ? stored
+                    : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.dataset.theme = theme;
+            } catch (error) {
+                document.documentElement.dataset.theme = 'light';
+            }
+        })();
+    </script>
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('branding/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('branding/favicon-16x16.png') }}">
     <link rel="icon" href="{{ asset('branding/favicon.ico') }}" sizes="any">

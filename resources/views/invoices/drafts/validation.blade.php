@@ -93,7 +93,7 @@
             @if (\App\Services\Invoices\InvoiceStateMachine::isEditable($invoice->status))
                 <form method="POST" action="{{ route('invoices.draft.discard', $invoice) }}" onsubmit="return confirm('¿Descartar este borrador de factura?');">
                     @csrf
-                    <button type="submit" class="px-md py-sm rounded-lg border border-outline-variant text-[#9b1c1c] hover:bg-[#fde8e8] font-label-md text-label-md">Descartar borrador</button>
+                    <button type="submit" class="px-md py-sm rounded-lg border border-outline-variant text-error-soft-foreground hover:bg-error-soft font-label-md text-label-md">Descartar borrador</button>
                 </form>
             @endif
         </div>

@@ -13,16 +13,14 @@
     @if ($expiringCount > 0 || $exhaustingCount > 0)
         <div class="mb-lg space-y-sm">
             @if ($expiringCount > 0)
-                <div class="bg-[#fdf6b2] border border-[#723b13]/20 text-[#723b13] rounded-lg p-md font-body-sm text-body-sm flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-[18px]">warning</span>
+                <x-ui.alert tone="warning" icon="warning">
                     {{ $expiringCount }} {{ $expiringCount === 1 ? 'resolución' : 'resoluciones' }} por vencer en los próximos 30 días.
-                </div>
+                </x-ui.alert>
             @endif
             @if ($exhaustingCount > 0)
-                <div class="bg-[#fde8e8] border border-[#9b1c1c]/20 text-[#9b1c1c] rounded-lg p-md font-body-sm text-body-sm flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-[18px]">report</span>
+                <x-ui.alert tone="error" icon="report">
                     {{ $exhaustingCount }} {{ $exhaustingCount === 1 ? 'rango' : 'rangos' }} de numeración próximos a agotarse.
-                </div>
+                </x-ui.alert>
             @endif
         </div>
     @endif
