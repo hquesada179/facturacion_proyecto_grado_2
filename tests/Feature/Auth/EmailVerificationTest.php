@@ -237,4 +237,70 @@ class EmailVerificationTest extends TestCase
 
         $this->actingAs($user)->get(route('onboarding.show'))->assertOk();
     }
+
+    /**
+     * End-to-end: real registration → real OTP (captured from the mailed
+     * Mailable, never hardcoded) → real verification → first onboarding
+     * screen. Guards against the newly created Company ever looking
+     * "already in progress" to OnboardingService::resolveDisplayStep()
+     * (which would skip straight to billing/data/done) or the dashboard's
+     * ?start_tour=1 auto-start (only ever set by
+     * OnboardingController::complete(), never by registration).
+     */
+    public function test_a_newly_registered_and_verified_user_starts_onboarding_at_the_welcome_step_not_the_tutorial(): void
+    {
+        Mail::fake();
+
+        $this->post(route('register'), [
+            'name' => 'Nuevo Usuario',
+            'email' => 'nuevo.usuario@example.com',
+            'password' => 'correct-password',
+            'password_confirmation' => 'correct-password',
+            'terms' => '1',
+        ]);
+
+        $user = User::where('email', 'nuevo.usuario@example.com')->first();
+        $this->assertNotNull($user, 'El registro debió crear el usuario.');
+
+        $capturedCode = null;
+        Mail::assertSent(EmailVerificationCodeMail::class, function (EmailVerificationCodeMail $mail) use (&$capturedCode): bool {
+            $capturedCode = $mail->code;
+
+            return true;
+        });
+
+        $this->actingAs($user)->post(route('verification.verify'), ['code' => $capturedCode])
+            ->assertRedirect(route('verification.notice'));
+        $this->assertNotNull($user->refresh()->email_verified_at);
+
+        $company = $user->company;
+
+        // Nothing about registration pre-seeds onboarding progress or
+        // demo data — a brand-new company must look completely untouched.
+        $this->assertNull($company->onboarding_started_at);
+        $this->assertNull($company->onboarding_step);
+        $this->assertNull($company->onboarding_completed_at);
+        $this->assertFalse(\App\Models\Customer::withoutGlobalScopes()->where('company_id', $company->id)->exists());
+        $this->assertFalse(\App\Models\ProductService::withoutGlobalScopes()->where('company_id', $company->id)->exists());
+
+        // First visit: the welcome gate, never the tutorial, never a
+        // later step.
+        $welcome = $this->actingAs($user)->get(route('onboarding.show'));
+        $welcome->assertOk();
+        $welcome->assertSee('Configuremos Fiscora para tu empresa');
+        $welcome->assertSee('Comenzar');
+        $welcome->assertDontSee('Datos de tu empresa');
+
+        // Clicking "Comenzar" must land exactly on step 1 (Empresa) —
+        // never billing/data/done, never ?start_tour=1.
+        $this->actingAs($user)->post(route('onboarding.start'))
+            ->assertRedirect(route('onboarding.show'));
+
+        $this->assertSame('company', $company->refresh()->onboarding_step);
+
+        $companyStep = $this->actingAs($user)->get(route('onboarding.show'));
+        $companyStep->assertOk();
+        $companyStep->assertSee('Datos de tu empresa');
+        $companyStep->assertDontSee('Configuremos Fiscora para tu empresa');
+    }
 }
