@@ -5,6 +5,7 @@ namespace Tests\Feature\Settings;
 use App\Enums\DocumentType;
 use App\Exceptions\NumberingRangeExhaustedException;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\NumberingResolution;
 use App\Models\User;
 use App\Services\Numbering\NumberingService;
@@ -188,6 +189,145 @@ class NumberingResolutionTest extends TestCase
 
         $this->actingAs($user)->get(route('settings.billing.numbering.create'))->assertOk();
         $this->actingAs($user)->get(route('settings.billing.numbering.edit', $resolution))->assertOk();
+    }
+
+    public function test_create_form_shows_helpful_placeholders_for_every_field(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertSee('187640000001');
+        $response->assertSee('FEV');
+        $response->assertSee('CLAVE-DEMO-2026');
+        $response->assertSee('placeholder="1"', false);
+        $response->assertSee('placeholder="1000"', false);
+    }
+
+    public function test_create_form_shows_plain_language_help_text_under_every_field(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertSee('Selecciona el tipo de documento que utilizará esta numeración.');
+        $response->assertSee('Número ficticio que representa la autorización de numeración. No corresponde a una resolución real de la DIAN.');
+        $response->assertSee('Texto que aparecerá antes del consecutivo de la factura. Máximo 4 caracteres. Ejemplo: FEV-1.');
+        $response->assertSee('Valor ficticio usado únicamente por Fiscora para simular el proceso de emisión.');
+        $response->assertSee('Primer número permitido para esta resolución.');
+        $response->assertSee('Último número permitido para esta resolución.');
+        $response->assertSee('Número que Fiscora utilizará como próximo consecutivo. Debe estar dentro del rango configurado.');
+        $response->assertSee('Solo las resoluciones activas y vigentes pueden utilizarse para emitir facturas simuladas.');
+        $response->assertSee('Fecha a partir de la cual esta resolución puede utilizarse.');
+        $response->assertSee('Fecha máxima en la que esta resolución seguirá siendo válida.');
+    }
+
+    public function test_create_form_shows_the_simulated_example_block_clearly_marked(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertSee('Ejemplo de configuración de prueba');
+        $response->assertSee('187640000001');
+        $response->assertSee('1 a 1000');
+        $response->assertSee('02/11/2026 a 02/11/2027');
+    }
+
+    public function test_the_example_block_is_not_shown_on_the_edit_form(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $resolution = NumberingResolution::factory()->for($user->company)->create();
+
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.edit', $resolution));
+
+        $response->assertOk();
+        $response->assertDontSee('Ejemplo de configuración de prueba');
+    }
+
+    public function test_create_form_shows_contextual_help_near_the_save_button(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertSee('Una vez guardada una resolución activa y vigente, podrás volver a tu factura y continuar con la emisión simulada.');
+    }
+
+    /**
+     * Reuses Laravel's own previous-URL session mechanism
+     * (url()->previous(), populated automatically for every GET request)
+     * — no new route or query parameter was introduced for this.
+     */
+    public function test_create_form_offers_a_one_click_return_when_it_came_from_invoice_validation(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+        $invoice = new Invoice(['user_id' => $user->id]);
+        $invoice->company_id = $user->company_id;
+        $invoice->save();
+
+        $this->actingAs($user)->get(route('invoices.draft.validation', $invoice));
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertSee('Volver a mi factura ahora');
+        $response->assertSee(route('invoices.draft.validation', $invoice), false);
+    }
+
+    public function test_create_form_does_not_offer_a_return_link_when_not_coming_from_an_invoice(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $this->actingAs($user)->get(route('settings.billing'));
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertDontSee('Volver a mi factura ahora');
+    }
+
+    public function test_the_simulated_disclaimer_is_still_present(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $response = $this->actingAs($user)->get(route('settings.billing.numbering.create'));
+
+        $response->assertOk();
+        $response->assertSee('No representa una autorización real de la DIAN.');
+    }
+
+    /**
+     * End-to-end proof that the friendlier copy is purely presentational:
+     * submitting values shaped exactly like the new placeholders/example
+     * still goes through the unchanged NumberingResolutionRequest/
+     * NumberingResolutionController, and a resolution created this way
+     * really does unblock invoice emission afterward.
+     */
+    public function test_submitting_values_shaped_like_the_new_placeholders_still_creates_a_working_resolution(): void
+    {
+        $user = User::factory()->for(Company::factory())->administrador()->create();
+
+        $this->actingAs($user)->post(route('settings.billing.numbering.store'), [
+            'document_type' => 'invoice',
+            'authorization_number_simulated' => '187640000001',
+            'prefix' => 'FEV',
+            'range_from' => 1,
+            'range_to' => 1000,
+            'current_consecutive' => 1,
+            'valid_from' => now()->toDateString(),
+            'valid_until' => now()->addYear()->toDateString(),
+            'simulated_technical_key' => 'CLAVE-DEMO-2026',
+            'is_active' => '1',
+        ])->assertRedirect(route('settings.billing'));
+
+        $this->assertDatabaseHas('numbering_resolutions', [
+            'company_id' => $user->company_id,
+            'prefix' => 'FEV',
+            'status' => 'vigente',
+        ]);
     }
 
     public function test_facturador_cannot_manage_numbering_resolutions(): void
