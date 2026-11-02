@@ -847,6 +847,23 @@
     margin-bottom: var(--spacing-lg);
 }
 
+/* Same card treatment as .auth-premium-error, on the "info" token pair
+   already reserved for session('status') banners app-wide (see the
+   --color-primary-fixed comment near the top of this file) — used by
+   the recuperar-contrasena screen, which reuses this same auth-premium
+   system end-to-end instead of a second alert design. */
+.auth-premium-status {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    background-color: var(--color-primary-fixed);
+    color: var(--color-on-primary-fixed);
+    border: 1px solid var(--color-primary-fixed-dim);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
 .auth-premium-form {
     display: flex;
     flex-direction: column;
