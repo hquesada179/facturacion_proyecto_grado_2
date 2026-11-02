@@ -135,6 +135,52 @@
 }
 
 @layer components {
+    /* UI/UX 2.0-A — shared surface treatment for every card-like
+       container (KPI cards, dashboard sections, the assistant panel).
+       One place to tune radius/border/shadow instead of repeating the
+       same four utility classes at every call site. */
+    .surface-card {
+        background-color: var(--color-surface-container-lowest);
+        border: 1px solid color-mix(in srgb, var(--color-outline-variant) 50%, transparent);
+        border-radius: var(--radius-xl);
+        box-shadow: 0 1px 2px rgba(11, 28, 48, 0.04), 0 4px 16px rgba(11, 28, 48, 0.05);
+    }
+
+    /* A card that visibly lifts on hover — used only for interactive
+       cards (quick actions, clickable rows), never for static content,
+       so hover never implies clickability where there is none. */
+    .surface-card-interactive {
+        transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .surface-card-interactive:hover {
+        box-shadow: 0 8px 24px rgba(11, 28, 48, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Sidebar — the only place in the app with a dark (inverse) surface.
+       Built entirely from the existing inverse-* tokens already defined
+       above for this exact purpose, never a new hue. */
+    .sidebar-surface {
+        background-color: var(--color-primary);
+    }
+
+    .sidebar-link {
+        color: color-mix(in srgb, var(--color-inverse-on-surface) 72%, transparent);
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .sidebar-link:hover {
+        background-color: color-mix(in srgb, white 8%, transparent);
+        color: var(--color-inverse-on-surface);
+    }
+
+    .sidebar-link-active {
+        background-color: color-mix(in srgb, var(--color-inverse-primary) 18%, transparent);
+        color: var(--color-inverse-on-surface);
+        font-weight: 600;
+    }
+
     .material-symbols-outlined {
         font-family: 'Material Symbols Outlined';
         font-weight: normal;
@@ -177,5 +223,54 @@
         background: linear-gradient(135deg, #00236f 0%, #4648d4 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+
+    /* Small, consistent hover/press feedback for icon-only buttons
+       (topbar, sidebar toggle) — CSS only, no JS-driven animation. */
+    .icon-btn {
+        transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+
+    .icon-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .icon-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Mobile sidebar drawer: off-canvas by default, slid in via
+       [data-sidebar-open] on the <html> element (toggled by a few lines
+       of vanilla JS in app.js — no new dependency, no behavioural
+       change to any link/route underneath).
+       Scoped to a real max-width media query (not a Tailwind `md:`
+       utility) on purpose: Tailwind v4's translate-x-* utilities set
+       the standalone CSS `translate` property, which never overrides a
+       `transform` declaration — the two are independent properties.
+       Mixing them previously meant `transform: translateX(-100%)` here
+       was never cancelled at any breakpoint, hiding the sidebar on
+       desktop too. Below 768px this hides it off-canvas; at 768px and
+       above the rule doesn't exist at all, so the sidebar simply sits
+       at its normal `fixed left-0` position — always visible. */
+    @media (max-width: 767.98px) {
+        .sidebar-drawer {
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+        }
+
+        [data-sidebar-open] .sidebar-drawer {
+            transform: translateX(0);
+        }
+    }
+
+    .sidebar-backdrop {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    [data-sidebar-open] .sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
     }
 }

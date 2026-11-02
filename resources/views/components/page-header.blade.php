@@ -1,8 +1,8 @@
 @props(['eyebrow' => null, 'title', 'description' => null])
 
-<div class="mb-lg">
+<div class="mb-xl pb-lg border-b border-outline-variant/40">
     @if ($eyebrow)
-        <p class="font-label-sm text-label-sm text-primary uppercase mb-xs">{{ $eyebrow }}</p>
+        <p class="font-label-sm text-label-sm text-primary uppercase tracking-wide mb-xs">{{ $eyebrow }}</p>
     @endif
     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-md">
         <div>

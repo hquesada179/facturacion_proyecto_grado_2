@@ -10,4 +10,4 @@
     };
 @endphp
 
-<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $classes }}">{{ $status }}</span>
+<span class="inline-flex items-center px-sm py-xs rounded-full font-label-sm text-label-sm {{ $classes }}">{{ $status }}</span>

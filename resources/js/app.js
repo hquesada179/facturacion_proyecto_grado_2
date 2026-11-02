@@ -3,6 +3,23 @@ import { initAssistantPanels } from './assistant.js';
 document.addEventListener('DOMContentLoaded', () => {
     initAssistantPanels();
 
+    // UI/UX 2.0-A: mobile sidebar drawer — purely presentational, toggles
+    // a single attribute that resources/css/app.css reads to slide the
+    // existing <nav> on/off screen. No route, permission, or link below
+    // it ever changes.
+    const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+    const sidebarBackdrops = document.querySelectorAll('[data-sidebar-backdrop]');
+
+    sidebarToggle?.addEventListener('click', () => {
+        document.documentElement.toggleAttribute('data-sidebar-open');
+    });
+
+    sidebarBackdrops.forEach((element) => {
+        element.addEventListener('click', () => {
+            document.documentElement.removeAttribute('data-sidebar-open');
+        });
+    });
+
     document.querySelectorAll('[data-demo-submit]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             event.preventDefault();

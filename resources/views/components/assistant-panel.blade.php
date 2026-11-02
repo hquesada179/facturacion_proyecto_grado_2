@@ -80,7 +80,7 @@
     data-confirm-url="{{ route('assistant.confirm') }}"
     data-cancel-url="{{ route('assistant.cancel') }}"
     data-feedback-url-template="{{ route('assistant.feedback', ['assistantMessage' => '__ID__']) }}"
-    class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-surface-variant {{ $mode === 'full' ? 'h-full min-h-[640px]' : 'min-h-[520px]' }} flex flex-col relative overflow-hidden"
+    class="surface-card p-lg {{ $mode === 'full' ? 'h-full min-h-[640px]' : 'min-h-[520px]' }} flex flex-col relative overflow-hidden"
 >
     <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full"></div>
 
