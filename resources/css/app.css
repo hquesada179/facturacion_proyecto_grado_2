@@ -595,3 +595,418 @@
     transform: rotate(180deg);
 }
 
+/* ============================================================
+   AUTH PREMIUM — scoped to resources/views/components/auth-premium-layout.blade.php
+   and resources/views/auth/login.blade.php only. x-auth-split-layout (used
+   by password.blade.php/reset-password.blade.php) is untouched on purpose —
+   those screens keep their current look until their own redesign is
+   approved. The brand panel reuses the landing's own .landing-blob/
+   .landing-float/.landing-tilt classes (defined above, standalone — not
+   nested under .landing — so they already work outside it) instead of
+   duplicating those rules. The form panel keeps every color on the app's
+   existing surface/on-surface/primary tokens, so dark mode keeps working
+   with zero extra overrides beyond the two called out below. */
+.auth-premium {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tablet keeps the two-column composition (per the approved mockup —
+   only mobile collapses to a single column), just narrower and with a
+   smaller visual composition; desktop below widens both back out. */
+@media (min-width: 860px) {
+    .auth-premium {
+        display: grid;
+        grid-template-columns: 44% 56%;
+    }
+}
+
+@media (min-width: 1100px) {
+    .auth-premium {
+        grid-template-columns: 46% 54%;
+    }
+}
+
+.auth-premium-brand {
+    display: none;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    padding: 1.75rem;
+    color: #fff;
+    background:
+        radial-gradient(ellipse 60% 50% at 18% 0%, color-mix(in srgb, var(--color-primary) 55%, transparent), transparent 60%),
+        linear-gradient(170deg, #040c1f 0%, #081433 55%, #0b1a3e 100%);
+}
+
+.auth-premium-brand::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--color-brand-gold);
+}
+
+@media (min-width: 860px) {
+    .auth-premium-brand {
+        display: flex;
+    }
+}
+
+@media (min-width: 1100px) {
+    .auth-premium-brand {
+        padding: 2.5rem;
+    }
+}
+
+.auth-premium-blob-a,
+.auth-premium-blob-b {
+    animation: landing-drift-a 24s ease-in-out infinite;
+}
+
+.auth-premium-blob-b {
+    animation-name: landing-drift-b;
+    animation-duration: 28s;
+}
+
+.auth-premium-brand-top,
+.auth-premium-visual,
+.auth-premium-disclaimer {
+    position: relative;
+    z-index: 2;
+}
+
+.auth-premium-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: clamp(1.5rem, 5vh, 3.5rem);
+}
+
+.auth-premium-headline {
+    font-family: var(--font-headline-lg);
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    max-width: 17ch;
+    margin: 0 0 var(--spacing-md);
+}
+
+.auth-premium-visual {
+    max-width: 18rem;
+}
+
+@media (min-width: 1100px) {
+    .auth-premium-visual {
+        max-width: 24rem;
+    }
+}
+
+.auth-premium-disclaimer {
+    margin-top: var(--spacing-xl);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Compact mobile brand header — replaces the full visual composition
+   below 860px with a short navy band, never the full dashboard mockup
+   (keeps the mobile scroll short, per the approved mockup). */
+.auth-premium-brand-mobile {
+    position: relative;
+    overflow: hidden;
+    padding: var(--spacing-xl) var(--spacing-margin-mobile) var(--spacing-lg);
+    color: #fff;
+    background: linear-gradient(170deg, #040c1f 0%, #081433 60%, #0b1a3e 100%);
+}
+
+@media (min-width: 860px) {
+    .auth-premium-brand-mobile {
+        display: none;
+    }
+}
+
+.auth-premium-logo-mobile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.auth-premium-headline-mobile {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--spacing-xs);
+}
+
+@media (max-width: 520px) {
+    .auth-premium-brand-mobile p.font-label-sm {
+        display: none;
+    }
+}
+
+/* Form panel — deliberately warm/off-white rather than the app's cool
+   --color-surface, per the approved mockup ("blanco cálido"); falls back
+   to the app's own dark surface token so dark mode still matches the
+   rest of Fiscora instead of introducing a second dark palette. */
+.auth-premium-form-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--spacing-margin-mobile);
+    background-color: #faf8f3;
+}
+
+@media (min-width: 768px) {
+    .auth-premium-form-panel {
+        padding: var(--spacing-xl) clamp(2rem, 6vw, 5rem);
+    }
+}
+
+:root[data-theme='dark'] .auth-premium-form-panel {
+    background-color: var(--color-surface);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .auth-premium-form-panel {
+        background-color: var(--color-surface);
+    }
+}
+
+.auth-premium-nav {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 860px) {
+    .auth-premium-nav {
+        display: flex;
+    }
+}
+
+.auth-premium-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
+    transition: color 0.2s var(--landing-ease, ease);
+}
+
+.auth-premium-back-link:hover {
+    color: var(--color-primary);
+}
+
+.auth-premium-form-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: var(--spacing-lg);
+}
+
+.auth-premium-form-inner {
+    width: 100%;
+    max-width: 26rem;
+}
+
+.auth-premium-form-title {
+    font-family: var(--font-headline-lg);
+    font-size: clamp(24px, 3vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-on-surface);
+    margin: 0 0 var(--spacing-xs);
+}
+
+.auth-premium-form-subtitle {
+    font-size: 15px;
+    color: var(--color-on-surface-variant);
+    margin: 0;
+}
+
+.auth-premium-error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    background-color: var(--color-error-container);
+    color: var(--color-on-error-container);
+    border: 1px solid color-mix(in srgb, var(--color-error) 20%, transparent);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.auth-premium-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.auth-premium-field {
+    display: block;
+}
+
+.auth-premium-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    margin-bottom: var(--spacing-xs);
+}
+
+.auth-premium-input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-outline);
+    pointer-events: none;
+}
+
+.auth-premium-input {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 3rem;
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--color-outline-variant);
+    background-color: var(--color-surface-container-lowest);
+    color: var(--color-on-surface);
+    font-size: 15px;
+    font-family: var(--font-body-md);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-premium-input::placeholder {
+    color: var(--color-outline);
+}
+
+.auth-premium-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.auth-premium-input-pw {
+    padding-right: 3rem;
+}
+
+.auth-premium-toggle-pw {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-outline);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    transition: color 0.2s ease;
+}
+
+.auth-premium-toggle-pw:hover {
+    color: var(--color-on-surface);
+}
+
+.auth-premium-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2px;
+}
+
+.auth-premium-remember {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 13.5px;
+    color: var(--color-on-surface-variant);
+    cursor: pointer;
+}
+
+.auth-premium-forgot {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-primary);
+    transition: color 0.2s ease;
+}
+
+.auth-premium-forgot:hover {
+    color: var(--color-brand-gold);
+}
+
+.auth-premium-submit {
+    margin-top: 6px;
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-label-md);
+    cursor: pointer;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--color-primary) 10%, transparent), 0 8px 20px -6px color-mix(in srgb, var(--color-primary) 35%, transparent);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.auth-premium-submit:hover {
+    background-color: var(--color-primary-container);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--color-primary) 12%, transparent), 0 12px 26px -6px color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+.auth-premium-submit:active {
+    transform: translateY(0);
+}
+
+.auth-premium-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 2.25rem;
+    font-size: 12.5px;
+    color: var(--color-on-surface-variant);
+}
+
+/* Entrance: fade + rise, staggered via inline transition-delay. Scoped
+   under .auth-premium so it doesn't depend on (or affect) the landing's
+   own `.landing [data-reveal]` rule — driven by the same already-global
+   initLandingReveals() wired in app.js, no JS changes needed here. */
+.js .auth-premium [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 700ms cubic-bezier(.22, .9, .3, 1), transform 700ms cubic-bezier(.22, .9, .3, 1);
+}
+
+.js .auth-premium [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-premium [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .auth-premium .landing-float,
+    .auth-premium .landing-blob {
+        animation: none !important;
+    }
+}
+
