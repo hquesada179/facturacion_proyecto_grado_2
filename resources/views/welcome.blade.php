@@ -25,8 +25,8 @@
                     <p class="font-body-lg text-body-lg text-white/80 max-w-[32rem] mb-lg">Gestiona clientes, productos, facturas y notas crédito desde una plataforma pensada para que el control administrativo de tu empresa deje de ser un problema.</p>
 
                     <div class="flex flex-wrap items-center gap-md mb-lg">
-                        <a href="{{ route('login') }}" class="landing-btn inline-flex items-center gap-xs px-lg py-md rounded-full bg-brand-gold text-primary font-label-md text-label-md font-semibold">
-                            Iniciar sesión
+                        <a href="{{ route('register') }}" class="landing-btn inline-flex items-center gap-xs px-lg py-md rounded-full bg-brand-gold text-primary font-label-md text-label-md font-semibold">
+                            Crear cuenta
                             <span class="landing-btn-arrow">→</span>
                         </a>
                         <a href="#como-funciona" class="landing-btn inline-flex items-center px-lg py-md rounded-full border border-white/35 text-white font-label-md text-label-md hover:border-white">
@@ -256,9 +256,9 @@
             linear-gradient(180deg,#071535,#030916);">
             <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop" data-reveal>
                 <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-sm">¿Listo para explorar Fiscora?</h2>
-                <p class="font-body-md text-body-md text-white/75 max-w-[34rem] mx-auto mb-lg">Inicia sesión y recorre el flujo completo de facturación simulada, trazabilidad y asistencia IA.</p>
-                <a href="{{ route('login') }}" class="landing-btn inline-flex items-center gap-xs px-lg py-md rounded-full bg-brand-gold text-primary font-label-md text-label-md font-semibold">
-                    Iniciar sesión
+                <p class="font-body-md text-body-md text-white/75 max-w-[34rem] mx-auto mb-lg">Crea tu cuenta y recorre el flujo completo de facturación simulada, trazabilidad y asistencia IA.</p>
+                <a href="{{ route('register') }}" class="landing-btn inline-flex items-center gap-xs px-lg py-md rounded-full bg-brand-gold text-primary font-label-md text-label-md font-semibold">
+                    Crear cuenta
                     <span class="landing-btn-arrow">→</span>
                 </a>
             </div>

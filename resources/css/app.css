@@ -1930,3 +1930,110 @@
     }
 }
 
+/* ============================================================
+   REGISTER + EMAIL VERIFICATION (OTP) — scoped to
+   resources/views/auth/register.blade.php and
+   resources/views/auth/verify-email.blade.php only. Everything else
+   those screens need (fields, submit button, error/status banners,
+   wizard steps) already exists above in AUTH PREMIUM /
+   ONBOARDING WIZARD and is reused as-is — this block only adds what's
+   genuinely new: the 6-digit code boxes, a warning-toned banner variant
+   (the existing .auth-premium-error is red/error-toned; "expired" reads
+   as a softer warning, not a hard error) and the resend/cooldown row. */
+.otp-inputs {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.otp-input {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-sans);
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--color-outline-variant);
+    background-color: var(--color-surface-container-lowest);
+    color: var(--color-on-surface);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.otp-input.has-error {
+    border-color: var(--color-error);
+    animation: otp-shake 0.4s ease;
+}
+
+@keyframes otp-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .otp-input.has-error {
+        animation: none;
+    }
+}
+
+/* Same card shape as .auth-premium-status, warning-soft tones instead
+   of the primary-fixed info tones — used only for the "código expirado"
+   state, which is a softer notice than the red .auth-premium-error used
+   for "incorrecto"/"demasiados intentos". */
+.auth-premium-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    background-color: var(--color-warning-soft);
+    color: var(--color-warning-soft-foreground);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.auth-premium-resend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-lg);
+    font-size: 13px;
+    color: var(--color-on-surface-variant);
+}
+
+.auth-premium-resend-row button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-primary);
+    cursor: pointer;
+}
+
+.auth-premium-resend-row button:hover:not(:disabled) {
+    color: var(--color-brand-gold);
+}
+
+.auth-premium-resend-row button:disabled {
+    color: var(--color-outline);
+    cursor: not-allowed;
+}
+
+.auth-premium-resend-row [data-otp-timer] {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+

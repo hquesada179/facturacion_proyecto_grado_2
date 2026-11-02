@@ -48,13 +48,21 @@ class LandingPageTest extends TestCase
         $response->assertSee('confirmación');
     }
 
-    public function test_the_landing_page_does_not_advertise_public_registration(): void
+    /**
+     * Superseded by the real registration phase: the landing's main
+     * calls to action now intentionally point at sign-up (see
+     * welcome.blade.php's hero/CTA-final sections) instead of login,
+     * while the navbar's own "Iniciar sesión" link stays untouched —
+     * see test_the_landing_page_links_to_the_real_login_route above.
+     */
+    public function test_the_landing_page_advertises_registration_without_removing_login(): void
     {
         $response = $this->get(route('home'));
 
         $response->assertOk();
-        $response->assertDontSee('Regístrate');
-        $response->assertDontSee('Crear cuenta');
+        $response->assertSee('Crear cuenta');
+        $response->assertSee(route('register'), false);
+        $response->assertSee(route('login'), false);
     }
 
     public function test_an_authenticated_user_visiting_the_landing_is_redirected_to_the_dashboard(): void

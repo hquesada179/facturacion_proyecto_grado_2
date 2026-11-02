@@ -110,6 +110,22 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(20)->by((string) ($request->user()?->id ?? $request->ip()));
         });
 
+        // Email-verification OTP: both keyed by user (these routes always
+        // require `auth`, see routes/web.php) rather than IP, so the limit
+        // follows the account being verified regardless of network. Capped
+        // independently of EmailVerificationService::MAX_ATTEMPTS (5 wrong
+        // tries per code) — this is the outer ceiling across resend+retry
+        // cycles, not the per-code lockout.
+        RateLimiter::for('otp-verify', function (Request $request): Limit {
+            return Limit::perMinutes(10, 10)->by('otp-verify:'.($request->user()?->id ?? $request->ip()));
+        });
+
+        // 3 resends per 10 minutes on top of EmailVerificationService's own
+        // 45s visible cooldown between individual resends.
+        RateLimiter::for('otp-resend', function (Request $request): Limit {
+            return Limit::perMinutes(10, 3)->by('otp-resend:'.($request->user()?->id ?? $request->ip()));
+        });
+
         // IA 2.0-D: confirming/cancelling an action proposal is a
         // write-adjacent operation (it's what actually creates a record)
         // — rate-limited separately and more tightly than plain chat

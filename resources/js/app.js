@@ -6,6 +6,8 @@ import { initHelpCenter } from './help-center.js';
 import { initChecklist } from './checklist.js';
 import { initTour } from './tour.js';
 import { initLandingNav, initLandingReveals, initLandingTilt } from './landing.js';
+import { initOtpForm, initOtpResend } from './otp.js';
+import { initSubmitProtection } from './form-protect.js';
 
 // Progressive enhancement flag for the public landing's scroll-reveal
 // (see app.css's `.js [data-reveal]` rule) — set as early as this module
@@ -23,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initLandingReveals();
     initLandingNav();
     initLandingTilt();
+    initOtpForm();
+    initOtpResend();
+    initSubmitProtection();
 
     // UI/UX 2.0-A: mobile sidebar drawer — purely presentational, toggles
     // a single attribute that resources/css/app.css reads to slide the

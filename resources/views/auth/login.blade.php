@@ -44,6 +44,10 @@
             <button class="auth-premium-submit" type="submit" data-reveal style="transition-delay:280ms">Iniciar sesión</button>
         </form>
 
+        <p class="text-center font-label-md text-label-md text-on-surface-variant mt-lg" data-reveal style="transition-delay:300ms">
+            ¿No tienes una cuenta? <a href="{{ route('register') }}" class="auth-premium-forgot">Crear cuenta</a>
+        </p>
+
         <div class="auth-premium-secure" data-reveal style="transition-delay:320ms">
             <span class="material-symbols-outlined text-[16px]">shield</span>
             Acceso seguro a Fiscora

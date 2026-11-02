@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CreditNotes\CreditNoteController;
 use App\Http\Controllers\CreditNotes\CreditNotePdfController;
 use App\Http\Controllers\CustomerController;
@@ -42,6 +44,9 @@ Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
+    Route::get('/registro', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/registro', [RegisteredUserController::class, 'store']);
+
     Route::get('/recuperar-contrasena', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('/recuperar-contrasena', [PasswordResetLinkController::class, 'store'])->name('password.email');
 
@@ -52,6 +57,23 @@ Route::middleware('guest')->group(function (): void {
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
+
+// Email verification (OTP) for freshly self-registered accounts. Kept
+// under plain `auth` (not `guest`, not `verified`) — the user is already
+// logged in right after registering and is precisely the one who still
+// needs to pass through here. `verification.notice`/`verification.send`
+// match Laravel's own built-in route names on purpose, so the `verified`
+// middleware on the onboarding group below redirects here by name
+// exactly the way it would for the framework's own link-based flow.
+Route::middleware('auth')->group(function (): void {
+    Route::get('/verificar-correo', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::post('/verificar-correo', [EmailVerificationController::class, 'verify'])
+        ->middleware('throttle:otp-verify')
+        ->name('verification.verify');
+    Route::post('/verificar-correo/reenviar', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:otp-resend')
+        ->name('verification.send');
+});
 
 Route::get('/verificar-documento/{token}', [DocumentVerificationController::class, 'show'])
     ->name('documents.verify');
@@ -68,7 +90,15 @@ Route::middleware('auth')->group(function (): void {
     // everywhere else in the app — the model-level CompanyScope/
     // BelongsToCompany trait, plus CompanyPolicy::update for the company
     // steps — not a new middleware.
-    Route::prefix('onboarding')->name('onboarding.')->group(function (): void {
+    //
+    // `verified` IS new here, scoped to this group only (not the whole
+    // `auth` group above, not dashboard/login): it stops a freshly
+    // self-registered user from typing /onboarding before finishing the
+    // OTP step. Every pre-existing/factory/seeded user already has
+    // email_verified_at set, so this has zero effect on them — only an
+    // unverified new registration is ever redirected (to
+    // 'verification.notice', see EmailVerificationController) by this.
+    Route::prefix('onboarding')->name('onboarding.')->middleware('verified')->group(function (): void {
         Route::get('/', [OnboardingController::class, 'show'])->name('show');
         Route::post('/start', [OnboardingController::class, 'start'])->name('start');
         Route::put('/company', [OnboardingController::class, 'updateCompany'])->name('company.update');
