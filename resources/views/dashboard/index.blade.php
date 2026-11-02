@@ -75,25 +75,25 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-surface-container-low border-b border-outline-variant/40">
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">Tipo</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">Número</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">Cliente</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">Estado</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">Total</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">Fecha</th>
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-center">Acción</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium whitespace-nowrap">Tipo</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium whitespace-nowrap">Número</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium">Cliente</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium whitespace-nowrap">Estado</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium whitespace-nowrap">Total</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium whitespace-nowrap">Fecha</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-center whitespace-nowrap">Acción</th>
                     </tr>
                 </thead>
                 <tbody class="font-body-sm text-body-sm">
                     @forelse ($recentDocuments as $document)
                         <tr class="border-b border-outline-variant/40 last:border-b-0 hover:bg-surface-container-low transition-colors">
-                            <td class="px-lg py-md text-on-surface whitespace-nowrap">{{ $document['type'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['number'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['customer'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap"><x-ui.badge :status="$document['status']" /></td>
-                            <td class="px-lg py-md text-on-surface font-mono whitespace-nowrap">{{ $document['total'] }}</td>
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">{{ $document['date'] }}</td>
-                            <td class="px-lg py-md text-center">
+                            <td class="px-md py-md text-on-surface whitespace-nowrap">{{ $document['type'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant whitespace-nowrap">{{ $document['number'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant whitespace-normal break-words">{{ $document['customer'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant whitespace-nowrap"><x-ui.badge :status="$document['status']" /></td>
+                            <td class="px-md py-md text-on-surface font-mono whitespace-nowrap">{{ $document['total'] }}</td>
+                            <td class="px-md py-md text-on-surface-variant whitespace-nowrap">{{ $document['date'] }}</td>
+                            <td class="px-md py-md text-center whitespace-nowrap">
                                 <a href="{{ $document['href'] }}" class="icon-btn inline-flex text-on-surface-variant hover:text-primary hover:bg-surface-container-low p-xs rounded-lg" aria-label="Ver documento" title="Ver documento">
                                     <span class="material-symbols-outlined text-xl">{{ $document['icon'] }}</span>
                                 </a>

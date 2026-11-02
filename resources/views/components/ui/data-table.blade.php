@@ -7,14 +7,31 @@
             <button class="text-primary font-label-md text-label-md hover:underline" type="button">Ver todos</button>
         @endunless
     </div>
+    {{--
+        UI/UX 2.0-A follow-up: every <th>/<td> used to be whitespace-nowrap
+        unconditionally, with generous px-lg padding and no hint to the
+        browser about which columns could ever compress. A table's intrinsic
+        (auto) layout gives a non-wrapping cell exactly its content's full
+        width — stack six of those (customer name, motivo, etc.) and the
+        table's natural width blows past the viewport, so the wrapper's
+        overflow-x-auto kicks in even on a normal desktop screen.
+
+        Fix: classify each cell the same way the component already does for
+        styling (badge / money / plain text) and let ONLY plain-text cells
+        wrap. Badges and money stay compact and unbroken (a status pill or
+        "$ 283.220,00" must never wrap); free text (customer, motivo,
+        description...) is allowed to wrap, so table-layout:auto can shrink
+        those columns to fit the available width instead of forcing a
+        horizontal scrollbar. Nothing about which data is shown changes.
+    --}}
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-surface-container-lowest border-b border-surface-variant">
                     @foreach ($table['headers'] as $header)
-                        <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium whitespace-nowrap">{{ $header }}</th>
+                        <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium">{{ $header }}</th>
                     @endforeach
-                    <th class="font-label-sm text-label-sm text-on-surface-variant px-lg py-sm font-medium text-center">Acciones</th>
+                    <th class="font-label-sm text-label-sm text-on-surface-variant px-md py-sm font-medium text-center whitespace-nowrap">Acciones</th>
                 </tr>
             </thead>
             <tbody class="font-body-sm text-body-sm">
@@ -22,17 +39,19 @@
                     @php($isStructuredRow = is_array($row) && array_key_exists('cells', $row))
                     <tr class="border-b border-surface-variant last:border-b-0 hover:bg-surface-container-low transition-colors">
                         @foreach (($isStructuredRow ? $row['cells'] : $row) as $cell)
-                            <td class="px-lg py-md text-on-surface-variant whitespace-nowrap">
-                                @if (in_array($cell, ['Validada', 'Pendiente', 'Con error', 'Anulada', 'Activo', 'Por validar', 'Finalizada', 'En revisión', 'Borrador', 'Correcto', 'Aprobada', 'Registrada', 'Respondida', 'Inactivo', 'Descontinuado', 'Vigente', 'Por vencer', 'Agotada', 'Inactiva'], true))
+                            @php($isBadge = in_array($cell, ['Validada', 'Pendiente', 'Con error', 'Anulada', 'Activo', 'Por validar', 'Finalizada', 'En revisión', 'Borrador', 'Correcto', 'Aprobada', 'Registrada', 'Respondida', 'Inactivo', 'Descontinuado', 'Vigente', 'Por vencer', 'Agotada', 'Inactiva'], true))
+                            @php($isMoney = is_string($cell) && str_starts_with($cell, '$'))
+                            <td class="px-md py-md text-on-surface-variant {{ $isBadge || $isMoney ? 'whitespace-nowrap' : 'whitespace-normal break-words' }}">
+                                @if ($isBadge)
                                     <x-ui.badge :status="$cell" />
-                                @elseif (is_string($cell) && str_starts_with($cell, '$'))
+                                @elseif ($isMoney)
                                     <span class="font-mono text-on-surface">{{ $cell }}</span>
                                 @else
                                     {{ $cell }}
                                 @endif
                             </td>
                         @endforeach
-                        <td class="px-lg py-md text-center">
+                        <td class="px-md py-md text-center whitespace-nowrap">
                             @if ($isStructuredRow && ! empty($row['actions']))
                                 <div class="flex items-center justify-center gap-xs">
                                     @foreach ($row['actions'] as $action)
