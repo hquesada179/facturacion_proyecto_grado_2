@@ -114,7 +114,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-lg">
+    <div data-tour-target="invoice-document" class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-lg">
         <x-ui.data-table :table="[
             'title' => 'Productos y servicios',
             'headers' => ['Descripción', 'Cantidad', 'Valor unitario', 'Impuestos', 'Total línea'],

@@ -21,9 +21,7 @@
         >
             <span class="material-symbols-outlined" data-theme-icon>dark_mode</span>
         </button>
-        <button class="icon-btn p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all" type="button" aria-label="Ayuda">
-            <span class="material-symbols-outlined">help_outline</span>
-        </button>
+        <x-help-center />
     </div>
 </header>
 

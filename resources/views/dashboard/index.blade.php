@@ -12,6 +12,7 @@
 @endphp
 
 <x-layouts.app title="Dashboard" active="dashboard" wide>
+    <div data-tour-target="dashboard-main">
     <x-page-header
         eyebrow="Inicio"
         title="{{ $greeting }}, {{ $greetingFirstName }}"
@@ -19,7 +20,7 @@
     >
         <x-slot:actions>
             @can('manage-invoicing')
-                <a href="{{ route('invoices.create.customer') }}" class="bg-primary text-on-primary rounded-lg px-lg py-sm flex items-center gap-sm font-label-md text-label-md font-semibold shadow-hover">
+                <a href="{{ route('invoices.create.customer') }}" data-tour-target="new-invoice" class="bg-primary text-on-primary rounded-lg px-lg py-sm flex items-center gap-sm font-label-md text-label-md font-semibold shadow-hover">
                     <span class="material-symbols-outlined text-[17px]">add_circle</span>
                     Nueva factura
                 </a>
@@ -33,6 +34,8 @@
             Estás viendo únicamente los documentos asociados a tu usuario facturador.
         </div>
     @endif
+
+    <x-onboarding-checklist :checklist="$checklist" />
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-sm mb-lg">
         @foreach ($metrics as $metric)
@@ -96,4 +99,5 @@
             ],
         ])->all(),
     ]" />
+    </div>
 </x-layouts.app>

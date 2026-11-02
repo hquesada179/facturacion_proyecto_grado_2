@@ -14,6 +14,7 @@ use App\Http\Controllers\Invoices\InvoiceDraftController;
 use App\Http\Controllers\Invoices\InvoiceDraftValidationController;
 use App\Http\Controllers\Invoices\InvoicePdfController;
 use App\Http\Controllers\Invoices\InvoiceValidationController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PrototypeController;
@@ -57,6 +58,28 @@ Route::get('/verificar-documento/{token}', [DocumentVerificationController::clas
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    // Onboarding wizard — reachable manually only for now (no automatic
+    // post-login redirect yet, see OnboardingController's own class
+    // comment). Not a mega-route: each step is its own thin action, all
+    // persistence delegates to the real Company/Customer/ProductService
+    // FormRequests and Services already used by Configuración/Clientes/
+    // Productos. company_id isolation is enforced the same way it is
+    // everywhere else in the app — the model-level CompanyScope/
+    // BelongsToCompany trait, plus CompanyPolicy::update for the company
+    // steps — not a new middleware.
+    Route::prefix('onboarding')->name('onboarding.')->group(function (): void {
+        Route::get('/', [OnboardingController::class, 'show'])->name('show');
+        Route::post('/start', [OnboardingController::class, 'start'])->name('start');
+        Route::put('/company', [OnboardingController::class, 'updateCompany'])->name('company.update');
+        Route::put('/billing', [OnboardingController::class, 'updateBilling'])->name('billing.update');
+        Route::post('/customer', [OnboardingController::class, 'storeCustomer'])->name('customer.store');
+        Route::post('/customer/demo', [OnboardingController::class, 'demoCustomer'])->name('customer.demo');
+        Route::post('/product', [OnboardingController::class, 'storeProduct'])->name('product.store');
+        Route::post('/product/demo', [OnboardingController::class, 'demoProduct'])->name('product.demo');
+        Route::post('/data/continue', [OnboardingController::class, 'continueFromData'])->name('data.continue');
+        Route::post('/complete', [OnboardingController::class, 'complete'])->name('complete');
+    });
 
     Route::get('/reportes', [ReportsController::class, 'index'])
         ->middleware('can:view-reports')

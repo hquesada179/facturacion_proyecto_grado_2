@@ -22,7 +22,7 @@
         )->toScale(2, \Brick\Math\RoundingMode::HalfEven);
     @endphp
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
+    <div data-tour-target="invoice-summary" class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-soft border border-outline-variant/40">
             <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Subtotal</p>
             <p class="font-title-lg text-title-lg text-on-surface font-mono">{{ \App\Support\ReportFormatter::money($invoice->subtotal) }}</p>

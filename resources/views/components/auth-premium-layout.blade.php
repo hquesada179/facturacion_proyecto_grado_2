@@ -13,6 +13,12 @@
     The left visual composition reuses <x-landing.dashboard-mockup />
     as-is — the same approved component already shown on the public
     landing — instead of duplicating its markup here.
+
+    UI/UX 3.2 — three optional named slots (brandHeadline/brandSubtitle/
+    brandVisual) let the onboarding wizard reuse this exact shell with
+    its own step list instead of the dashboard mockup, without a second
+    parallel layout component. Login/password screens pass none of
+    these, so their rendered output is byte-for-byte unchanged.
 --}}
 <div class="auth-premium">
     {{-- Desktop/tablet brand panel --}}
@@ -29,13 +35,26 @@
                 </div>
             </div>
 
-            <h1 class="auth-premium-headline" data-reveal style="transition-delay:110ms">Tu facturación, <em class="text-brand-gold not-italic">bajo control.</em></h1>
-            <p class="font-body-md text-body-md text-white/80 max-w-[28rem] mb-xl" data-reveal style="transition-delay:200ms">Centraliza facturación simulada, trazabilidad documental y un asistente IA contextual — todo en un solo lugar, pensado para tu empresa.</p>
+            @isset($brandHeadline)
+                {{ $brandHeadline }}
+            @else
+                <h1 class="auth-premium-headline" data-reveal style="transition-delay:110ms">Tu facturación, <em class="text-brand-gold not-italic">bajo control.</em></h1>
+            @endisset
+
+            @isset($brandSubtitle)
+                {{ $brandSubtitle }}
+            @else
+                <p class="font-body-md text-body-md text-white/80 max-w-[28rem] mb-xl" data-reveal style="transition-delay:200ms">Centraliza facturación simulada, trazabilidad documental y un asistente IA contextual — todo en un solo lugar, pensado para tu empresa.</p>
+            @endisset
         </div>
 
-        <div class="auth-premium-visual" data-reveal style="transition-delay:300ms">
-            <x-landing.dashboard-mockup />
-        </div>
+        @isset($brandVisual)
+            {{ $brandVisual }}
+        @else
+            <div class="auth-premium-visual" data-reveal style="transition-delay:300ms">
+                <x-landing.dashboard-mockup />
+            </div>
+        @endisset
 
         <p class="auth-premium-disclaimer" data-reveal style="transition-delay:400ms">Prototipo académico · Documentos de prueba sin validez tributaria</p>
     </aside>

@@ -25,7 +25,7 @@
         @endif
     </section>
 
-    <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
+    <section data-tour-target="invoice-customer" class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Seleccionar cliente existente</h3>
         <label class="block mb-sm">
             <span class="block font-label-md text-label-md text-on-surface mb-xs">Buscar por nombre, documento o correo</span>

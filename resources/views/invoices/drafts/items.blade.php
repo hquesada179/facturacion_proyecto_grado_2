@@ -3,7 +3,7 @@
 
     <x-invoice-stepper :current="2" :invoice="$invoice" />
 
-    <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
+    <section data-tour-target="invoice-items" class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Agregar producto o servicio</h3>
         <form method="POST" action="{{ route('invoices.draft.items.store', $invoice) }}" class="space-y-md">
             @csrf

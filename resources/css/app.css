@@ -862,6 +862,59 @@
     color: rgba(255, 255, 255, 0.55);
 }
 
+/* Onboarding wizard's step list — passed into auth-premium-layout's
+   brandVisual slot instead of the dashboard mockup. Same navy/gold
+   language as the rest of the brand panel, no new tokens. */
+.auth-premium-wizard-steps {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.auth-premium-wizard-step {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-xs);
+    border-radius: var(--radius-lg);
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.auth-premium-wizard-step .dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-premium-wizard-step.done {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.auth-premium-wizard-step.done .dot {
+    background: var(--color-brand-gold);
+    color: var(--color-primary);
+}
+
+.auth-premium-wizard-step.current {
+    color: #fff;
+    font-weight: 700;
+}
+
+.auth-premium-wizard-step.current .dot {
+    background: #fff;
+    color: var(--color-primary);
+}
+
 /* Compact mobile brand header — replaces the full visual composition
    below 860px with a short navy band, never the full dashboard mockup
    (keeps the mobile scroll short, per the approved mockup). */
@@ -1145,6 +1198,708 @@
     margin-top: 2.25rem;
     font-size: 12.5px;
     color: var(--color-on-surface-variant);
+}
+
+/* ============================================================
+   ONBOARDING WIZARD — field groups, demo/own-data choice, mini
+   summary cards. Reuses every existing .auth-premium-* token/class
+   (field/label/input/submit/error already defined above); this block
+   only adds what those screens need on top: a responsive field grid,
+   required/optional badges, the demo-vs-own-data choice cards and the
+   small read-only summary cards. */
+.auth-premium-fieldgroup {
+    margin-bottom: var(--spacing-lg);
+}
+
+.auth-premium-fieldgroup-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-on-surface);
+    margin: 0 0 var(--spacing-md);
+}
+
+.auth-premium-fieldgroup-title .material-symbols-outlined {
+    font-size: 16px;
+    color: var(--color-primary);
+}
+
+.auth-premium-fieldgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.auth-premium-fieldgrid .span2 {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+    .auth-premium-fieldgrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.auth-premium-req,
+.auth-premium-opt {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 999px;
+    margin-left: var(--spacing-xs);
+}
+
+.auth-premium-req {
+    color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-brand-gold) 20%, transparent);
+}
+
+:root[data-theme='dark'] .auth-premium-req {
+    color: var(--color-brand-gold);
+}
+
+.auth-premium-opt {
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-container-low);
+    opacity: 0.8;
+}
+
+.auth-premium-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    background-color: var(--color-warning-soft);
+    color: var(--color-warning-soft-foreground);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-top: var(--spacing-xs);
+}
+
+.auth-premium-data-choice {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 640px) {
+    .auth-premium-data-choice {
+        flex-direction: column;
+    }
+}
+
+.auth-premium-data-option {
+    flex: 1;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--color-outline-variant);
+    cursor: pointer;
+    background: var(--color-surface-container-lowest);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.auth-premium-data-option.selected {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 5%, var(--color-surface-container-lowest));
+}
+
+.auth-premium-data-option-top {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: 4px;
+}
+
+.auth-premium-data-option-top .material-symbols-outlined {
+    font-size: 17px;
+    color: var(--color-primary);
+}
+
+.auth-premium-data-option-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+}
+
+.auth-premium-data-radio {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid var(--color-outline-variant);
+    flex-shrink: 0;
+    margin-left: auto;
+    position: relative;
+}
+
+.auth-premium-data-option.selected .auth-premium-data-radio {
+    border-color: var(--color-primary);
+}
+
+.auth-premium-data-option.selected .auth-premium-data-radio::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 999px;
+    background: var(--color-primary);
+}
+
+.auth-premium-data-option-desc {
+    font-size: 11.5px;
+    color: var(--color-on-surface-variant);
+    line-height: 1.4;
+}
+
+.auth-premium-mini-card {
+    border: 1.5px solid var(--color-outline-variant);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    background: var(--color-surface-container-lowest);
+}
+
+.auth-premium-mini-card-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--color-outline-variant);
+    gap: var(--spacing-md);
+}
+
+.auth-premium-mini-card-row:last-child {
+    border-bottom: none;
+}
+
+.auth-premium-mini-card-row .k {
+    color: var(--color-on-surface-variant);
+}
+
+.auth-premium-mini-card-row .v {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+/* ---------- step 5 "done" summary ---------- */
+.onboarding-complete-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 999px;
+    background: var(--color-success-soft);
+    color: var(--color-success-soft-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-lg);
+}
+
+.onboarding-complete-icon .material-symbols-outlined {
+    font-size: 32px;
+}
+
+.onboarding-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    text-align: left;
+}
+
+.onboarding-summary-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-container-lowest);
+    border: 1.5px solid var(--color-outline-variant);
+}
+
+.onboarding-summary-item .ic {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--color-success-soft);
+    color: var(--color-success-soft-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.onboarding-summary-item .ic .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.onboarding-summary-item .t {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    display: block;
+}
+
+.onboarding-summary-item .s {
+    font-size: 11.5px;
+    color: var(--color-on-surface-variant);
+}
+
+/* ============================================================
+   CHECKLIST ("Primeros pasos") — lives on the dashboard, uses the same
+   surface-card + navy/gold language as everything else, not a new
+   visual system. */
+.onboarding-checklist {
+    position: relative;
+}
+
+.onboarding-checklist.hidden-state {
+    display: none;
+}
+
+.onboarding-checklist-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.onboarding-checklist-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.onboarding-checklist-title .material-symbols-outlined {
+    font-size: 17px;
+    color: var(--color-primary);
+}
+
+.onboarding-checklist-title h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.onboarding-checklist-count {
+    font-size: 11.5px;
+    color: var(--color-on-surface-variant);
+    font-weight: 600;
+}
+
+.onboarding-checklist-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.onboarding-checklist-link {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-on-surface-variant);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.onboarding-checklist-link:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-container-low);
+}
+
+.onboarding-checklist-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-outline-variant);
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+}
+
+.onboarding-checklist-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-brand-gold));
+    transition: width 0.5s cubic-bezier(.22, .9, .3, 1);
+}
+
+.onboarding-checklist-items {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-sm);
+}
+
+@media (max-width: 1023px) {
+    .onboarding-checklist-items {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 639px) {
+    .onboarding-checklist-items {
+        grid-template-columns: 1fr;
+    }
+}
+
+.onboarding-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 11.5px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-container-low);
+    color: var(--color-on-surface);
+}
+
+.onboarding-checklist-item.done {
+    color: var(--color-on-surface-variant);
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.onboarding-checklist-item .chk {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--color-outline-variant);
+}
+
+.onboarding-checklist-item.done .chk {
+    background: var(--color-success-soft-foreground);
+    border-color: var(--color-success-soft-foreground);
+}
+
+.onboarding-checklist-item.done .chk .material-symbols-outlined {
+    font-size: 10px;
+    color: #fff;
+}
+
+.onboarding-checklist-item .chk .material-symbols-outlined {
+    font-size: 10px;
+}
+
+.onboarding-checklist-banner {
+    display: none;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    background: var(--color-success-soft);
+    color: var(--color-success-soft-foreground);
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-top: var(--spacing-sm);
+}
+
+.onboarding-checklist-banner.show {
+    display: flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .onboarding-checklist-bar > span {
+        transition: none;
+    }
+}
+
+/* ============================================================
+   HELP CENTER — same popover pattern as notification-center.blade.php
+   (button + absolutely-positioned panel toggled by a data attribute). */
+.help-center-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: var(--spacing-sm);
+    width: 300px;
+    max-width: 90vw;
+    background: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    z-index: 50;
+}
+
+.help-center-panel.open {
+    display: block;
+}
+
+.help-center-panel-head {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-outline-variant);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+}
+
+.help-center-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    border: none;
+    border-bottom: 1px solid var(--color-outline-variant);
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease;
+}
+
+.help-center-item:last-child {
+    border-bottom: none;
+}
+
+.help-center-item:hover,
+.help-center-item:focus-visible {
+    background: var(--color-surface-container-low);
+}
+
+.help-center-item .material-symbols-outlined {
+    font-size: 17px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.help-center-item .chev {
+    margin-left: auto;
+    font-size: 15px !important;
+    color: var(--color-outline);
+}
+
+.help-center-about {
+    display: none;
+    padding: 0 var(--spacing-md) var(--spacing-md);
+    font-size: 11.5px;
+    color: var(--color-on-surface-variant);
+    line-height: 1.5;
+}
+
+.help-center-about.open {
+    display: block;
+}
+
+/* ============================================================
+   PRODUCT TOUR — spotlight + popover, injected by resources/js/tour.js.
+   Fixed positioning against the real viewport (not a simulated frame
+   like the Artifact's device preview), recalculated on resize/scroll by
+   the JS. The box-shadow spotlight trick needs no image masking and no
+   extra library. */
+.tour-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    pointer-events: none;
+}
+
+.tour-spotlight {
+    position: fixed;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(4, 12, 25, 0.5);
+    transition: top 0.3s cubic-bezier(.22, .9, .3, 1), left 0.3s cubic-bezier(.22, .9, .3, 1), width 0.3s cubic-bezier(.22, .9, .3, 1), height 0.3s cubic-bezier(.22, .9, .3, 1), opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.tour-popover {
+    position: fixed;
+    z-index: 9001;
+    width: 300px;
+    max-width: calc(100vw - 32px);
+    background: var(--color-surface-container-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 50px -16px rgba(0, 0, 0, 0.4);
+    padding: var(--spacing-md);
+    pointer-events: auto;
+    transition: top 0.3s cubic-bezier(.22, .9, .3, 1), left 0.3s cubic-bezier(.22, .9, .3, 1);
+}
+
+.tour-popover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 18px;
+    right: 18px;
+    height: 2.5px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-brand-gold));
+}
+
+.tour-popover-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+}
+
+.tour-popover-progress {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+:root[data-theme='dark'] .tour-popover-progress {
+    color: var(--color-brand-gold);
+}
+
+.tour-popover-skip {
+    font-size: 11px;
+    color: var(--color-on-surface-variant);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.tour-popover-skip:hover {
+    color: var(--color-primary);
+}
+
+.tour-popover-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    margin: 0 0 6px;
+}
+
+.tour-popover-text {
+    font-size: 12.5px;
+    color: var(--color-on-surface-variant);
+    line-height: 1.5;
+    margin: 0 0 var(--spacing-md);
+}
+
+.tour-popover-bar {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-outline-variant);
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+}
+
+.tour-popover-bar > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-brand-gold));
+    border-radius: 999px;
+}
+
+.tour-popover-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tour-popover-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+}
+
+.tour-popover-btn .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.tour-popover-btn.primary {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.tour-popover-btn.primary:hover {
+    background: var(--color-primary-container);
+}
+
+.tour-popover-btn.ghost {
+    background: none;
+    color: var(--color-on-surface-variant);
+}
+
+.tour-popover-btn.ghost:hover {
+    color: var(--color-primary);
+}
+
+.tour-popover-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.tour-done-card {
+    position: fixed;
+    z-index: 9002;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    background: var(--color-surface-container-lowest);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.4);
+    padding: var(--spacing-xl);
+    text-align: center;
+}
+
+.tour-done-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    background: var(--color-success-soft);
+    color: var(--color-success-soft-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md);
+}
+
+.tour-done-icon .material-symbols-outlined {
+    font-size: 26px;
+}
+
+.tour-done-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 var(--spacing-sm);
+    color: var(--color-on-surface);
+}
+
+.tour-done-sub {
+    font-size: 12.5px;
+    color: var(--color-on-surface-variant);
+    margin: 0 0 var(--spacing-lg);
+    line-height: 1.5;
+}
+
+.tour-done-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tour-spotlight,
+    .tour-popover {
+        transition: none !important;
+    }
 }
 
 /* Entrance: fade + rise, staggered via inline transition-delay. Scoped

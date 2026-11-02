@@ -59,6 +59,8 @@ class Company extends Model
             'simulation_enabled' => 'boolean',
             'is_test_environment' => 'boolean',
             'fiscal_responsibilities' => 'array',
+            'onboarding_started_at' => 'datetime',
+            'onboarding_completed_at' => 'datetime',
         ];
     }
 

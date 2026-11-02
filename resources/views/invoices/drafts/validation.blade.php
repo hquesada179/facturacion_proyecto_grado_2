@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <section class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
+    <section data-tour-target="invoice-validation" class="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant/40 p-lg mb-lg">
         <h3 class="font-title-lg text-title-lg text-on-surface mb-md">Resultados de validación</h3>
         <div class="space-y-sm">
             @forelse ($validation->all() as $result)
