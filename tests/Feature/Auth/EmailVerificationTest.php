@@ -145,6 +145,23 @@ class EmailVerificationTest extends TestCase
         $this->assertSame(1, EmailVerificationCode::where('user_id', $user->id)->count());
     }
 
+    public function test_resend_generates_a_brand_new_code_with_a_different_hash(): void
+    {
+        Mail::fake();
+        $user = $this->unverifiedUser();
+        $this->issueCodeFor($user);
+        $oldHash = EmailVerificationCode::where('user_id', $user->id)->latest('id')->first()->code_hash;
+
+        $this->travel(EmailVerificationService::RESEND_COOLDOWN_SECONDS + 1)->seconds();
+        $this->actingAs($user)->post(route('verification.send'))->assertRedirect(route('verification.notice'));
+
+        $newRecord = EmailVerificationCode::where('user_id', $user->id)->latest('id')->first();
+
+        $this->assertNotSame($oldHash, $newRecord->code_hash);
+        $this->assertFalse($newRecord->expires_at->isPast());
+        Mail::assertSentTimes(EmailVerificationCodeMail::class, 1);
+    }
+
     public function test_resend_is_blocked_during_the_visible_cooldown(): void
     {
         Mail::fake();
@@ -236,6 +253,49 @@ class EmailVerificationTest extends TestCase
         $user = User::factory()->for($company)->administrador()->create();
 
         $this->actingAs($user)->get(route('onboarding.show'))->assertOk();
+    }
+
+    public function test_a_verified_user_is_never_asked_for_the_otp_again(): void
+    {
+        $user = $this->unverifiedUser();
+        $code = $this->issueCodeFor($user);
+
+        $this->actingAs($user)->post(route('verification.verify'), ['code' => $code]);
+        $this->assertNotNull($user->refresh()->email_verified_at);
+
+        // Immediately after verifying: the one-time "Correo verificado"
+        // success state (not the OTP form) — see the otp_just_verified
+        // session flag in EmailVerificationController::notice().
+        $this->actingAs($user)->get(route('verification.notice'))
+            ->assertOk()
+            ->assertSee('Correo verificado');
+
+        // Any later visit — the flash is gone, the OTP form must never
+        // reappear. The user is bounced straight to onboarding instead.
+        $this->actingAs($user)->get(route('verification.notice'))
+            ->assertRedirect(route('onboarding.show'));
+    }
+
+    public function test_registration_persists_a_hashed_otp_row_for_the_new_user(): void
+    {
+        Mail::fake();
+
+        $this->post(route('register'), [
+            'name' => 'Carlos Pérez',
+            'email' => 'carlos.perez@example.com',
+            'password' => 'correct-password',
+            'password_confirmation' => 'correct-password',
+            'terms' => '1',
+        ]);
+
+        $user = User::where('email', 'carlos.perez@example.com')->first();
+        $this->assertNotNull($user);
+
+        $record = EmailVerificationCode::where('user_id', $user->id)->latest('id')->first();
+        $this->assertNotNull($record, 'El registro debió generar un código OTP.');
+        $this->assertFalse($record->expires_at->isPast());
+        $this->assertSame(0, $record->attempts);
+        $this->assertNull($record->used_at);
     }
 
     /**
