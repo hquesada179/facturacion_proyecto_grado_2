@@ -31,6 +31,9 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="AI_ENABLED" value="false" force="true"/>
         <env name="AI_PROVIDER" value="local" force="true"/>
+        <env name="WHATSAPP_BRIDGE_ENABLED" value="false" force="true"/>
+        <env name="WHATSAPP_BRIDGE_SECRET" value="testing-whatsapp-bridge-secret" force="true"/>
+        <env name="WHATSAPP_BRIDGE_MAX_SKEW" value="300" force="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

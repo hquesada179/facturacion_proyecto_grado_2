@@ -108,4 +108,9 @@ class Company extends Model
     {
         return $this->hasMany(AssistantConversation::class);
     }
+
+    public function whatsappConnections(): HasMany
+    {
+        return $this->hasMany(WhatsappConnection::class);
+    }
 }

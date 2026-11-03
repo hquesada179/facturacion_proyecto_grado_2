@@ -25,6 +25,7 @@ use App\Http\Controllers\Settings\BillingSettingsController;
 use App\Http\Controllers\Settings\CompanyController;
 use App\Http\Controllers\Settings\NumberingResolutionController;
 use App\Http\Controllers\Settings\TaxController;
+use App\Http\Controllers\Settings\WhatsappIntegrationController;
 use App\Http\Controllers\TraceabilityController;
 use App\Models\CreditNote;
 use App\Support\PrototypeScreens;
@@ -181,6 +182,22 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/configuracion/facturacion-impuestos/impuestos/{tax}/estado', [TaxController::class, 'toggle'])
         ->middleware('can:manage-taxes')
         ->name('settings.billing.taxes.toggle');
+
+    // Integraciones > WhatsApp (Fase 1) — gated by `use-assistant` (any
+    // role that can already use the web assistant), not `manage-company`:
+    // this links the authenticated user's OWN WhatsApp, it is not a
+    // company-wide administrative setting. The actual inbound-message
+    // bridge VYA calls lives separately in routes/api.php, authenticated
+    // by HMAC instead of a web session — never this route group.
+    Route::get('/configuracion/integraciones/whatsapp', [WhatsappIntegrationController::class, 'show'])
+        ->middleware('can:use-assistant')
+        ->name('settings.integrations.whatsapp');
+    Route::post('/configuracion/integraciones/whatsapp/codigo', [WhatsappIntegrationController::class, 'generateCode'])
+        ->middleware(['can:use-assistant', 'throttle:whatsapp-link-code'])
+        ->name('settings.integrations.whatsapp.link');
+    Route::post('/configuracion/integraciones/whatsapp/desvincular', [WhatsappIntegrationController::class, 'revoke'])
+        ->middleware('can:use-assistant')
+        ->name('settings.integrations.whatsapp.unlink');
 
     Route::get('/clientes', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/clientes/nuevo', [CustomerController::class, 'create'])

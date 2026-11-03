@@ -43,6 +43,7 @@ final class PrototypeScreens
         return [
             ['label' => 'Datos de empresa', 'route' => 'settings.company'],
             ['label' => 'Facturación e impuestos', 'route' => 'settings.billing'],
+            ['label' => 'Integraciones', 'route' => 'settings.integrations.whatsapp'],
             ['label' => 'Usuarios', 'route' => 'settings.users'],
             ['label' => 'Seguridad', 'route' => 'settings.security'],
             ['label' => 'Preferencias', 'route' => 'settings.preferences'],

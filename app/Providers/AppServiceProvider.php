@@ -136,6 +136,24 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by((string) ($request->user()?->id ?? $request->ip()));
         });
 
+        // WhatsApp bridge (Fase 1): keyed by the inbound wa_id (read
+        // straight from the request body — this route has no
+        // authenticated user) rather than IP, so one busy WhatsApp
+        // number can never exhaust the shared cap for every number
+        // behind the same VYA deployment. Falls back to IP only if the
+        // body genuinely has no wa_id (malformed request).
+        RateLimiter::for('whatsapp-bridge', function (Request $request): Limit {
+            return Limit::perMinute(20)->by('wa:'.((string) $request->input('wa_id') ?: $request->ip()));
+        });
+
+        // Link-code generation: a real authenticated web user, rate
+        // limited the same way otp-resend is — a tight cap on top of
+        // WhatsappLinkService's own "generating a new code deletes the
+        // previous pending one" behaviour.
+        RateLimiter::for('whatsapp-link-code', function (Request $request): Limit {
+            return Limit::perMinutes(10, 3)->by('whatsapp-link-code:'.($request->user()?->id ?? $request->ip()));
+        });
+
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(CreditNote::class, CreditNotePolicy::class);
         Gate::policy(NumberingResolution::class, NumberingResolutionPolicy::class);

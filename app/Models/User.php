@@ -70,6 +70,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(AssistantConversation::class);
     }
 
+    public function whatsappConnections(): HasMany
+    {
+        return $this->hasMany(WhatsappConnection::class);
+    }
+
     public function isAdministrador(): bool
     {
         return $this->role === UserRole::Administrador;
